@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ConsoleComponent } from './console.component';
-import { provideConsoleForge } from '@/config/provide-console-forge';
+// import { ComponentFixture, TestBed } from '@angular/core/testing';
+// import { ConsoleComponent } from './console.component';
+// import { provideConsoleForge } from '@/config/provide-console-forge';
 
 // describe('ConsoleComponent', () => {
 //   let component: ConsoleComponent;

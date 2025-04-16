@@ -1,16 +1,15 @@
-import { AfterViewInit, Component, computed, effect, ElementRef, inject, input, Signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, ElementRef, inject, input, viewChild, ViewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
 import { ConsoleClientService } from '@/services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '@/services/console-clients/console-client-factory.service';
 import { ConsoleForgeConfig } from '@/config/console-forge-config';
 import { UuidService } from '@/services/uuid.service';
 import { LoggerService } from '@/services/logger.service';
-import { LogLevel } from '@/models/log-level';
 
 @Component({
   selector: 'cf-console',
-  imports: [],
   templateUrl: './console.component.html',
+  standalone: true,
   styleUrl: './console.component.scss'
 })
 export class ConsoleComponent implements AfterViewInit {
@@ -26,7 +25,7 @@ export class ConsoleComponent implements AfterViewInit {
   private uuids = inject(UuidService);
 
   // viewkids
-  @ViewChild("consoleHost") consoleHostElement?: ElementRef;
+  protected consoleHostElement = viewChild.required<ElementRef<HTMLElement>>("consoleHost");
 
   // other component state
   protected readonly consoleHostElementId = this.uuids.get();
@@ -35,25 +34,20 @@ export class ConsoleComponent implements AfterViewInit {
     // we use an effect here because we want to allow the use case of reusing a single console component
     // for multiple console connections. I will 100% regret and delete this at some point.
     effect(() => {
-      if (!this.config()) {
+      if (!this.config() || !this.consoleHostElement()) {
         return;
       }
       // note that even though `connect` is async, we don't invoke it asynchronously here. This is because
       // effects are _supposed_ to be synchronous, and making them async can cause Angular to ignore the
       // execution completely. If we care about this, we should set up a cancellation pattern on connect() below.
-      this.connect(this.config());
+      this.connect(this.config(), this.consoleHostElement());
     });
   }
 
   public ngAfterViewInit(): void {
   }
 
-  private async connect(config: ConsoleComponentConfig) {
-    if (!this.consoleHostElement?.nativeElement?.id) {
-      this.logger.log(LogLevel.WARNING, "Couldn't connect the console. This might be normal; no idea.");
-      return;
-    }
-
+  private async connect(config: ConsoleComponentConfig, hostElement: ElementRef<HTMLElement>) {
     if (this.consoleClient) {
       await this.consoleClient.disconnect();
     }
@@ -71,7 +65,7 @@ export class ConsoleComponent implements AfterViewInit {
     // connect
     this.consoleClient = this.consoleClientFactory.get(clientType);
     await this.consoleClient.connect(config.url, {
-      hostElementId: this.consoleHostElement.nativeElement.id,
+      hostElementId: hostElement.nativeElement.id,
       isViewOnly: config.isViewOnly
     });
   }

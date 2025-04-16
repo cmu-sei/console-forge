@@ -6,6 +6,8 @@ import { ConsoleForgeConfig } from '../config/console-forge-config';
 export class LoggerService {
   private libConfig = inject(ConsoleForgeConfig);
 
+  // allow any here to mirror standard console.log behavior
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
   log(logLevel: LogLevel, message: string, ...addl: any[]): void {
     if (logLevel >= this.libConfig.logThreshold) {
       console.log(message, ...addl);
