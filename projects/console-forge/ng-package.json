@@ -3,5 +3,6 @@
   "dest": "../../dist/console-forge",
   "lib": {
     "entryFile": "src/public-api.ts"
-  }
+  },
+  "assets": ["./LICENSE.md"]
 }

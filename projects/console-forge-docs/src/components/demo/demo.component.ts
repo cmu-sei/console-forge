@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ConsoleComponent } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig } from 'console-forge';
 
 @Component({
   selector: 'app-demo',
@@ -10,5 +10,8 @@ import { ConsoleComponent } from 'console-forge';
   styleUrl: './demo.component.scss'
 })
 export class DemoComponent {
-
+  protected cfConfig: ConsoleComponentConfig = {
+    consoleClientType: "vnc",
+    url: "https://google.com"
+  }
 }

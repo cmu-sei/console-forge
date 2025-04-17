@@ -1,4 +1,8 @@
 export interface ConsoleConnectionOptions {
-    hostElementId: string;
+    credentials?: {
+        password?: string;
+        username?: string;
+    }
+    hostElement: HTMLElement;
     isViewOnly?: boolean;
 }

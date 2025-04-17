@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { NoVncClient } from "@novnc/novnc"
 import { ConsoleClientService } from './console-client.service';
 import { ConsoleConnectionStatus } from '@/models/console-connection-status';
 import { LoggerService } from '../logger.service';
@@ -12,8 +13,17 @@ export class VncConsoleClientService implements ConsoleClientService {
   // injected services
   private readonly logger = inject(LoggerService);
 
-  connect(url: string): Promise<void> {
+  // the actual client from @novnc/novnc
+  private noVncClient?: NoVncClient;
+
+  async connect(url: string): Promise<void> {
     try {
+      // this.rfbInstance = new RFB(canvasElement, url, {
+      //   credentials: {
+      //     username: '', password: ''
+      //   }
+      // };
+
       this._connectionStatus.update(() => "connecting");
       // do some cool connection stuff
       this.logger.log(LogLevel.DEBUG, "Connecting to", url);

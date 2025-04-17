@@ -3,3 +3,4 @@
  */
 
 export * from "./lib/components/console/console.component";
+export * from "./lib/components/console/console-component-config";

@@ -1,33 +1,40 @@
-import { AfterViewInit, Component, computed, effect, ElementRef, inject, input, viewChild, ViewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
 import { ConsoleClientService } from '@/services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '@/services/console-clients/console-client-factory.service';
 import { ConsoleForgeConfig } from '@/config/console-forge-config';
 import { UuidService } from '@/services/uuid.service';
 import { LoggerService } from '@/services/logger.service';
+import { ConsoleToolbarComponent } from '../console-toolbar/console-toolbar.component';
+import { FullScreenService } from '@/services/full-screen.service';
 
 @Component({
   selector: 'cf-console',
-  templateUrl: './console.component.html',
   standalone: true,
-  styleUrl: './console.component.scss'
+  imports: [
+    ConsoleToolbarComponent
+  ],
+  styleUrl: './console.component.scss',
+  templateUrl: './console.component.html',
 })
-export class ConsoleComponent implements AfterViewInit {
+export class ConsoleComponent {
   // component I/O
   config = input.required<ConsoleComponentConfig>();
   status = computed(() => this.consoleClient?.connectionStatus());
 
   // services
-  private consoleClient!: ConsoleClientService;
   private consoleClientFactory = inject(ConsoleClientFactoryService);
   private consoleForgeConfig = inject(ConsoleForgeConfig);
+  private fullscreen = inject(FullScreenService);
   private logger = inject(LoggerService);
   private uuids = inject(UuidService);
 
   // viewkids
+  protected componentContainer = viewChild.required<ElementRef<HTMLElement>>("componentContainer");
   protected consoleHostElement = viewChild.required<ElementRef<HTMLElement>>("consoleHost");
 
   // other component state
+  protected consoleClient!: ConsoleClientService;
   protected readonly consoleHostElementId = this.uuids.get();
 
   constructor() {
@@ -44,7 +51,17 @@ export class ConsoleComponent implements AfterViewInit {
     });
   }
 
-  public ngAfterViewInit(): void {
+  protected async handleFullscreen(): Promise<void> {
+    if (!this.consoleHostElement()) {
+      throw new Error("Can't manipulate fullscreen - can't find the host.");
+    }
+
+    if (!this.fullscreen.isAvailable()) {
+      await this.fullscreen.exitFullscreen();
+    }
+    else {
+      await this.fullscreen.tryFullscreen(this.componentContainer().nativeElement);
+    }
   }
 
   private async connect(config: ConsoleComponentConfig, hostElement: ElementRef<HTMLElement>) {

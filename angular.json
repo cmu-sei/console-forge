@@ -8,6 +8,11 @@
       "root": "projects/console-forge",
       "sourceRoot": "projects/console-forge/src",
       "prefix": "cf",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
@@ -50,9 +55,7 @@
             "outputPath": "dist/console-forge-docs",
             "index": "projects/console-forge-docs/src/index.html",
             "browser": "projects/console-forge-docs/src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "projects/console-forge-docs/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -109,10 +112,7 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "projects/console-forge-docs/tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [

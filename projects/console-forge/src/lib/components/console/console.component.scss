@@ -1,11 +1,22 @@
 :host {
-  aspect-ratio: 16/9;
-  background-color: #ff9800;
   display: block;
-  width: 100%;
 }
 
-canvas {
-  height: 100%;
-  width: 100%;
+.console-component {
+  position: relative;
+
+  canvas {
+    aspect-ratio: 16/9;
+    background-color: #ff9800;
+    width: 100%;
+    position: relative;
+  }
+
+  cf-console-toolbar {
+    display: block;
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1;
+  }
 }
