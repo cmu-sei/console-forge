@@ -3,20 +3,28 @@
 }
 
 .console-component {
-  position: relative;
+  width: 100%;
+}
 
-  canvas {
-    aspect-ratio: 16/9;
-    background-color: #ff9800;
-    width: 100%;
-    position: relative;
-  }
+cf-console-toolbar {
+  display: block;
+}
 
-  cf-console-toolbar {
-    display: block;
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-    z-index: 1;
+.console-host-container {
+  flex-grow: 1;
+}
+
+.console-host {
+  width: 100%;
+  height: 100%;
+}
+
+/* conditionally used based on the toolbarPosition input to the component */
+.flex {
+  display: flex;
+  flex-direction: row;
+
+  &.flex-column {
+    flex-direction: column;
   }
 }

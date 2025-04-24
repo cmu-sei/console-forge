@@ -1,0 +1,35 @@
+@use "@picocss/pico/scss";
+
+:host {
+  display: block;
+  height: 100%;
+  align-self: stretch;
+  position: relative;
+  width: 84px;
+  padding: 4px;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+
+  // positioning party
+  position: absolute;
+  transform: translateY(-50%);
+  top: 50%;
+
+  cf-console-toolbar-default-button {
+    display: block;
+  }
+}
+
+hr {
+  border-bottom: 1px solid var(--pico-secondary);
+}
+
+.power-buttons button {
+  display: block;
+  width: 100%;
+}

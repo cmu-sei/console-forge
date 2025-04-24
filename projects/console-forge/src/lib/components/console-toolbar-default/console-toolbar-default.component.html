@@ -1,0 +1,127 @@
+@if (context()) {
+<div class="button-container">
+    <cf-console-toolbar-default-button [disabled]="!context().state.isConnected()" label="Clipboard"
+        (clicked)="handleClipboardDialogOpenClose(true)">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+                <path
+                    d="M7.00001 4.10999C6.14022 4.33198 5.37874 4.83376 4.83558 5.53625C4.29241 6.23875 3.99845 7.10201 4.00001 7.98999V17.99C4.00001 19.0509 4.42149 20.0682 5.17164 20.8184C5.92178 21.5685 6.93914 21.99 8.00001 21.99H16C17.0609 21.99 18.0783 21.5685 18.8284 20.8184C19.5786 20.0682 20 19.0509 20 17.99V7.98999C19.9993 7.10372 19.7044 6.24269 19.1614 5.54224C18.6184 4.84178 17.8581 4.34156 17 4.12"
+                    stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path
+                    d="M9 5.98999C8.46957 5.98999 7.96089 5.77925 7.58582 5.40417C7.21074 5.0291 7 4.52042 7 3.98999C7 3.45956 7.21074 2.95088 7.58582 2.57581C7.96089 2.20073 8.46957 1.98999 9 1.98999H15C15.5304 1.98999 16.0392 2.20073 16.4142 2.57581C16.7893 2.95088 17 3.45956 17 3.98999C17 4.52042 16.7893 5.0291 16.4142 5.40417C16.0392 5.77925 15.5304 5.98999 15 5.98999H9Z"
+                    stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M8 16H14" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                </path>
+                <path d="M8 12H16" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                </path>
+            </g>
+        </svg>
+    </cf-console-toolbar-default-button>
+
+    <cf-console-toolbar-default-button (clicked)="context().console.copyScreenshot()"
+        [disabled]="!context().state.isConnected()" label="Screenshot">
+        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M9.15023 3.01742C9.13605 3.03985 9.12278 3.0676 9.11298 3.09958C9.11044 3.10789 9.10778 3.11617 9.10502 3.12442L8.36963 5.31787C8.23301 5.72537 7.85129 6 7.4215 6H3C2.44772 6 2 6.44772 2 7V20C2 20.5523 2.44771 21 3 21H21C21.5523 21 22 20.5523 22 20V7C22 6.44771 21.5523 6 21 6H16.331C15.9011 6 15.5194 5.72528 15.3828 5.31769L14.6479 3.12423C14.6452 3.11605 14.6425 3.10783 14.64 3.09958C14.6302 3.0676 14.6169 3.03985 14.6027 3.01742C14.5986 3.01089 14.5946 3.00509 14.5908 3H9.16221C9.1584 3.00509 9.15437 3.01089 9.15023 3.01742ZM7.20525 2.49911C7.43535 1.76672 8.10563 1 9.06392 1H14.6891C15.6474 1 16.3177 1.76679 16.5478 2.49922L17.0506 4H21C22.6569 4 24 5.34315 24 7V20C24 21.6569 22.6569 23 21 23H3C1.34315 23 0 21.6569 0 20V7C0 5.34315 1.34315 4 3 4H6.70206L7.20525 2.49911ZM7 13C7 10.2386 9.23858 8 12 8C14.7614 8 17 10.2386 17 13C17 15.7614 14.7614 18 12 18C9.23858 18 7 15.7614 7 13ZM12 10C10.3431 10 9 11.3431 9 13C9 14.6569 10.3431 16 12 16C13.6569 16 15 14.6569 15 13C15 11.3431 13.6569 10 12 10Z"
+                fill="none" />
+        </svg>
+    </cf-console-toolbar-default-button>
+
+    <cf-console-toolbar-default-button (clicked)="context().console.toggleFullscreen()" label="Fullscreen">
+        @if (context().state.isFullscreenAvailable()) {
+        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M21.7092 2.29502C21.8041 2.3904 21.8757 2.50014 21.9241 2.61722C21.9727 2.73425 21.9996 2.8625 22 2.997L22 3V9C22 9.55228 21.5523 10 21 10C20.4477 10 20 9.55228 20 9V5.41421L14.7071 10.7071C14.3166 11.0976 13.6834 11.0976 13.2929 10.7071C12.9024 10.3166 12.9024 9.68342 13.2929 9.29289L18.5858 4H15C14.4477 4 14 3.55228 14 3C14 2.44772 14.4477 2 15 2H20.9998C21.2749 2 21.5242 2.11106 21.705 2.29078L21.7092 2.29502Z"
+                fill="#000000" />
+            <path
+                d="M10.7071 14.7071L5.41421 20H9C9.55228 20 10 20.4477 10 21C10 21.5523 9.55228 22 9 22H3.00069L2.997 22C2.74301 21.9992 2.48924 21.9023 2.29502 21.7092L2.29078 21.705C2.19595 21.6096 2.12432 21.4999 2.07588 21.3828C2.02699 21.2649 2 21.1356 2 21V15C2 14.4477 2.44772 14 3 14C3.55228 14 4 14.4477 4 15V18.5858L9.29289 13.2929C9.68342 12.9024 10.3166 12.9024 10.7071 13.2929C11.0976 13.6834 11.0976 14.3166 10.7071 14.7071Z"
+                fill="#000000" />
+        </svg>
+        } @else {
+        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M7 9C8.10457 9 9 8.10457 9 7V3C9 2.44772 8.55228 2 8 2C7.44772 2 7 2.44772 7 3V7H3C2.44772 7 2 7.44772 2 8C2 8.55228 2.44772 9 3 9H7Z"
+                fill="#000000" />
+            <path
+                d="M17 9C15.8954 9 15 8.10457 15 7V3C15 2.44772 15.4477 2 16 2C16.5523 2 17 2.44772 17 3V7H21C21.5523 7 22 7.44772 22 8C22 8.55228 21.5523 9 21 9H17Z"
+                fill="#000000" />
+            <path
+                d="M17 15C15.8954 15 15 15.8954 15 17V21C15 21.5523 15.4477 22 16 22C16.5523 22 17 21.5523 17 21V17H21C21.5523 17 22 16.5523 22 16C22 15.4477 21.5523 15 21 15H17Z"
+                fill="#000000" />
+            <path
+                d="M9 17C9 15.8954 8.10457 15 7 15H3C2.44772 15 2 15.4477 2 16C2 16.5523 2.44772 17 3 17H7V21C7 21.5523 7.44772 22 8 22C8.55228 22 9 21.5523 9 21V17Z"
+                fill="#000000" />
+        </svg>
+        }
+    </cf-console-toolbar-default-button>
+
+    <hr class="powerful-buttons-divider" />
+
+    <cf-console-toolbar-default-button label="Ctrl+Alt+Del" (clicked)="context().console.sendCtrlAltDel()"
+        [disabled]="!context().state.isConnected()">
+        <svg fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 8 8" enable-background="new 0 0 8 8"
+            xml:space="preserve">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+                <rect x="2.989" width="2.023" height="5.471"></rect>
+                <rect x="2.989" y="6.39" width="2.023" height="1.61"></rect>
+            </g>
+        </svg>
+    </cf-console-toolbar-default-button>
+
+    <cf-console-toolbar-default-button label="Power" (clicked)="handlePowerDialogOpenClose(true)">
+        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M13 3C13 2.44772 12.5523 2 12 2C11.4477 2 11 2.44772 11 3V13C11 13.5523 11.4477 14 12 14C12.5523 14 13 13.5523 13 13V3Z"
+                fill="none" />
+            <path
+                d="M6.2798 6.70707C6.67031 6.31653 6.67028 5.68337 6.27973 5.29286C5.88919 4.90235 5.25603 4.90238 4.86552 5.29293C3.09635 7.06226 2 9.49298 2 12.1764C2 17.6204 6.49591 22 12 22C17.5041 22 22 17.6204 22 12.1764C22 9.49298 20.9036 7.06226 19.1345 5.29293C18.744 4.90238 18.1108 4.90235 17.7203 5.29286C17.3297 5.68337 17.3297 6.31653 17.7202 6.70707C19.1338 8.12083 20 10.0503 20 12.1764C20 16.4787 16.437 20 12 20C7.56296 20 4 16.4787 4 12.1764C4 10.0503 4.86618 8.12083 6.2798 6.70707Z"
+                fill="none" />
+        </svg>
+    </cf-console-toolbar-default-button>
+</div>
+}
+
+<dialog [open]="isClipboardDialogOpen">
+    <article>
+        <header>
+            <button aria-label="Close" rel="prev" (click)="handleClipboardDialogOpenClose(false)"></button>
+            <p>
+                <strong>Send Text to Console Clipboard</strong>
+            </p>
+        </header>
+
+        <div>
+            <form (submit)="handleSendClipboardText($event, clipboardText.value)">
+                <fieldset role="group">
+                    <input type="text" class="clipboard-text"
+                        placeholder="Enter text to send to the console's clipboard" #clipboardText autofocus />
+                    <button type="submit"
+                        [disabled]="!clipboardText.value || !context().state.isConnected">Send</button>
+                </fieldset>
+            </form>
+        </div>
+    </article>
+</dialog>
+
+<dialog [open]="isPowerDialogOpen">
+    <article>
+        <header>
+            <button aria-label="Close" rel="prev" (click)="handlePowerDialogOpenClose(false)"></button>
+            <p>
+                <strong>Console Power</strong>
+            </p>
+        </header>
+
+        <div class="power-buttons">
+            <button type="button">Request Reboot</button>
+            <button type="button">Request Shutdown</button>
+            <hr />
+            <button class="secondary" type="button">Request Hard Reboot</button>
+        </div>
+    </article>
+</dialog>

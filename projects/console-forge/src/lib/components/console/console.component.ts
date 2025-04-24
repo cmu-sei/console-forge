@@ -1,4 +1,4 @@
-import { Component, computed, effect, ElementRef, inject, input, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
 import { ConsoleClientService } from '@/services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '@/services/console-clients/console-client-factory.service';
@@ -7,6 +7,8 @@ import { UuidService } from '@/services/uuid.service';
 import { LoggerService } from '@/services/logger.service';
 import { ConsoleToolbarComponent } from '../console-toolbar/console-toolbar.component';
 import { FullScreenService } from '@/services/full-screen.service';
+import { LogLevel } from '@/models/log-level';
+import { ConsoleToolbarPosition } from '@/models/console-toolbar-position';
 
 @Component({
   selector: 'cf-console',
@@ -19,8 +21,17 @@ import { FullScreenService } from '@/services/full-screen.service';
 })
 export class ConsoleComponent {
   // component I/O
+  autoConnect = input(true);
   config = input.required<ConsoleComponentConfig>();
-  status = computed(() => this.consoleClient?.connectionStatus());
+  isViewOnly = input(false);
+  scaleToContainerSize = input(true);
+  toolbarPosition = input<ConsoleToolbarPosition>("left");
+
+  consoleClipboardUpdated = output<string>();
+  ctrlAltDelSent = output<void>();
+  localClipboardUpdated = output<string>();
+  screenshotCopied = output<Blob>();
+  status = computed(() => this.consoleClient()?.connectionStatus() || "disconnected");
 
   // services
   private consoleClientFactory = inject(ConsoleClientFactoryService);
@@ -34,14 +45,18 @@ export class ConsoleComponent {
   protected consoleHostElement = viewChild.required<ElementRef<HTMLElement>>("consoleHost");
 
   // other component state
-  protected consoleClient!: ConsoleClientService;
+  protected availableNetworks = computed(() => {
+
+  });
+  protected consoleClient = signal<ConsoleClientService | undefined>(undefined);
   protected readonly consoleHostElementId = this.uuids.get();
 
   constructor() {
     // we use an effect here because we want to allow the use case of reusing a single console component
     // for multiple console connections. I will 100% regret and delete this at some point.
     effect(() => {
-      if (!this.config() || !this.consoleHostElement()) {
+      if (!this.autoConnect || !this.config() || !this.consoleHostElement()) {
+        this.logger.log(LogLevel.INFO, "Autoconnecting with", this.config(), this.consoleHostElement());
         return;
       }
       // note that even though `connect` is async, we don't invoke it asynchronously here. This is because
@@ -49,6 +64,23 @@ export class ConsoleComponent {
       // execution completely. If we care about this, we should set up a cancellation pattern on connect() below.
       this.connect(this.config(), this.consoleHostElement());
     });
+
+    // we need this component to emit from outputs or call the client when signals change, so an effect
+    // is the recommended solution: https://github.com/angular/angular/issues/57208
+    // clipboard events
+    effect(() => {
+      if (this.consoleClient()) {
+        this.consoleClipboardUpdated.emit(this.consoleClient()!.consoleClipboardUpdated());
+      }
+    });
+    effect(() => {
+      if (this.consoleClient()) {
+        this.localClipboardUpdated.emit(this.consoleClient()!.localClipboardUpdated());
+      }
+    });
+    // input changes
+    effect(() => this.consoleClient()?.setIsViewOnly(this.isViewOnly()));
+    effect(() => this.consoleClient()?.setScaleToContainerSize(this.scaleToContainerSize()));
   }
 
   protected async handleFullscreen(): Promise<void> {
@@ -64,13 +96,17 @@ export class ConsoleComponent {
     }
   }
 
-  private async connect(config: ConsoleComponentConfig, hostElement: ElementRef<HTMLElement>) {
-    if (this.consoleClient) {
-      await this.consoleClient.disconnect();
-    }
+  // automatically invoked if autoConnect is on, but can also be manually invoked outside the component
+  // if retrieved as a ViewChild or whatever
+  public async connect(config: ConsoleComponentConfig, hostElement: ElementRef<HTMLElement>) {
+    await this.consoleClient()?.disconnect();
 
     if (!config.url) {
       throw new Error("No url provided for console connection.");
+    }
+
+    if (!hostElement?.nativeElement) {
+      throw new Error("Couldn't resolve the console host before connection.");
     }
 
     // resolve the console type from component settings + defaults
@@ -80,10 +116,17 @@ export class ConsoleComponent {
     }
 
     // connect
-    this.consoleClient = this.consoleClientFactory.get(clientType);
-    await this.consoleClient.connect(config.url, {
-      hostElementId: hostElement.nativeElement.id,
-      isViewOnly: config.isViewOnly
+    this.consoleClient.update(() => this.consoleClientFactory.get(clientType));
+    await this.consoleClient()!.connect(config.url, {
+      autoFocusOnConnect: config.autoFocusOnConnect,
+      credentials: config.credentials,
+      hostElement: hostElement.nativeElement,
+      isViewOnly: this.isViewOnly(),
     });
+  }
+
+  public async disconnect() {
+    this.logger.log(LogLevel.DEBUG, "Console component disconnect invoked.");
+    await this.consoleClient()?.disconnect();
   }
 }

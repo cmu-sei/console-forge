@@ -1,3 +1,44 @@
 <h2>ConsoleForge in action</h2>
 
-<cf-console [config]="cfConfig"></cf-console>
+@if (cfConfig) {
+<cf-console [config]="cfConfig" (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
+    (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
+    [scaleToContainerSize]="scaleToContainer()" (screenshotCopied)="handleScreenshotCopied($event)"
+    [isViewOnly]="isViewOnly()"></cf-console>
+}
+
+@if (isConnected()) {
+<div class="post-connection-controls flex my-2 gap-2">
+    <button mat-flat-button type="button" (click)="handleDisconnect()">Disconnect</button>
+    <button mat-flat-button type="button" (click)="handleToggleScale()">Toggle Scale</button>
+    <mat-checkbox [(ngModel)]="isViewOnly">View Only</mat-checkbox>
+</div>
+}
+
+<h3>Set up your console</h3>
+
+<form class="console-config-form" (submit)="configFormSubmit()" [formGroup]="configForm">
+    <mat-form-field>
+        <mat-label>Console client</mat-label>
+        <mat-select formControlName="consoleClientType">
+            <mat-option value="vmware">VMWare</mat-option>
+            <mat-option value="vnc">VNC</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>VNC Console URL</mat-label>
+        <input matInput placeholder="http://localhost:5950" formControlName="url">
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>VNC Password</mat-label>
+        <input matInput placeholder="a-password" formControlName="password">
+    </mat-form-field>
+
+    <div class="console-checkboxes flex gap-2">
+        <mat-checkbox formControlName="autoFocusOnConnect">Autofocus On Connect</mat-checkbox>
+    </div>
+
+    <button mat-flat-button type="submit">Connect</button>
+</form>

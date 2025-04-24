@@ -1,8 +1,9 @@
+import { ConsoleCredentials } from "./console-credentials";
+
 export interface ConsoleConnectionOptions {
-    credentials?: {
-        password?: string;
-        username?: string;
-    }
+    autoFocusOnConnect?: boolean;
+    credentials?: ConsoleCredentials;
     hostElement: HTMLElement;
     isViewOnly?: boolean;
+    scaleToContainerSize?: boolean;
 }

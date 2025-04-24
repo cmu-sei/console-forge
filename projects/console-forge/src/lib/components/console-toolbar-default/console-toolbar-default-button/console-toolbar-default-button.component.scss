@@ -1,0 +1,71 @@
+@use "@picocss/pico/scss";
+
+.svg-button {
+  background: transparent;
+  border: none;
+  border-width: 0 !important;
+  color: var(--pico-secondary);
+  display: flex;
+  font-weight: normal;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  height: 74px;
+  width: 74px;
+  margin: 0;
+
+  &:hover {
+    color: var(--pico-primary);
+    fill: var(--pico-primary);
+    stroke: var(--pico-primary);
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+}
+
+.svg-container {
+  height: 60px;
+  width: 60px;
+}
+
+.button-label {
+  font-size: 0.8rem;
+  margin: 0;
+  text-align: center;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+::ng-deep {
+  svg {
+    fill: var(--pico-secondary);
+    stroke: var(--pico-secondary);
+    height: 100%;
+    width: 100%;
+    padding: 1rem;
+  }
+
+  svg,
+  path,
+  rect {
+    fill: var(--pico-secondary);
+    stroke: var(--pico-secondary);
+
+    &:hover {
+      color: var(--pico-color);
+      transition: fill 0.3s ease;
+    }
+  }
+
+  .hovered {
+    svg,
+    path,
+    rect {
+      fill: var(--pico-primary);
+      stroke: var(--pico-primary);
+      transition: all 0.3s ease;
+    }
+  }
+}

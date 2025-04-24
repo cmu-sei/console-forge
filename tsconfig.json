@@ -18,7 +18,12 @@
     "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022"
+    "module": "ES2022",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./projects/console-forge/node_modules/@types",
+      "./projects/console-forge-docs/typings"
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

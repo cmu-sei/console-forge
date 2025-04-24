@@ -5,6 +5,15 @@ import { inject, Injectable } from '@angular/core';
 export class ClipboardService {
   private document = inject(DOCUMENT);
 
+  public copyBlob(blob: Blob) {
+    const clipboard = this.getClipboard();
+    if (!clipboard) {
+      throw new Error("Can't access the clipboard to copy blob");
+    }
+
+    return clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+  }
+
   public async copyText(text: string) {
     const clipboard = this.getClipboard();
     if (!clipboard) {

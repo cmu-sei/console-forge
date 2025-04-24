@@ -37,6 +37,17 @@
           }
         }
       }
+    },
+    {
+      "type": "shell",
+      "label": "Run X11VNC Desktop",
+      "command": "python",
+      "args": [
+        "${workspaceFolder}/tools/x11vnc_desktop.py",
+        "--password",
+        "mypw",
+        "-d"
+      ]
     }
   ]
 }

@@ -1,5 +1,18 @@
-<div #componentContainer class="console-component">
-    <cf-console-toolbar [consoleClient]="consoleClient" (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
-    <canvas #consoleHost [id]="consoleHostElementId">
-    </canvas>
+<div #componentContainer class="console-component flex"
+    [class.flex-column]="toolbarPosition() === 'top' || toolbarPosition() === 'bottom'">
+
+    @if (consoleClient() && (toolbarPosition() === 'left' || toolbarPosition() === 'top')) {
+    <cf-console-toolbar [consoleClient]="consoleClient()!" (ctrlAltDelSent)="ctrlAltDelSent.emit()"
+        (screenshotCopied)="screenshotCopied.emit($event)" (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
+    }
+
+    <div class="console-host-container">
+        <div #consoleHost [id]="consoleHostElementId" class="console-host">
+        </div>
+    </div>
+
+    @if (consoleClient() && (toolbarPosition() === 'right' || toolbarPosition() === 'bottom')) {
+    <cf-console-toolbar [consoleClient]="consoleClient()!" (ctrlAltDelSent)="ctrlAltDelSent.emit()"
+        (screenshotCopied)="screenshotCopied.emit($event)" (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
+    }
 </div>

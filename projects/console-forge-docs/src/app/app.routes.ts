@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { GettingStartedComponent } from '../components/getting-started/getting-started.component';
 import { DemoComponent } from '../components/demo/demo.component';
+import { VmwareDemoComponent } from '../components/vmware-demo/vmware-demo.component';
 
 export const routes: Routes = [
     {
@@ -8,8 +9,14 @@ export const routes: Routes = [
         component: GettingStartedComponent
     },
     {
-        path: "in-action",
+        path: "with-vnc",
+        title: "With VNC",
         component: DemoComponent
+    },
+    {
+        path: "with-vmware",
+        title: "With VMWare WMKS",
+        component: VmwareDemoComponent
     },
     {
         path: "",
