@@ -4,5 +4,12 @@
   "lib": {
     "entryFile": "src/public-api.ts"
   },
-  "assets": ["./LICENSE.md"]
+  "assets": [
+    "./LICENSE.md",
+    {
+      "glob": "**/*.min.js",
+      "input": "src/assets/wmks-2.2.0/",
+      "output": "wmks/"
+    }
+  ]
 }

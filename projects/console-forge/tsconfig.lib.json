@@ -4,12 +4,7 @@
     "outDir": "../../out-tsc/lib",
     "declaration": true,
     "declarationMap": true,
-    "inlineSources": true,
-    "typeRoots": [
-      "../../node_modules/@types",
-      "./node_modules/@types",
-      "./src/types"
-    ]
+    "inlineSources": true
   },
   "exclude": ["**/*.spec.ts"]
 }
