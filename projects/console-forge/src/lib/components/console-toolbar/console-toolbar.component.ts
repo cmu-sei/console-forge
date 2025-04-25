@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input, output, TemplateRef } from '@angular/core';
-import { ClipboardService } from '@/services/clipboard.service';
-import { ConsoleClientService } from '@/services/console-clients/console-client.service';
-import { FullScreenService } from '@/services/full-screen.service';
-import { ConsoleToolbarTemplateContext } from '@/models/console-toolbar-template-context';
+import { ClipboardService } from '../../services/clipboard.service';
+import { ConsoleClientService } from '../../services/console-clients/console-client.service';
+import { FullScreenService } from '../../services/full-screen.service';
+import { ConsoleToolbarTemplateContext } from '../../models/console-toolbar-template-context';
 import { ConsoleToolbarDefaultComponent } from "../console-toolbar-default/console-toolbar-default.component";
 
 @Component({

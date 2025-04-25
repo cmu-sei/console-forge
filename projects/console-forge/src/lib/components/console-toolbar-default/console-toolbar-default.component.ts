@@ -1,5 +1,5 @@
 import { Component, ElementRef, input, viewChild } from '@angular/core';
-import { ConsoleToolbarTemplateContext } from '@/models/console-toolbar-template-context';
+import { ConsoleToolbarTemplateContext } from '../../models/console-toolbar-template-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';
 
 @Component({

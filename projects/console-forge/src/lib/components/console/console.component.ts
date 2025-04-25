@@ -1,14 +1,14 @@
 import { Component, computed, effect, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
-import { ConsoleClientService } from '@/services/console-clients/console-client.service';
-import { ConsoleClientFactoryService } from '@/services/console-clients/console-client-factory.service';
-import { ConsoleForgeConfig } from '@/config/console-forge-config';
-import { UuidService } from '@/services/uuid.service';
-import { LoggerService } from '@/services/logger.service';
+import { ConsoleClientService } from '../../services/console-clients/console-client.service';
+import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
+import { ConsoleForgeConfig } from '../../config/console-forge-config';
+import { UuidService } from '../../services/uuid.service';
+import { LoggerService } from '../../services/logger.service';
 import { ConsoleToolbarComponent } from '../console-toolbar/console-toolbar.component';
-import { FullScreenService } from '@/services/full-screen.service';
-import { LogLevel } from '@/models/log-level';
-import { ConsoleToolbarPosition } from '@/models/console-toolbar-position';
+import { FullScreenService } from '../../services/full-screen.service';
+import { LogLevel } from '../../models/log-level';
+import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 
 @Component({
   selector: 'cf-console',
@@ -62,7 +62,7 @@ export class ConsoleComponent {
       // note that even though `connect` is async, we don't invoke it asynchronously here. This is because
       // effects are _supposed_ to be synchronous, and making them async can cause Angular to ignore the
       // execution completely. If we care about this, we should set up a cancellation pattern on connect() below.
-      this.connect(this.config(), this.consoleHostElement());
+      this.connect(this.config());
     });
 
     // we need this component to emit from outputs or call the client when signals change, so an effect
@@ -98,14 +98,14 @@ export class ConsoleComponent {
 
   // automatically invoked if autoConnect is on, but can also be manually invoked outside the component
   // if retrieved as a ViewChild or whatever
-  public async connect(config: ConsoleComponentConfig, hostElement: ElementRef<HTMLElement>) {
+  public async connect(config: ConsoleComponentConfig) {
     await this.consoleClient()?.disconnect();
 
     if (!config.url) {
       throw new Error("No url provided for console connection.");
     }
 
-    if (!hostElement?.nativeElement) {
+    if (!this.consoleHostElement().nativeElement) {
       throw new Error("Couldn't resolve the console host before connection.");
     }
 
@@ -120,7 +120,7 @@ export class ConsoleComponent {
     await this.consoleClient()!.connect(config.url, {
       autoFocusOnConnect: config.autoFocusOnConnect,
       credentials: config.credentials,
-      hostElement: hostElement.nativeElement,
+      hostElement: this.consoleHostElement().nativeElement,
       isViewOnly: this.isViewOnly(),
     });
   }

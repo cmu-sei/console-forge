@@ -1,4 +1,4 @@
-import { ConsoleCredentials } from "@/models/console-credentials";
+import { ConsoleCredentials } from "../../models/console-credentials";
 import { ConsoleClientType } from "../../models/console-client-type";
 
 export interface ConsoleComponentConfig {

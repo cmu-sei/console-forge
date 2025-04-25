@@ -1,7 +1,7 @@
 import { Signal } from "@angular/core";
-import { ConsoleConnectionOptions } from "@/models/console-connection-options";
-import { ConsoleConnectionStatus } from "@/models/console-connection-status";
-import { ConsoleSupportedFeatures } from "@/models/console-supported-features";
+import { ConsoleConnectionOptions } from "../../models/console-connection-options";
+import { ConsoleConnectionStatus } from "../../models/console-connection-status";
+import { ConsoleSupportedFeatures } from "../../models/console-supported-features";
 
 export interface ConsoleClientService {
   readonly connectionStatus: Signal<ConsoleConnectionStatus>;

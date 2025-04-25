@@ -32,7 +32,7 @@ export class VmwareDemoComponent {
   protected configForm = new FormGroup({
     autoFocusOnConnect: new FormControl(false),
     consoleClientType: new FormControl<ConsoleClientType>("vmware"),
-    url: new FormControl("wss://launchpad.cisa.gov/console/ticket/ba70d81a4a43fbb4?vmhost=10.52.32.16")
+    url: new FormControl("wss://launchpad.cisa.gov/console/ticket/9fb75377b84c13cb?vmhost=10.52.32.9")
   });
   protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
   protected scaleToContainer = model(false);
@@ -52,6 +52,8 @@ export class VmwareDemoComponent {
       consoleClientType: "vmware",
       url: this.configForm.value.url
     };
+
+    await this.cfConsole()?.connect(this.cfConfig)!;
   }
 
   protected async handleDisconnect() {

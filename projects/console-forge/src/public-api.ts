@@ -1,11 +1,12 @@
-import "./types/types-loader";
-
 /*
  * Public API Surface of console-forge
  */
 export * from "./lib/components/console/console.component";
 export * from "./lib/components/console/console-component-config";
 export * from "./lib/directives/class-on-hover.directive";
+
+// config
+export * from "./lib/config/provide-console-forge";
 
 // models
 export * from "./lib/models/console-client-type";

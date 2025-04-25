@@ -2,8 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
-      "console-forge": ["./dist/console-forge"],
-      "@/*": ["./projects/console-forge/src/lib/*"]
+      "console-forge": ["./dist/console-forge"]
     },
     "outDir": "./dist/out-tsc",
     "strict": true,

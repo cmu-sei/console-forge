@@ -7,9 +7,9 @@
   "assets": [
     "./LICENSE.md",
     {
-      "glob": "**/*.min.js",
-      "input": "src/assets/wmks-2.2.0/",
-      "output": "wmks/"
+      "input": "./assets/wmks-2.2.0",
+      "glob": "*.min.js",
+      "output": "./assets/wmks-2.2.0"
     }
   ]
 }

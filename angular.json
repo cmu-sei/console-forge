@@ -71,7 +71,7 @@
             "scripts": [
               "./node_modules/jquery/dist/jquery.min.js",
               "./node_modules/jquery-ui/dist/jquery-ui.min.js",
-              "./dist/console-forge/wmks/wmks.min.js"
+              "projects/console-forge-docs/public/assets/wmks-2.2.0/wmks.min.js"
             ]
           },
           "configurations": {

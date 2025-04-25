@@ -1,11 +1,11 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import NoVncClient from '@novnc/novnc/core/rfb';
-import { ConsoleConnectionOptions } from '@/models/console-connection-options';
-import { ConsoleConnectionStatus } from '@/models/console-connection-status';
-import { ConsoleSupportedFeatures } from '@/models/console-supported-features';
-import { LogLevel } from '@/models/log-level';
-import { ConsoleClientService } from '@/services/console-clients/console-client.service';
-import { LoggerService } from '@/services/logger.service';
+import { ConsoleConnectionOptions } from '../../../models/console-connection-options';
+import { ConsoleConnectionStatus } from '../../../models/console-connection-status';
+import { ConsoleSupportedFeatures } from '../../../models/console-supported-features';
+import { LogLevel } from '../../../models/log-level';
+import { ConsoleClientService } from '../../../services/console-clients/console-client.service';
+import { LoggerService } from '../../../services/logger.service';
 
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {
