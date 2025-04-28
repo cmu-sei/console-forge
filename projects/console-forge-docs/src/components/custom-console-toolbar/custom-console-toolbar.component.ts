@@ -1,12 +1,16 @@
 import { Component, input } from '@angular/core';
-import { ConsoleToolbarTemplateContext } from 'console-forge';
+import { MatButtonModule } from '@angular/material/button';
+import { ConsoleToolbarComponentBase, ConsoleToolbarContext } from 'console-forge';
 
 @Component({
   selector: 'app-custom-console-toolbar',
-  imports: [],
+  imports: [
+    MatButtonModule,
+  ],
+  standalone: true,
   templateUrl: './custom-console-toolbar.component.html',
   styleUrl: './custom-console-toolbar.component.scss'
 })
-export class CustomConsoleToolbarComponent {
-  public context = input<ConsoleToolbarTemplateContext>();
+export class CustomConsoleToolbarComponent implements ConsoleToolbarComponentBase {
+  public consoleContext = input.required<ConsoleToolbarContext>();
 }

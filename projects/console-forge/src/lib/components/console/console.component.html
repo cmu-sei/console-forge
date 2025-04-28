@@ -3,7 +3,7 @@
 
     @if (consoleClient() && (toolbarPosition() === 'left' || toolbarPosition() === 'top')) {
     <cf-console-toolbar [availableNetworks]="availableNetworks()" [consoleClient]="consoleClient()!"
-        [currentNetwork]="currentNetwork()" [customTemplate]="toolbarCustomTemplate()"
+        [currentNetwork]="currentNetwork()" [customToolbarComponent]="toolbarComponent()"
         (ctrlAltDelSent)="ctrlAltDelSent.emit()" (networkConnectionRequested)="networkConnectionRequested.emit($event)"
         (networkDisconnectRequested)="networkDisconnectRequested.emit()"
         (screenshotCopied)="screenshotCopied.emit($event)" (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
@@ -16,8 +16,9 @@
 
     @if (consoleClient() && (toolbarPosition() === 'right' || toolbarPosition() === 'bottom')) {
     <cf-console-toolbar [availableNetworks]="availableNetworks()" [consoleClient]="consoleClient()!"
-        [currentNetwork]="currentNetwork()" [customTemplate]="toolbarCustomTemplate()"
-        (ctrlAltDelSent)="ctrlAltDelSent.emit()" (networkConnectionRequested)="networkConnectionRequested.emit($event)"
+        [currentNetwork]="currentNetwork()" (ctrlAltDelSent)="ctrlAltDelSent.emit()"
+        [customToolbarComponent]="toolbarComponent()"
+        (networkConnectionRequested)="networkConnectionRequested.emit($event)"
         (networkDisconnectRequested)="networkDisconnectRequested.emit()"
         (screenshotCopied)="screenshotCopied.emit($event)" (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
     }

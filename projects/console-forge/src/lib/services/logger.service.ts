@@ -9,8 +9,25 @@ export class LoggerService {
   // allow any here to mirror standard console.log behavior
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   log(logLevel: LogLevel, message: string, ...addl: any[]): void {
+    const loggingFunction = this.resolveLoggingFunction(logLevel);
+
     if (logLevel >= this.libConfig.logThreshold) {
-      console.log(`ConsoleForge (${LogLevel[logLevel]}): ${message}`, ...addl);
+      loggingFunction(`ConsoleForge (${LogLevel[logLevel]}): ${message}`, ...addl);
+    }
+  }
+
+  private resolveLoggingFunction(logLevel: LogLevel) {
+    switch (logLevel) {
+      case LogLevel.ERROR:
+        return console.error;
+      case LogLevel.WARNING:
+        return console.warn;
+      case LogLevel.INFO:
+        return console.info;
+      case LogLevel.DEBUG:
+        return console.debug;
+      default:
+        return console.log;
     }
   }
 }

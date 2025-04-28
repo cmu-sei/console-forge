@@ -1,6 +1,7 @@
 import { Component, ElementRef, input, viewChild } from '@angular/core';
-import { ConsoleToolbarTemplateContext } from '../../models/console-toolbar-template-context';
+import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';
+import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
 
 @Component({
   selector: 'cf-console-toolbar-default',
@@ -9,8 +10,8 @@ import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-
   templateUrl: './console-toolbar-default.component.html',
   styleUrl: './console-toolbar-default.component.scss'
 })
-export class ConsoleToolbarDefaultComponent {
-  context = input.required<ConsoleToolbarTemplateContext>();
+export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBase {
+  consoleContext = input.required<ConsoleToolbarContext>();
 
   protected isClipboardDialogOpen = false;
   protected isNetworkDialogOpen = false;
@@ -28,9 +29,9 @@ export class ConsoleToolbarDefaultComponent {
 
   protected handleNetworkChangeRequested(networkName?: string) {
     if (!networkName) {
-      this.context().networks.disconnectRequested();
+      this.consoleContext().networks.disconnectRequested();
     } else {
-      this.context().networks.connectionRequested(networkName);
+      this.consoleContext().networks.connectionRequested(networkName);
     }
     this.isNetworkDialogOpen = false;
   }
@@ -45,7 +46,7 @@ export class ConsoleToolbarDefaultComponent {
 
   protected handleSendClipboardText(event: Event, text: string) {
     event.preventDefault();
-    this.context().console.sendTextToClipboard(text);
+    this.consoleContext().console.sendTextToClipboard(text);
     this.isClipboardDialogOpen = false;
   }
 }

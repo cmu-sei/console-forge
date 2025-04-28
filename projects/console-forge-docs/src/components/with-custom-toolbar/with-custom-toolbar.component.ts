@@ -1,17 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Type } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConsoleComponent, ConsoleComponentConfig } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleToolbarComponentBase } from 'console-forge';
 import { MatButtonModule } from '@angular/material/button';
-import { JsonPipe } from '@angular/common';
+import { CustomConsoleToolbarComponent } from '../custom-console-toolbar/custom-console-toolbar.component';
 
 @Component({
   selector: 'app-with-custom-toolbar',
   imports: [
-    JsonPipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -19,6 +18,7 @@ import { JsonPipe } from '@angular/common';
     MatInputModule,
     ConsoleComponent
   ],
+  standalone: true,
   templateUrl: './with-custom-toolbar.component.html',
   styleUrl: './with-custom-toolbar.component.scss'
 })
@@ -30,6 +30,7 @@ export class WithCustomToolbarComponent {
     password: new FormControl("mypw"),
     url: new FormControl("http://localhost:5950")
   });
+  protected customToolbar: Type<ConsoleToolbarComponentBase> = CustomConsoleToolbarComponent;
 
   protected handleConfigFormSubmit() {
     if (!this.configForm.value.url) {

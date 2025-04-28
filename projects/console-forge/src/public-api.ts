@@ -15,5 +15,6 @@ export * from "./lib/models/console-connection-status";
 export * from "./lib/models/console-credentials";
 export * from "./lib/models/console-supported-features";
 export * from "./lib/models/console-toolbar-position";
-export * from "./lib/models/console-toolbar-template-context";
+export * from "./lib/models/console-toolbar-component-base";
+export * from "./lib/models/console-toolbar-context";
 export * from "./lib/models/log-level";

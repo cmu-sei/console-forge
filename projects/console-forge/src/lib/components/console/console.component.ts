@@ -1,22 +1,20 @@
-import { Component, computed, effect, ElementRef, inject, input, output, signal, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, output, signal, Type, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { UuidService } from '../../services/uuid.service';
 import { LoggerService } from '../../services/logger.service';
-import { ConsoleToolbarComponent } from '../console-toolbar/console-toolbar.component';
 import { FullScreenService } from '../../services/full-screen.service';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { LogLevel } from '../../models/log-level';
-import { ConsoleToolbarTemplateContext } from '../../models/console-toolbar-template-context';
+import { ConsoleToolbarComponent } from '../console-toolbar/console-toolbar.component';
+import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
 
 @Component({
   selector: 'cf-console',
   standalone: true,
-  imports: [
-    ConsoleToolbarComponent
-  ],
+  imports: [ConsoleToolbarComponent],
   styleUrl: './console.component.scss',
   templateUrl: './console.component.html',
 })
@@ -28,8 +26,8 @@ export class ConsoleComponent {
   currentNetwork = input<string>();
   isViewOnly = input(false);
   scaleToContainerSize = input(true);
+  toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
   toolbarPosition = input<ConsoleToolbarPosition>("left");
-  toolbarCustomTemplate = input<TemplateRef<ConsoleToolbarTemplateContext>>();
 
   consoleClipboardUpdated = output<string>();
   ctrlAltDelSent = output<void>();

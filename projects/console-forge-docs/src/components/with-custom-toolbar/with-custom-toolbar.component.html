@@ -1,5 +1,5 @@
 @if (consoleConfig) {
-<cf-console [config]="consoleConfig" [toolbarCustomTemplate]="customToolbar"
+<cf-console [config]="consoleConfig" [toolbarComponent]="customToolbar"
     (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
@@ -22,10 +22,3 @@
 
     <button mat-flat-button type="submit">Connect</button>
 </form>
-
-<ng-template #customToolbar let-context>
-    <h1>{{ context | json }}</h1>
-    <button mat-flat-button color="danger">Reboot</button>
-    <button mat-flat-button (click)="context.console.copyScreenshot()">Copy stuff</button>
-    <button mat-flat-button>Do my actual taxes</button>
-</ng-template>

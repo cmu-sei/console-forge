@@ -1,6 +1,3 @@
-<ng-container [ngTemplateOutlet]="customTemplate() || defaultToolbar" [ngTemplateOutletContext]="templateContext">
-</ng-container>
-
-<ng-template #defaultToolbar>
-    <cf-console-toolbar-default [context]="templateContext"></cf-console-toolbar-default>
-</ng-template>
+@if (toolbarComponent()) {
+<ng-container *ngComponentOutlet="toolbarComponent()!; inputs: { 'consoleContext': toolbarComponentContext }" />
+}

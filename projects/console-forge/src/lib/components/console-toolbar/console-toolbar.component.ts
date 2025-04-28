@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, output, TemplateRef } from '@angular/core';
+import { Component, computed, inject, input, output, Type } from '@angular/core';
 import { ClipboardService } from '../../services/clipboard.service';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { FullScreenService } from '../../services/full-screen.service';
-import { ConsoleToolbarTemplateContext } from '../../models/console-toolbar-template-context';
-import { ConsoleToolbarDefaultComponent } from "../console-toolbar-default/console-toolbar-default.component";
+import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
+import { ConsoleForgeConfig } from '../../config/console-forge-config';
+import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
 
 @Component({
   selector: 'cf-console-toolbar',
   imports: [
-    CommonModule,
-    ConsoleToolbarDefaultComponent
+    CommonModule
   ],
   templateUrl: './console-toolbar.component.html',
   styleUrl: './console-toolbar.component.scss'
@@ -19,7 +19,7 @@ export class ConsoleToolbarComponent {
   availableNetworks = input<string[]>();
   consoleClient = input.required<ConsoleClientService>();
   currentNetwork = input<string>();
-  customTemplate = input<TemplateRef<ConsoleToolbarTemplateContext>>();
+  customToolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
 
   ctrlAltDelSent = output<void>();
   networkConnectionRequested = output<string>();
@@ -28,10 +28,11 @@ export class ConsoleToolbarComponent {
   toggleFullscreen = output<void>();
 
   private readonly clipboardService = inject(ClipboardService);
+  private readonly config = inject(ConsoleForgeConfig);
 
   // component state
   protected readonly fullscreenAvailable = inject(FullScreenService).isAvailable;
-  protected readonly templateContext: ConsoleToolbarTemplateContext = {
+  protected readonly toolbarComponentContext: ConsoleToolbarContext = {
     console: {
       copyScreenshot: this.handleCopyScreenshot.bind(this),
       sendCtrlAltDel: this.handleSendCtrlAltDelete.bind(this),
@@ -49,6 +50,7 @@ export class ConsoleToolbarComponent {
       isFullscreenAvailable: inject(FullScreenService).isAvailable,
     }
   };
+  protected readonly toolbarComponent = computed(() => this.customToolbarComponent() || this.config.consoleToolbarComponent);
 
   protected async handleCopyScreenshot() {
     const blob = await this.consoleClient().getScreenshot();

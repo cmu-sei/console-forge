@@ -1,6 +1,6 @@
 import { Signal } from "@angular/core";
 
-export interface ConsoleToolbarTemplateContext {
+export interface ConsoleToolbarContext {
     console: {
         copyScreenshot(): Promise<void>;
         sendCtrlAltDel(): Promise<void>;
