@@ -10,7 +10,7 @@ export class LoggerService {
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   log(logLevel: LogLevel, message: string, ...addl: any[]): void {
     if (logLevel >= this.libConfig.logThreshold) {
-      console.log(message, ...addl);
+      console.log(`ConsoleForge (${LogLevel[logLevel]}): ${message}`, ...addl);
     }
   }
 }

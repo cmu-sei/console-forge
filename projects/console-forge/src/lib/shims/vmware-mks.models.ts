@@ -25,3 +25,8 @@ export enum WmksEvents {
 export interface WmksEventData {
     state: WmksConnectionState;
 }
+
+export enum WmksPosition {
+    CENTER = 0,
+    LEFT_TOP = 1
+}

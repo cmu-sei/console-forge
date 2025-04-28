@@ -1,4 +1,4 @@
-import { WmksEvents } from "./vmware-mks.models";
+import { WmksEvents, WmksPosition } from "./vmware-mks.models";
 
 function resolveWMKSLib(): WMKS {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,7 +24,10 @@ export interface WmksClient {
 }
 
 export interface WmksClientCreateOptions {
+    changeResolution?: boolean;
+    position?: WmksPosition;
     rescale?: boolean;
+    useVNCHandshake?: boolean;
 }
 
 export interface WMKS {

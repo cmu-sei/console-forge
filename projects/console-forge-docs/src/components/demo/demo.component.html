@@ -1,10 +1,12 @@
 <h2>Using ConsoleForge with VNC</h2>
 
 @if (cfConfig) {
-<cf-console [config]="cfConfig" (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
+<cf-console [config]="cfConfig" [availableNetworks]="availableNetworks()" [currentNetwork]="'lan1'"
+    (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
-    [scaleToContainerSize]="scaleToContainer()" (screenshotCopied)="handleScreenshotCopied($event)"
-    [isViewOnly]="isViewOnly()"></cf-console>
+    (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
+    (networkDisconnectRequested)="handleNetworkDisconnectRequest()" [scaleToContainerSize]="scaleToContainer()"
+    (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
 }
 
 @if (isConnected()) {
@@ -18,14 +20,6 @@
 <h3>Set up your console</h3>
 
 <form class="console-config-form" (submit)="configFormSubmit()" [formGroup]="configForm">
-    <mat-form-field>
-        <mat-label>Console client</mat-label>
-        <mat-select formControlName="consoleClientType">
-            <mat-option value="vmware">VMWare</mat-option>
-            <mat-option value="vnc">VNC</mat-option>
-        </mat-select>
-    </mat-form-field>
-
     <mat-form-field>
         <mat-label>VNC Console URL</mat-label>
         <input matInput placeholder="http://localhost:5950" formControlName="url">

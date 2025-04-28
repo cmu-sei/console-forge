@@ -1,16 +1,17 @@
-import { Component, computed, inject, model, viewChild } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { Component, inject } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConsoleComponent, ConsoleComponentConfig } from 'console-forge';
+import { MatButtonModule } from '@angular/material/button';
+import { JsonPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-demo',
+  selector: 'app-with-custom-toolbar',
   imports: [
-    FormsModule,
+    JsonPipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -18,34 +19,24 @@ import { ConsoleComponent, ConsoleComponentConfig } from 'console-forge';
     MatInputModule,
     ConsoleComponent
   ],
-  templateUrl: './demo.component.html',
-  styleUrl: './demo.component.scss'
+  templateUrl: './with-custom-toolbar.component.html',
+  styleUrl: './with-custom-toolbar.component.scss'
 })
-export class DemoComponent {
-  private snackbarService = inject(MatSnackBar);
+export class WithCustomToolbarComponent {
+  private readonly snackbarService = inject(MatSnackBar);
 
-  protected cfConfig?: ConsoleComponentConfig;
-  protected cfConsole = viewChild(ConsoleComponent);
+  protected consoleConfig?: ConsoleComponentConfig;
   protected configForm = new FormGroup({
-    autoFocusOnConnect: new FormControl(false),
-    isViewOnly: new FormControl(false),
     password: new FormControl("mypw"),
     url: new FormControl("http://localhost:5950")
   });
 
-  protected availableNetworks = model<string[]>(["lan1", "lan2"]);
-  protected currentNetwork = model<string>("lan1");
-  protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
-  protected isViewOnly = model(false);
-  protected scaleToContainer = model(false);
-
-  protected configFormSubmit() {
+  protected handleConfigFormSubmit() {
     if (!this.configForm.value.url) {
       return;
     }
 
-    this.cfConfig = {
-      autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
+    this.consoleConfig = {
       consoleClientType: "vnc",
       credentials: {
         password: this.configForm.value.password || undefined
@@ -56,10 +47,6 @@ export class DemoComponent {
 
   protected handleConsoleClipboardUpdated(text: string) {
     this.showToast(`Sent to console clipboard: ${text}`, "Hype 🔥");
-  }
-
-  protected async handleDisconnect() {
-    await this.cfConsole()?.disconnect();
   }
 
   protected handleCtrlAltDelSent() {
@@ -80,10 +67,6 @@ export class DemoComponent {
 
   protected handleScreenshotCopied(blob: Blob) {
     this.showToast("Copied a screenshot from the console!", "Nice!");
-  }
-
-  protected handleToggleScale() {
-    this.scaleToContainer.update(() => !this.scaleToContainer());
   }
 
   private showToast(message: string, action: string) {

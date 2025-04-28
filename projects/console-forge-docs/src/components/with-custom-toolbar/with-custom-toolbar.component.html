@@ -1,0 +1,31 @@
+@if (consoleConfig) {
+<cf-console [config]="consoleConfig" [toolbarCustomTemplate]="customToolbar"
+    (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
+    (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
+    (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
+    (networkDisconnectRequested)="handleNetworkDisconnectRequest()"
+    (screenshotCopied)="handleScreenshotCopied($event)"></cf-console>
+}
+
+<h3>Set up your console</h3>
+
+<form class="console-config-form" (submit)="handleConfigFormSubmit()" [formGroup]="configForm">
+    <mat-form-field>
+        <mat-label>VNC Console URL</mat-label>
+        <input matInput placeholder="http://localhost:5950" formControlName="url">
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>VNC Password</mat-label>
+        <input matInput placeholder="a-password" formControlName="password">
+    </mat-form-field>
+
+    <button mat-flat-button type="submit">Connect</button>
+</form>
+
+<ng-template #customToolbar let-context>
+    <h1>{{ context | json }}</h1>
+    <button mat-flat-button color="danger">Reboot</button>
+    <button mat-flat-button (click)="context.console.copyScreenshot()">Copy stuff</button>
+    <button mat-flat-button>Do my actual taxes</button>
+</ng-template>

@@ -1,6 +1,6 @@
 <ng-container [ngTemplateOutlet]="customTemplate() || defaultToolbar" [ngTemplateOutletContext]="templateContext">
 </ng-container>
 
-<ng-template #defaultToolbar let-console="console" let-state="state">
+<ng-template #defaultToolbar>
     <cf-console-toolbar-default [context]="templateContext"></cf-console-toolbar-default>
 </ng-template>

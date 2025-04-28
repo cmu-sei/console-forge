@@ -4,7 +4,7 @@ import { ConsoleConnectionOptions } from '../../../models/console-connection-opt
 import { ConsoleConnectionStatus } from '../../../models/console-connection-status';
 import { ConsoleSupportedFeatures } from '../../../models/console-supported-features';
 import { createWmksClient, WmksClient } from "../../../shims/vmware-wmks.shim";
-import { WmksConnectionState, WmksEvents } from '../../../shims/vmware-mks.models';
+import { WmksConnectionState, WmksEvents, WmksPosition } from '../../../shims/vmware-mks.models';
 import { LoggerService } from '../../logger.service';
 import { LogLevel } from '../../../models/log-level';
 
@@ -28,10 +28,14 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     }
 
     return new Promise((resolve, reject) => {
-      console.log("let's try");
-      this.wmksClient = createWmksClient(options.hostElement.id)
+      this.wmksClient = createWmksClient(options.hostElement.id, {
+        rescale: true,
+        changeResolution: false,
+        useVNCHandshake: false,
+        position: WmksPosition.CENTER
+      })
         .register(WmksEvents.CONNECTION_STATE_CHANGE, (ev, data) => {
-          console.log("STATE CHANGE", ev, data);
+          this.logger.log(LogLevel.DEBUG, "WMKS state change", ev, data);
           if (data.state === WmksConnectionState.DISCONNECTED) {
             reject();
           }

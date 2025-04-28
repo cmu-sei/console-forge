@@ -16,10 +16,14 @@ import { ConsoleToolbarDefaultComponent } from "../console-toolbar-default/conso
   styleUrl: './console-toolbar.component.scss'
 })
 export class ConsoleToolbarComponent {
+  availableNetworks = input<string[]>();
   consoleClient = input.required<ConsoleClientService>();
+  currentNetwork = input<string>();
   customTemplate = input<TemplateRef<ConsoleToolbarTemplateContext>>();
 
   ctrlAltDelSent = output<void>();
+  networkConnectionRequested = output<string>();
+  networkDisconnectRequested = output<void>();
   screenshotCopied = output<Blob>();
   toggleFullscreen = output<void>();
 
@@ -33,6 +37,12 @@ export class ConsoleToolbarComponent {
       sendCtrlAltDel: this.handleSendCtrlAltDelete.bind(this),
       sendTextToClipboard: this.handleSendTextToClipboard.bind(this),
       toggleFullscreen: this.handleFullscreen.bind(this)
+    },
+    networks: {
+      connectionRequested: this.handleNetworkConnectionRequest.bind(this),
+      disconnectRequested: () => this.networkDisconnectRequested.emit(),
+      current: computed(() => this.currentNetwork()),
+      list: computed(() => this.availableNetworks() || [])
     },
     state: {
       isConnected: computed(() => this.consoleClient().connectionStatus() === "connected"),
@@ -49,6 +59,15 @@ export class ConsoleToolbarComponent {
   protected handleFullscreen(): Promise<void> {
     this.toggleFullscreen.emit();
     return Promise.resolve();
+  }
+
+  protected handleNetworkConnectionRequest(networkName: string) {
+    const availableNetworks = this.availableNetworks() || [];
+    if (availableNetworks.indexOf(networkName) === -1) {
+      throw new Error(`Network ${networkName} is not available to this console.`);
+    }
+
+    this.networkConnectionRequested.emit(networkName);
   }
 
   protected handleSendCtrlAltDelete() {

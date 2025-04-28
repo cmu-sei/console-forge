@@ -13,10 +13,11 @@ export class ConsoleToolbarDefaultComponent {
   context = input.required<ConsoleToolbarTemplateContext>();
 
   protected isClipboardDialogOpen = false;
+  protected isNetworkDialogOpen = false;
   protected isPowerDialogOpen = false;
   protected clipboardTextInput = viewChild<ElementRef>("clipboardText");
 
-  handleClipboardDialogOpenClose(isOpen: boolean) {
+  protected handleClipboardDialogOpenClose(isOpen: boolean) {
     this.isClipboardDialogOpen = isOpen;
 
     if (isOpen) {
@@ -25,11 +26,24 @@ export class ConsoleToolbarDefaultComponent {
     }
   }
 
-  handlePowerDialogOpenClose(isOpen: boolean) {
+  protected handleNetworkChangeRequested(networkName?: string) {
+    if (!networkName) {
+      this.context().networks.disconnectRequested();
+    } else {
+      this.context().networks.connectionRequested(networkName);
+    }
+    this.isNetworkDialogOpen = false;
+  }
+
+  protected handleNetworkDialogOpenClose(isOpen: boolean) {
+    this.isNetworkDialogOpen = isOpen;
+  }
+
+  protected handlePowerDialogOpenClose(isOpen: boolean) {
     this.isPowerDialogOpen = isOpen;
   }
 
-  handleSendClipboardText(event: Event, text: string) {
+  protected handleSendClipboardText(event: Event, text: string) {
     event.preventDefault();
     this.context().console.sendTextToClipboard(text);
     this.isClipboardDialogOpen = false;

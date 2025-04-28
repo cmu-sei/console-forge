@@ -129,6 +129,7 @@ export class VncConsoleClientService implements ConsoleClientService {
       this.dispose();
     });
 
+    client.background = options.backgroundStyle || "";
     client.scaleViewport = options.scaleToContainerSize === undefined ? true : options.scaleToContainerSize;
     client.viewOnly = options.isViewOnly || false;
 

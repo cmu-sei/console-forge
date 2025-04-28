@@ -1,4 +1,4 @@
-import { Component, computed, effect, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, output, signal, TemplateRef, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
@@ -7,8 +7,9 @@ import { UuidService } from '../../services/uuid.service';
 import { LoggerService } from '../../services/logger.service';
 import { ConsoleToolbarComponent } from '../console-toolbar/console-toolbar.component';
 import { FullScreenService } from '../../services/full-screen.service';
-import { LogLevel } from '../../models/log-level';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
+import { LogLevel } from '../../models/log-level';
+import { ConsoleToolbarTemplateContext } from '../../models/console-toolbar-template-context';
 
 @Component({
   selector: 'cf-console',
@@ -22,14 +23,19 @@ import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 export class ConsoleComponent {
   // component I/O
   autoConnect = input(true);
+  availableNetworks = input<string[]>();
   config = input.required<ConsoleComponentConfig>();
+  currentNetwork = input<string>();
   isViewOnly = input(false);
   scaleToContainerSize = input(true);
   toolbarPosition = input<ConsoleToolbarPosition>("left");
+  toolbarCustomTemplate = input<TemplateRef<ConsoleToolbarTemplateContext>>();
 
   consoleClipboardUpdated = output<string>();
   ctrlAltDelSent = output<void>();
   localClipboardUpdated = output<string>();
+  networkConnectionRequested = output<string>();
+  networkDisconnectRequested = output<void>();
   screenshotCopied = output<Blob>();
   status = computed(() => this.consoleClient()?.connectionStatus() || "disconnected");
 
@@ -45,9 +51,6 @@ export class ConsoleComponent {
   protected consoleHostElement = viewChild.required<ElementRef<HTMLElement>>("consoleHost");
 
   // other component state
-  protected availableNetworks = computed(() => {
-
-  });
   protected consoleClient = signal<ConsoleClientService | undefined>(undefined);
   protected readonly consoleHostElementId = this.uuids.get();
 
@@ -78,9 +81,17 @@ export class ConsoleComponent {
         this.localClipboardUpdated.emit(this.consoleClient()!.localClipboardUpdated());
       }
     });
+
     // input changes
     effect(() => this.consoleClient()?.setIsViewOnly(this.isViewOnly()));
     effect(() => this.consoleClient()?.setScaleToContainerSize(this.scaleToContainerSize()));
+
+    // viewchild resolution
+    effect(() => {
+      if (this.consoleHostElement()?.nativeElement) {
+        this.consoleHostElement().nativeElement.style.background = this.consoleForgeConfig.consoleBackgroundStyle || "#000000";
+      }
+    });
   }
 
   protected async handleFullscreen(): Promise<void> {
