@@ -9,6 +9,7 @@ export abstract class ConsoleForgeConfig {
     abstract consoleToolbarComponent: Type<ConsoleToolbarComponentBase>;
     abstract defaultConsoleClientType?: ConsoleClientType;
     abstract enableClipboard: boolean;
+    abstract enableConsoleRecord: boolean;
     abstract logThreshold: LogLevel;
 }
 
@@ -16,5 +17,6 @@ export const defaultCfConfig: ConsoleForgeConfig = {
     consoleBackgroundStyle: "rgb(40, 40, 40)",
     consoleToolbarComponent: ConsoleToolbarDefaultComponent,
     enableClipboard: true,
+    enableConsoleRecord: true,
     logThreshold: LogLevel.WARNING
 }

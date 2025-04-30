@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { Component, computed, effect, ElementRef, inject, input, output, signal, Type, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
@@ -30,6 +31,7 @@ export class ConsoleComponent {
   toolbarPosition = input<ConsoleToolbarPosition>("left");
 
   consoleClipboardUpdated = output<string>();
+  consoleRecorded = output<Blob>();
   ctrlAltDelSent = output<void>();
   localClipboardUpdated = output<string>();
   networkConnectionRequested = output<string>();
@@ -38,19 +40,21 @@ export class ConsoleComponent {
   status = computed(() => this.consoleClient()?.connectionStatus() || "disconnected");
 
   // services
-  private consoleClientFactory = inject(ConsoleClientFactoryService);
-  private consoleForgeConfig = inject(ConsoleForgeConfig);
-  private fullscreen = inject(FullScreenService);
-  private logger = inject(LoggerService);
-  private uuids = inject(UuidService);
+  private readonly consoleClientFactory = inject(ConsoleClientFactoryService);
+  private readonly consoleForgeConfig = inject(ConsoleForgeConfig);
+  private readonly document = inject(DOCUMENT);
+  private readonly fullscreen = inject(FullScreenService);
+  private readonly logger = inject(LoggerService);
+  private readonly uuids = inject(UuidService);
 
   // viewkids
-  protected componentContainer = viewChild.required<ElementRef<HTMLElement>>("componentContainer");
-  protected consoleHostElement = viewChild.required<ElementRef<HTMLElement>>("consoleHost");
+  protected consoleCanvasElement?: HTMLCanvasElement;
+  protected readonly componentContainer = viewChild.required<ElementRef<HTMLElement>>("componentContainer");
+  protected readonly consoleHostElement = viewChild.required<ElementRef<HTMLElement>>("consoleHost");
 
   // other component state
-  protected consoleClient = signal<ConsoleClientService | undefined>(undefined);
-  protected readonly consoleHostElementId = this.uuids.get();
+  protected readonly consoleClient = signal<ConsoleClientService | undefined>(undefined);
+  protected readonly consoleHostElementId = `cf-console-${this.uuids.get()}`;
 
   constructor() {
     // we use an effect here because we want to allow the use case of reusing a single console component
@@ -79,17 +83,16 @@ export class ConsoleComponent {
         this.localClipboardUpdated.emit(this.consoleClient()!.localClipboardUpdated());
       }
     });
+    effect(() => {
+      // some (all?) console clients inject a canvas into the doc. If we can find it, we can offer a "record" button
+      if (this.document && this.consoleClient() && this.consoleClient()!.connectionStatus() == "connected") {
+        this.consoleCanvasElement = this.resolveConsoleCanvas() || undefined;
+      }
+    })
 
     // input changes
     effect(() => this.consoleClient()?.setIsViewOnly(this.isViewOnly()));
     effect(() => this.consoleClient()?.setScaleToContainerSize(this.scaleToContainerSize()));
-
-    // viewchild resolution
-    effect(() => {
-      if (this.consoleHostElement()?.nativeElement) {
-        this.consoleHostElement().nativeElement.style.background = this.consoleForgeConfig.consoleBackgroundStyle || "#000000";
-      }
-    });
   }
 
   protected async handleFullscreen(): Promise<void> {
@@ -137,5 +140,13 @@ export class ConsoleComponent {
   public async disconnect() {
     this.logger.log(LogLevel.DEBUG, "Console component disconnect invoked.");
     await this.consoleClient()?.disconnect();
+  }
+
+  private resolveConsoleCanvas() {
+    if (!this.document) {
+      return null;
+    }
+
+    return (this.document.querySelector(`#${this.consoleHostElementId} canvas`) as HTMLCanvasElement) || undefined;
   }
 }

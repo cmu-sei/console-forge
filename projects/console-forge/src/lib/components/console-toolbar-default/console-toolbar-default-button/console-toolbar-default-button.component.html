@@ -1,5 +1,5 @@
-<div class="svg-button" cfClassOnHover applyClasses="hovered" [class.cursor-pointer]="!disabled()"
-    (click)="!disabled() && clicked.emit()">
+<div class="svg-button" cfClassOnHover applyClasses="hovered" [ariaDisabled]="disabled()"
+    [class.cursor-pointer]="!disabled()" [class.disabled]="disabled()" (click)="!disabled() && clicked.emit()">
     <div class="svg-container">
         <ng-content></ng-content>
     </div>

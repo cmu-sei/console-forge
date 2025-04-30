@@ -2,7 +2,7 @@
 
 @if (cfConfig) {
 <cf-console [config]="cfConfig" [availableNetworks]="availableNetworks()" [currentNetwork]="'lan1'"
-    (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
+    (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)" (consoleRecorded)="handleConsoleRecorded($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
     (networkDisconnectRequested)="handleNetworkDisconnectRequest()" [scaleToContainerSize]="scaleToContainer()"
@@ -28,6 +28,11 @@
     <mat-form-field>
         <mat-label>VNC Password</mat-label>
         <input matInput placeholder="a-password" formControlName="password">
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>VNC Ticket</mat-label>
+        <input matInput placeholder="a-secret-ticket" formControlName="ticket">
     </mat-form-field>
 
     <div class="console-checkboxes flex gap-2">

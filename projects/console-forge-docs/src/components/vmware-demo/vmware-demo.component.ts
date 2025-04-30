@@ -32,7 +32,7 @@ export class VmwareDemoComponent {
   protected configForm = new FormGroup({
     autoFocusOnConnect: new FormControl(false),
     consoleClientType: new FormControl<ConsoleClientType>("vmware"),
-    url: new FormControl("wss://launchpad.cisa.gov/console/ticket/d9dafa030e81e666?vmhost=10.52.32.17")
+    url: new FormControl("wss://launchpad.cisa.gov/console/ticket/4b75d37a06e9ca5d?vmhost=10.52.32.13")
   });
   protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
   protected scaleToContainer = model(false);

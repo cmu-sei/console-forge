@@ -11,7 +11,6 @@
 <div class="post-connection-controls flex my-2 gap-2">
     <button mat-flat-button type="button" (click)="handleDisconnect()">Disconnect</button>
     <button mat-flat-button type="button" (click)="handleToggleScale()">Toggle Scale</button>
-    <mat-checkbox [(ngModel)]="isViewOnly">View Only</mat-checkbox>
 </div>
 }
 
@@ -19,7 +18,7 @@
 
 <form class="console-config-form" (submit)="handleFormSubmit()" [formGroup]="configForm">
     <mat-form-field>
-        <mat-label>VNC Console URL</mat-label>
+        <mat-label>VMWare Console URL</mat-label>
         <input matInput placeholder="http://localhost:5950" formControlName="url">
     </mat-form-field>
 

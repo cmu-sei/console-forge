@@ -9,6 +9,8 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
-    provideConsoleForge({ logThreshold: LogLevel.DEBUG })
+    provideConsoleForge({
+      logThreshold: LogLevel.DEBUG
+    })
   ]
 };

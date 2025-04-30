@@ -19,6 +19,12 @@ cf-console-toolbar {
   height: 100%;
 }
 
+::ng-deep {
+  canvas {
+    max-width: 100%;
+  }
+}
+
 /* conditionally used based on the toolbarPosition input to the component */
 .flex {
   display: flex;

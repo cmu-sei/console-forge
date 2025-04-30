@@ -14,7 +14,7 @@
   width: 74px;
   margin: 0;
 
-  &:hover {
+  &:hover:not(.disabled) {
     color: var(--pico-primary);
     fill: var(--pico-primary);
     stroke: var(--pico-primary);
@@ -59,7 +59,7 @@
     }
   }
 
-  .hovered {
+  .hovered:not(.disabled) {
     svg,
     path,
     rect {

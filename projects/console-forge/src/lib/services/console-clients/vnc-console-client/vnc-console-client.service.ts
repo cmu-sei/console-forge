@@ -23,6 +23,9 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   // the actual client from @novnc/novnc
   private noVncClient?: NoVncClient;
+  // track whether a manual disconnection has been requested.
+  // we check this on disconnect to see if the disconnect was unexpected.
+  private manualDisconnectRequested = false;
 
   public async connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures> {
     try {
@@ -60,12 +63,18 @@ export class VncConsoleClientService implements ConsoleClientService {
   }
 
   public async disconnect(): Promise<void> {
-    console.log("disconnect called");
+    this.logger.log(LogLevel.DEBUG, "Manual disconnection requested");
+    this.manualDisconnectRequested = true;
     return this.dispose();
   }
 
   public dispose(): void {
     if (this.noVncClient) {
+      if (this.manualDisconnectRequested) {
+        this.logger.log(LogLevel.WARNING, "Unexpected disconnection");
+        this.manualDisconnectRequested = false;
+      }
+
       this._connectionStatus.update(() => "disconnected");
       this.noVncClient.disconnect();
       this.noVncClient = undefined;
@@ -124,10 +133,7 @@ export class VncConsoleClientService implements ConsoleClientService {
   private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
     client.addEventListener("clipboard", ev => this._localClipboardUpdated.update(() => ev.detail.text));
     client.addEventListener("connect", () => this._connectionStatus.update(() => "connected"));
-    client.addEventListener("disconnect", () => {
-      this.logger.log(LogLevel.WARNING, "Client disconnect, disposing")
-      this.dispose();
-    });
+    client.addEventListener("disconnect", () => this.dispose());
 
     client.background = options.backgroundStyle || "";
     client.scaleViewport = options.scaleToContainerSize === undefined ? true : options.scaleToContainerSize;
