@@ -1,7 +1,28 @@
 @use "@picocss/pico/scss";
 
+:host {
+  background-color: transparent;
+}
+
+@keyframes glow-button-color {
+  0% {
+    color: var(--pico-secondary);
+    fill: var(--pico-secondary);
+    stroke: var(--pico-secondary);
+  }
+  50% {
+    color: #ee402e;
+    fill: #ee402e;
+    stroke: #ee402e;
+  }
+  100% {
+    color: var(--pico-secondary);
+    fill: var(--pico-secondary);
+    stroke: var(--pico-secondary);
+  }
+}
+
 .svg-button {
-  background: transparent;
   border: none;
   border-width: 0 !important;
   color: var(--pico-secondary);
@@ -20,6 +41,10 @@
     stroke: var(--pico-primary);
     font-weight: bold;
     transition: all 0.3s ease;
+  }
+
+  &.ongoing {
+    animation: glow-button-color 1300ms infinite;
   }
 }
 
@@ -40,8 +65,6 @@
 
 ::ng-deep {
   svg {
-    fill: var(--pico-secondary);
-    stroke: var(--pico-secondary);
     height: 100%;
     width: 100%;
     padding: 1rem;
@@ -66,6 +89,15 @@
       fill: var(--pico-primary);
       stroke: var(--pico-primary);
       transition: all 0.3s ease;
+    }
+  }
+
+  .ongoing:not(.disabled) {
+    svg,
+    path,
+    rect,
+    .svg-button {
+      animation: glow-button-color 1300ms infinite;
     }
   }
 }

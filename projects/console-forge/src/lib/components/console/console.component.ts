@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, computed, effect, ElementRef, inject, input, output, signal, Type, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, model, output, signal, Type, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
@@ -28,7 +28,7 @@ export class ConsoleComponent {
   isViewOnly = input(false);
   scaleToContainerSize = input(true);
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
-  toolbarPosition = input<ConsoleToolbarPosition>("left");
+  toolbarPosition = model<ConsoleToolbarPosition>("left");
 
   consoleClipboardUpdated = output<string>();
   consoleRecorded = output<Blob>();
@@ -106,6 +106,10 @@ export class ConsoleComponent {
     else {
       await this.fullscreen.tryFullscreen(this.componentContainer().nativeElement);
     }
+  }
+
+  protected handleToolbarPositionChangeRequest(position: ConsoleToolbarPosition) {
+    this.toolbarPosition.update(() => position);
   }
 
   // automatically invoked if autoConnect is on, but can also be manually invoked outside the component

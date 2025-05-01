@@ -1,123 +1,158 @@
 @if (consoleContext()) {
-<div class="button-container">
-    <cf-console-toolbar-default-button [disabled]="!consoleContext().state.isConnected()" label="Clipboard"
-        (clicked)="handleClipboardDialogOpenClose(true)">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-            <g id="SVGRepo_iconCarrier">
-                <path
-                    d="M8 5.00005C7.01165 5.00082 6.49359 5.01338 6.09202 5.21799C5.71569 5.40973 5.40973 5.71569 5.21799 6.09202C5 6.51984 5 7.07989 5 8.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.07989 21 8.2 21H15.8C16.9201 21 17.4802 21 17.908 20.782C18.2843 20.5903 18.5903 20.2843 18.782 19.908C19 19.4802 19 18.9201 19 17.8V8.2C19 7.07989 19 6.51984 18.782 6.09202C18.5903 5.71569 18.2843 5.40973 17.908 5.21799C17.5064 5.01338 16.9884 5.00082 16 5.00005M8 5.00005V7H16V5.00005M8 5.00005V4.70711C8 4.25435 8.17986 3.82014 8.5 3.5C8.82014 3.17986 9.25435 3 9.70711 3H14.2929C14.7456 3 15.1799 3.17986 15.5 3.5C15.8201 3.82014 16 4.25435 16 4.70711V5.00005M15 12H12M15 16H12M9 12H9.01M9 16H9.01"
-                    stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-            </g>
-        </svg>
-    </cf-console-toolbar-default-button>
+<div class="toolbar-container" [class.horizontal]="consoleContext().toolbar.orientation() == 'horizontal'">
+    <div class="button-container">
+        <cf-console-toolbar-default-button label="Toolbar" (click)="isDockDialogOpen = true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <path d="M8 9H6V15H8V9Z" fill="#000000"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M2 8C2 6.34315 3.34315 5 5 5H19C20.6569 5 22 6.34315 22 8V16C22 17.6569 20.6569 19 19 19H5C3.34315 19 2 17.6569 2 16V8ZM5 7H19C19.5523 7 20 7.44771 20 8V16C20 16.5523 19.5523 17 19 17H5C4.44772 17 4 16.5523 4 16V8C4 7.44772 4.44772 7 5 7Z"
+                        fill="#000000"></path>
+                </g>
+            </svg>
+        </cf-console-toolbar-default-button>
 
-    <cf-console-toolbar-default-button (clicked)="consoleContext().console.copyScreenshot()"
-        [disabled]="!consoleContext().state.isConnected()" label="Screenshot">
-        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd"
-                d="M9.15023 3.01742C9.13605 3.03985 9.12278 3.0676 9.11298 3.09958C9.11044 3.10789 9.10778 3.11617 9.10502 3.12442L8.36963 5.31787C8.23301 5.72537 7.85129 6 7.4215 6H3C2.44772 6 2 6.44772 2 7V20C2 20.5523 2.44771 21 3 21H21C21.5523 21 22 20.5523 22 20V7C22 6.44771 21.5523 6 21 6H16.331C15.9011 6 15.5194 5.72528 15.3828 5.31769L14.6479 3.12423C14.6452 3.11605 14.6425 3.10783 14.64 3.09958C14.6302 3.0676 14.6169 3.03985 14.6027 3.01742C14.5986 3.01089 14.5946 3.00509 14.5908 3H9.16221C9.1584 3.00509 9.15437 3.01089 9.15023 3.01742ZM7.20525 2.49911C7.43535 1.76672 8.10563 1 9.06392 1H14.6891C15.6474 1 16.3177 1.76679 16.5478 2.49922L17.0506 4H21C22.6569 4 24 5.34315 24 7V20C24 21.6569 22.6569 23 21 23H3C1.34315 23 0 21.6569 0 20V7C0 5.34315 1.34315 4 3 4H6.70206L7.20525 2.49911ZM7 13C7 10.2386 9.23858 8 12 8C14.7614 8 17 10.2386 17 13C17 15.7614 14.7614 18 12 18C9.23858 18 7 15.7614 7 13ZM12 10C10.3431 10 9 11.3431 9 13C9 14.6569 10.3431 16 12 16C13.6569 16 15 14.6569 15 13C15 11.3431 13.6569 10 12 10Z"
-                fill="none" />
-        </svg>
-    </cf-console-toolbar-default-button>
+        <cf-console-toolbar-default-button [disabled]="!consoleContext().state.isConnected()" label="Clipboard"
+            (clicked)="handleClipboardDialogOpenClose(true)">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <path
+                        d="M8 5.00005C7.01165 5.00082 6.49359 5.01338 6.09202 5.21799C5.71569 5.40973 5.40973 5.71569 5.21799 6.09202C5 6.51984 5 7.07989 5 8.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.07989 21 8.2 21H15.8C16.9201 21 17.4802 21 17.908 20.782C18.2843 20.5903 18.5903 20.2843 18.782 19.908C19 19.4802 19 18.9201 19 17.8V8.2C19 7.07989 19 6.51984 18.782 6.09202C18.5903 5.71569 18.2843 5.40973 17.908 5.21799C17.5064 5.01338 16.9884 5.00082 16 5.00005M8 5.00005V7H16V5.00005M8 5.00005V4.70711C8 4.25435 8.17986 3.82014 8.5 3.5C8.82014 3.17986 9.25435 3 9.70711 3H14.2929C14.7456 3 15.1799 3.17986 15.5 3.5C15.8201 3.82014 16 4.25435 16 4.70711V5.00005M15 12H12M15 16H12M9 12H9.01M9 16H9.01"
+                        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </g>
+            </svg>
+        </cf-console-toolbar-default-button>
 
-    @if (cfConfig.enableConsoleRecord) {
-    <cf-console-toolbar-default-button (clicked)="handleRecordRequest()"
-        [disabled]="!consoleContext().state.isRecordingAvailable()" label="Record">
-        <svg viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-            <g id="SVGRepo_iconCarrier">
-                <title>record [#979]</title>
-                <desc>Created with Sketch.</desc>
-                <defs> </defs>
-                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <g id="Dribbble-Light-Preview" transform="translate(-100.000000, -3879.000000)" fill="#000000">
-                        <g id="icons" transform="translate(56.000000, 160.000000)">
-                            <path
-                                d="M56,3719 L56,3721 L62,3721 L62,3727 L64,3727 L64,3719 L56,3719 Z M58,3729.151 C58,3726.942 56.209,3725.151 54,3725.151 C51.791,3725.151 50,3726.942 50,3729.151 C50,3731.36 51.791,3733.151 54,3733.151 C56.209,3733.151 58,3731.36 58,3729.151 L58,3729.151 Z M62,3737 L56,3737 L56,3739 L64,3739 L64,3731 L62,3731 L62,3737 Z M46,3731 L44,3731 L44,3739 L52,3739 L52,3737 L46,3737 L46,3731 Z M46,3727 L44,3727 L44,3719 L52,3719 L52,3721 L46,3721 L46,3727 Z"
-                                id="record-[#979]"> </path>
+        <cf-console-toolbar-default-button (clicked)="consoleContext().console.copyScreenshot()"
+            [disabled]="!consoleContext().state.isConnected()" label="Screenshot">
+            <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M9.15023 3.01742C9.13605 3.03985 9.12278 3.0676 9.11298 3.09958C9.11044 3.10789 9.10778 3.11617 9.10502 3.12442L8.36963 5.31787C8.23301 5.72537 7.85129 6 7.4215 6H3C2.44772 6 2 6.44772 2 7V20C2 20.5523 2.44771 21 3 21H21C21.5523 21 22 20.5523 22 20V7C22 6.44771 21.5523 6 21 6H16.331C15.9011 6 15.5194 5.72528 15.3828 5.31769L14.6479 3.12423C14.6452 3.11605 14.6425 3.10783 14.64 3.09958C14.6302 3.0676 14.6169 3.03985 14.6027 3.01742C14.5986 3.01089 14.5946 3.00509 14.5908 3H9.16221C9.1584 3.00509 9.15437 3.01089 9.15023 3.01742ZM7.20525 2.49911C7.43535 1.76672 8.10563 1 9.06392 1H14.6891C15.6474 1 16.3177 1.76679 16.5478 2.49922L17.0506 4H21C22.6569 4 24 5.34315 24 7V20C24 21.6569 22.6569 23 21 23H3C1.34315 23 0 21.6569 0 20V7C0 5.34315 1.34315 4 3 4H6.70206L7.20525 2.49911ZM7 13C7 10.2386 9.23858 8 12 8C14.7614 8 17 10.2386 17 13C17 15.7614 14.7614 18 12 18C9.23858 18 7 15.7614 7 13ZM12 10C10.3431 10 9 11.3431 9 13C9 14.6569 10.3431 16 12 16C13.6569 16 15 14.6569 15 13C15 11.3431 13.6569 10 12 10Z"
+                    fill="none" />
+            </svg>
+        </cf-console-toolbar-default-button>
+
+        @if (cfConfig.enableConsoleRecord) {
+        <cf-console-toolbar-default-button (clicked)="handleRecordRequest()"
+            [disabled]="!consoleContext().state.isRecordingAvailable()"
+            [isOngoing]="consoleContext().state.isRecording()" label="Record">
+            @if (!consoleContext().state.isRecording()) {
+            <svg viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <title>record [#979]</title>
+                    <desc>Created with Sketch.</desc>
+                    <defs> </defs>
+                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="Dribbble-Light-Preview" transform="translate(-100.000000, -3879.000000)" fill="#000000">
+                            <g id="icons" transform="translate(56.000000, 160.000000)">
+                                <path
+                                    d="M56,3719 L56,3721 L62,3721 L62,3727 L64,3727 L64,3719 L56,3719 Z M58,3729.151 C58,3726.942 56.209,3725.151 54,3725.151 C51.791,3725.151 50,3726.942 50,3729.151 C50,3731.36 51.791,3733.151 54,3733.151 C56.209,3733.151 58,3731.36 58,3729.151 L58,3729.151 Z M62,3737 L56,3737 L56,3739 L64,3739 L64,3731 L62,3731 L62,3737 Z M46,3731 L44,3731 L44,3739 L52,3739 L52,3737 L46,3737 L46,3731 Z M46,3727 L44,3727 L44,3719 L52,3719 L52,3721 L46,3721 L46,3727 Z"
+                                    id="record-[#979]"> </path>
+                            </g>
                         </g>
                     </g>
                 </g>
-            </g>
-        </svg>
-    </cf-console-toolbar-default-button>
-    }
-
-    <cf-console-toolbar-default-button (clicked)="consoleContext().console.toggleFullscreen()" label="Fullscreen">
-        @if (consoleContext().state.isFullscreenAvailable()) {
-        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-                d="M21.7092 2.29502C21.8041 2.3904 21.8757 2.50014 21.9241 2.61722C21.9727 2.73425 21.9996 2.8625 22 2.997L22 3V9C22 9.55228 21.5523 10 21 10C20.4477 10 20 9.55228 20 9V5.41421L14.7071 10.7071C14.3166 11.0976 13.6834 11.0976 13.2929 10.7071C12.9024 10.3166 12.9024 9.68342 13.2929 9.29289L18.5858 4H15C14.4477 4 14 3.55228 14 3C14 2.44772 14.4477 2 15 2H20.9998C21.2749 2 21.5242 2.11106 21.705 2.29078L21.7092 2.29502Z"
-                fill="#000000" />
-            <path
-                d="M10.7071 14.7071L5.41421 20H9C9.55228 20 10 20.4477 10 21C10 21.5523 9.55228 22 9 22H3.00069L2.997 22C2.74301 21.9992 2.48924 21.9023 2.29502 21.7092L2.29078 21.705C2.19595 21.6096 2.12432 21.4999 2.07588 21.3828C2.02699 21.2649 2 21.1356 2 21V15C2 14.4477 2.44772 14 3 14C3.55228 14 4 14.4477 4 15V18.5858L9.29289 13.2929C9.68342 12.9024 10.3166 12.9024 10.7071 13.2929C11.0976 13.6834 11.0976 14.3166 10.7071 14.7071Z"
-                fill="#000000" />
-        </svg>
-        } @else {
-        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-                d="M7 9C8.10457 9 9 8.10457 9 7V3C9 2.44772 8.55228 2 8 2C7.44772 2 7 2.44772 7 3V7H3C2.44772 7 2 7.44772 2 8C2 8.55228 2.44772 9 3 9H7Z"
-                fill="#000000" />
-            <path
-                d="M17 9C15.8954 9 15 8.10457 15 7V3C15 2.44772 15.4477 2 16 2C16.5523 2 17 2.44772 17 3V7H21C21.5523 7 22 7.44772 22 8C22 8.55228 21.5523 9 21 9H17Z"
-                fill="#000000" />
-            <path
-                d="M17 15C15.8954 15 15 15.8954 15 17V21C15 21.5523 15.4477 22 16 22C16.5523 22 17 21.5523 17 21V17H21C21.5523 17 22 16.5523 22 16C22 15.4477 21.5523 15 21 15H17Z"
-                fill="#000000" />
-            <path
-                d="M9 17C9 15.8954 8.10457 15 7 15H3C2.44772 15 2 15.4477 2 16C2 16.5523 2.44772 17 3 17H7V21C7 21.5523 7.44772 22 8 22C8.55228 22 9 21.5523 9 21V17Z"
-                fill="#000000" />
-        </svg>
+            </svg>
+            } @else {
+            <svg viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="Dribbble-Light-Preview" transform="translate(-59.000000, -440.000000)" fill="#000000">
+                            <g id="icons" transform="translate(56.000000, 160.000000)">
+                                <path
+                                    d="M9.3,294 L17.7,294 L17.7,286 L9.3,286 L9.3,294 Z M15.6,280 L15.6,282 L21.9,282 L21.9,288 L24,288 L24,280 L15.6,280 Z M21.9,298 L15.6,298 L15.6,300 L24,300 L24,292 L21.9,292 L21.9,298 Z M5.1,292 L3,292 L3,300 L11.4,300 L11.4,298 L5.1,298 L5.1,292 Z M5.1,288 L3,288 L3,280 L11.4,280 L11.4,282 L5.1,282 L5.1,288 Z"
+                                    id="stop-[#1470]"> </path>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </svg>
+            }
+        </cf-console-toolbar-default-button>
         }
-    </cf-console-toolbar-default-button>
 
-    @if (consoleContext().networks.list().length && consoleContext().state.isConnected()) {
-    <hr class="powerful-buttons-divider" />
-
-    <cf-console-toolbar-default-button label="Networks ({{ consoleContext().networks.list().length }})"
-        (clicked)="handleNetworkDialogOpenClose(true)">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-            <g id="SVGRepo_iconCarrier">
+        <cf-console-toolbar-default-button (clicked)="consoleContext().console.toggleFullscreen()" label="Fullscreen">
+            @if (consoleContext().state.isFullscreenAvailable()) {
+            <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
-                    d="M3 12H21M12 8V12M6.5 12V16M17.5 12V16M10.1 8H13.9C14.4601 8 14.7401 8 14.954 7.89101C15.1422 7.79513 15.2951 7.64215 15.391 7.45399C15.5 7.24008 15.5 6.96005 15.5 6.4V4.6C15.5 4.03995 15.5 3.75992 15.391 3.54601C15.2951 3.35785 15.1422 3.20487 14.954 3.10899C14.7401 3 14.4601 3 13.9 3H10.1C9.53995 3 9.25992 3 9.04601 3.10899C8.85785 3.20487 8.70487 3.35785 8.60899 3.54601C8.5 3.75992 8.5 4.03995 8.5 4.6V6.4C8.5 6.96005 8.5 7.24008 8.60899 7.45399C8.70487 7.64215 8.85785 7.79513 9.04601 7.89101C9.25992 8 9.53995 8 10.1 8ZM15.6 21H19.4C19.9601 21 20.2401 21 20.454 20.891C20.6422 20.7951 20.7951 20.6422 20.891 20.454C21 20.2401 21 19.9601 21 19.4V17.6C21 17.0399 21 16.7599 20.891 16.546C20.7951 16.3578 20.6422 16.2049 20.454 16.109C20.2401 16 19.9601 16 19.4 16H15.6C15.0399 16 14.7599 16 14.546 16.109C14.3578 16.2049 14.2049 16.3578 14.109 16.546C14 16.7599 14 17.0399 14 17.6V19.4C14 19.9601 14 20.2401 14.109 20.454C14.2049 20.6422 14.3578 20.7951 14.546 20.891C14.7599 21 15.0399 21 15.6 21ZM4.6 21H8.4C8.96005 21 9.24008 21 9.45399 20.891C9.64215 20.7951 9.79513 20.6422 9.89101 20.454C10 20.2401 10 19.9601 10 19.4V17.6C10 17.0399 10 16.7599 9.89101 16.546C9.79513 16.3578 9.64215 16.2049 9.45399 16.109C9.24008 16 8.96005 16 8.4 16H4.6C4.03995 16 3.75992 16 3.54601 16.109C3.35785 16.2049 3.20487 16.3578 3.10899 16.546C3 16.7599 3 17.0399 3 17.6V19.4C3 19.9601 3 20.2401 3.10899 20.454C3.20487 20.6422 3.35785 20.7951 3.54601 20.891C3.75992 21 4.03995 21 4.6 21Z"
-                    stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-            </g>
-        </svg>
-    </cf-console-toolbar-default-button>
-    }
+                    d="M21.7092 2.29502C21.8041 2.3904 21.8757 2.50014 21.9241 2.61722C21.9727 2.73425 21.9996 2.8625 22 2.997L22 3V9C22 9.55228 21.5523 10 21 10C20.4477 10 20 9.55228 20 9V5.41421L14.7071 10.7071C14.3166 11.0976 13.6834 11.0976 13.2929 10.7071C12.9024 10.3166 12.9024 9.68342 13.2929 9.29289L18.5858 4H15C14.4477 4 14 3.55228 14 3C14 2.44772 14.4477 2 15 2H20.9998C21.2749 2 21.5242 2.11106 21.705 2.29078L21.7092 2.29502Z"
+                    fill="#000000" />
+                <path
+                    d="M10.7071 14.7071L5.41421 20H9C9.55228 20 10 20.4477 10 21C10 21.5523 9.55228 22 9 22H3.00069L2.997 22C2.74301 21.9992 2.48924 21.9023 2.29502 21.7092L2.29078 21.705C2.19595 21.6096 2.12432 21.4999 2.07588 21.3828C2.02699 21.2649 2 21.1356 2 21V15C2 14.4477 2.44772 14 3 14C3.55228 14 4 14.4477 4 15V18.5858L9.29289 13.2929C9.68342 12.9024 10.3166 12.9024 10.7071 13.2929C11.0976 13.6834 11.0976 14.3166 10.7071 14.7071Z"
+                    fill="#000000" />
+            </svg>
+            } @else {
+            <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M7 9C8.10457 9 9 8.10457 9 7V3C9 2.44772 8.55228 2 8 2C7.44772 2 7 2.44772 7 3V7H3C2.44772 7 2 7.44772 2 8C2 8.55228 2.44772 9 3 9H7Z"
+                    fill="#000000" />
+                <path
+                    d="M17 9C15.8954 9 15 8.10457 15 7V3C15 2.44772 15.4477 2 16 2C16.5523 2 17 2.44772 17 3V7H21C21.5523 7 22 7.44772 22 8C22 8.55228 21.5523 9 21 9H17Z"
+                    fill="#000000" />
+                <path
+                    d="M17 15C15.8954 15 15 15.8954 15 17V21C15 21.5523 15.4477 22 16 22C16.5523 22 17 21.5523 17 21V17H21C21.5523 17 22 16.5523 22 16C22 15.4477 21.5523 15 21 15H17Z"
+                    fill="#000000" />
+                <path
+                    d="M9 17C9 15.8954 8.10457 15 7 15H3C2.44772 15 2 15.4477 2 16C2 16.5523 2.44772 17 3 17H7V21C7 21.5523 7.44772 22 8 22C8.55228 22 9 21.5523 9 21V17Z"
+                    fill="#000000" />
+            </svg>
+            }
+        </cf-console-toolbar-default-button>
 
-    <hr class="powerful-buttons-divider" />
+        @if (consoleContext().networks.list().length && consoleContext().state.isConnected()) {
+        <hr class="powerful-buttons-divider" />
 
-    <cf-console-toolbar-default-button label="Ctrl+Alt+Del" (clicked)="consoleContext().console.sendCtrlAltDel()"
-        [disabled]="!consoleContext().state.isConnected()">
-        <svg fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 8 8" enable-background="new 0 0 8 8"
-            xml:space="preserve">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-            <g id="SVGRepo_iconCarrier">
-                <rect x="2.989" width="2.023" height="5.471"></rect>
-                <rect x="2.989" y="6.39" width="2.023" height="1.61"></rect>
-            </g>
-        </svg>
-    </cf-console-toolbar-default-button>
+        <cf-console-toolbar-default-button label="Networks ({{ consoleContext().networks.list().length }})"
+            (clicked)="handleNetworkDialogOpenClose(true)">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <path
+                        d="M3 12H21M12 8V12M6.5 12V16M17.5 12V16M10.1 8H13.9C14.4601 8 14.7401 8 14.954 7.89101C15.1422 7.79513 15.2951 7.64215 15.391 7.45399C15.5 7.24008 15.5 6.96005 15.5 6.4V4.6C15.5 4.03995 15.5 3.75992 15.391 3.54601C15.2951 3.35785 15.1422 3.20487 14.954 3.10899C14.7401 3 14.4601 3 13.9 3H10.1C9.53995 3 9.25992 3 9.04601 3.10899C8.85785 3.20487 8.70487 3.35785 8.60899 3.54601C8.5 3.75992 8.5 4.03995 8.5 4.6V6.4C8.5 6.96005 8.5 7.24008 8.60899 7.45399C8.70487 7.64215 8.85785 7.79513 9.04601 7.89101C9.25992 8 9.53995 8 10.1 8ZM15.6 21H19.4C19.9601 21 20.2401 21 20.454 20.891C20.6422 20.7951 20.7951 20.6422 20.891 20.454C21 20.2401 21 19.9601 21 19.4V17.6C21 17.0399 21 16.7599 20.891 16.546C20.7951 16.3578 20.6422 16.2049 20.454 16.109C20.2401 16 19.9601 16 19.4 16H15.6C15.0399 16 14.7599 16 14.546 16.109C14.3578 16.2049 14.2049 16.3578 14.109 16.546C14 16.7599 14 17.0399 14 17.6V19.4C14 19.9601 14 20.2401 14.109 20.454C14.2049 20.6422 14.3578 20.7951 14.546 20.891C14.7599 21 15.0399 21 15.6 21ZM4.6 21H8.4C8.96005 21 9.24008 21 9.45399 20.891C9.64215 20.7951 9.79513 20.6422 9.89101 20.454C10 20.2401 10 19.9601 10 19.4V17.6C10 17.0399 10 16.7599 9.89101 16.546C9.79513 16.3578 9.64215 16.2049 9.45399 16.109C9.24008 16 8.96005 16 8.4 16H4.6C4.03995 16 3.75992 16 3.54601 16.109C3.35785 16.2049 3.20487 16.3578 3.10899 16.546C3 16.7599 3 17.0399 3 17.6V19.4C3 19.9601 3 20.2401 3.10899 20.454C3.20487 20.6422 3.35785 20.7951 3.54601 20.891C3.75992 21 4.03995 21 4.6 21Z"
+                        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </g>
+            </svg>
+        </cf-console-toolbar-default-button>
+        }
 
-    <cf-console-toolbar-default-button label="Power" (clicked)="handlePowerDialogOpenClose(true)">
-        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-                d="M13 3C13 2.44772 12.5523 2 12 2C11.4477 2 11 2.44772 11 3V13C11 13.5523 11.4477 14 12 14C12.5523 14 13 13.5523 13 13V3Z"
-                fill="none" />
-            <path
-                d="M6.2798 6.70707C6.67031 6.31653 6.67028 5.68337 6.27973 5.29286C5.88919 4.90235 5.25603 4.90238 4.86552 5.29293C3.09635 7.06226 2 9.49298 2 12.1764C2 17.6204 6.49591 22 12 22C17.5041 22 22 17.6204 22 12.1764C22 9.49298 20.9036 7.06226 19.1345 5.29293C18.744 4.90238 18.1108 4.90235 17.7203 5.29286C17.3297 5.68337 17.3297 6.31653 17.7202 6.70707C19.1338 8.12083 20 10.0503 20 12.1764C20 16.4787 16.437 20 12 20C7.56296 20 4 16.4787 4 12.1764C4 10.0503 4.86618 8.12083 6.2798 6.70707Z"
-                fill="none" />
-        </svg>
-    </cf-console-toolbar-default-button>
+        <hr class="powerful-buttons-divider" />
+
+        <cf-console-toolbar-default-button label="Ctrl+Alt+Del" (clicked)="consoleContext().console.sendCtrlAltDel()"
+            [disabled]="!consoleContext().state.isConnected()">
+            <svg fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 8 8" enable-background="new 0 0 8 8"
+                xml:space="preserve">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <rect x="2.989" width="2.023" height="5.471"></rect>
+                    <rect x="2.989" y="6.39" width="2.023" height="1.61"></rect>
+                </g>
+            </svg>
+        </cf-console-toolbar-default-button>
+
+        <cf-console-toolbar-default-button label="Power" (clicked)="handlePowerDialogOpenClose(true)">
+            <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M13 3C13 2.44772 12.5523 2 12 2C11.4477 2 11 2.44772 11 3V13C11 13.5523 11.4477 14 12 14C12.5523 14 13 13.5523 13 13V3Z"
+                    fill="none" />
+                <path
+                    d="M6.2798 6.70707C6.67031 6.31653 6.67028 5.68337 6.27973 5.29286C5.88919 4.90235 5.25603 4.90238 4.86552 5.29293C3.09635 7.06226 2 9.49298 2 12.1764C2 17.6204 6.49591 22 12 22C17.5041 22 22 17.6204 22 12.1764C22 9.49298 20.9036 7.06226 19.1345 5.29293C18.744 4.90238 18.1108 4.90235 17.7203 5.29286C17.3297 5.68337 17.3297 6.31653 17.7202 6.70707C19.1338 8.12083 20 10.0503 20 12.1764C20 16.4787 16.437 20 12 20C7.56296 20 4 16.4787 4 12.1764C4 10.0503 4.86618 8.12083 6.2798 6.70707Z"
+                    fill="none" />
+            </svg>
+        </cf-console-toolbar-default-button>
+    </div>
 </div>
 }
 
@@ -139,6 +174,24 @@
                         [disabled]="!clipboardText.value || !consoleContext().state.isConnected">Send</button>
                 </fieldset>
             </form>
+        </div>
+    </article>
+</dialog>
+
+<dialog [open]="isDockDialogOpen">
+    <article>
+        <header>
+            <button aria-label="Close" rel="prev" (click)="isDockDialogOpen = false"></button>
+            <p>
+                <strong>Toolbar Position</strong>
+            </p>
+        </header>
+
+        <div class="toolbar-position-buttons">
+            <button (click)="handleChangeToolbarPosition('left')">Left</button>
+            <button (click)="handleChangeToolbarPosition('right')">Right</button>
+            <button (click)="handleChangeToolbarPosition('top')">Top</button>
+            <button (click)="handleChangeToolbarPosition('bottom')">Bottom</button>
         </div>
     </article>
 </dialog>

@@ -2,34 +2,61 @@
 
 :host {
   display: block;
+  background-color: var(--pico-background);
   height: 100%;
-  align-self: stretch;
-  position: relative;
-  width: 84px;
-  padding: 4px;
+  width: 100%;
 }
 
-.button-container {
+// :host.horizontal {
+//   height: unset;
+//   width: 100%;
+// }
+
+.toolbar-container {
+  padding: 4px;
+  height: 100%;
+  width: 84px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  gap: 12px;
 
-  // positioning party
-  position: absolute;
-  transform: translateY(-50%);
-  top: 50%;
+  .button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
 
-  cf-console-toolbar-default-button {
-    display: block;
+  hr {
+    border-top: 3px solid var(--pico-primary);
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  &.horizontal {
+    height: 84px;
+    width: 100%;
+
+    .button-container {
+      flex-direction: row;
+    }
   }
 }
 
-hr {
-  border-bottom: 1px solid var(--pico-secondary);
+cf-console-toolbar-default-button {
+  display: block;
 }
 
 .power-buttons button {
   display: block;
   width: 100%;
+}
+
+.toolbar-position-buttons {
+  display: flex;
+  gap: 4px;
+
+  button {
+    flex-grow: 1;
+  }
 }

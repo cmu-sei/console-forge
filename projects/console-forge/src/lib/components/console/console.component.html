@@ -1,27 +1,19 @@
 <div #componentContainer class="console-component flex"
     [class.flex-column]="toolbarPosition() === 'top' || toolbarPosition() === 'bottom'">
 
-    @if (consoleClient() && (toolbarPosition() === 'left' || toolbarPosition() === 'top')) {
-    <cf-console-toolbar [availableNetworks]="availableNetworks()" [consoleCanvas]="consoleCanvasElement"
+    <cf-console-toolbar [class.flex-order-1]="toolbarPosition() == 'right' || toolbarPosition() == 'bottom'"
+        [availableNetworks]="availableNetworks()" [consoleCanvas]="consoleCanvasElement"
         [consoleClient]="consoleClient()!" [currentNetwork]="currentNetwork()"
         (canvasRecorded)="consoleRecorded.emit($event)" [customToolbarComponent]="toolbarComponent()"
+        [toolbarOrientation]="(toolbarPosition() == 'left' || toolbarPosition() == 'right' ? 'vertical' : 'horizontal')"
         (ctrlAltDelSent)="ctrlAltDelSent.emit()" (networkConnectionRequested)="networkConnectionRequested.emit($event)"
         (networkDisconnectRequested)="networkDisconnectRequested.emit()"
-        (screenshotCopied)="screenshotCopied.emit($event)" (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
-    }
+        (screenshotCopied)="screenshotCopied.emit($event)" (toggleFullscreen)="handleFullscreen()"
+        (toolbarPositionChangeRequested)="handleToolbarPositionChangeRequest($event)"></cf-console-toolbar>
 
-    <div class="console-host-container">
+    <div class="console-host-container"
+        [class.flex-order-0]="toolbarPosition() == 'right' || toolbarPosition() == 'bottom'">
         <div #consoleHost [id]="consoleHostElementId" class="console-host">
         </div>
     </div>
-
-    @if (consoleClient() && (toolbarPosition() === 'right' || toolbarPosition() === 'bottom')) {
-    <cf-console-toolbar [availableNetworks]="availableNetworks()" [consoleCanvas]="consoleCanvasElement"
-        [consoleClient]="consoleClient()!" [currentNetwork]="currentNetwork()"
-        (canvasRecorded)="consoleRecorded.emit($event)" (ctrlAltDelSent)="ctrlAltDelSent.emit()"
-        [customToolbarComponent]="toolbarComponent()"
-        (networkConnectionRequested)="networkConnectionRequested.emit($event)"
-        (networkDisconnectRequested)="networkDisconnectRequested.emit()"
-        (screenshotCopied)="screenshotCopied.emit($event)" (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
-    }
 </div>

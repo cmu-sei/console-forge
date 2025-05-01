@@ -9,6 +9,7 @@ import { ClassOnHoverDirective } from '../../../directives/class-on-hover.direct
 })
 export class ConsoleToolbarDefaultButtonComponent {
   public clicked = output<void>();
-  public disabled = input<boolean>(false);
+  public disabled = input(false);
   public label = input<string>();
+  public isOngoing = input(false);
 }

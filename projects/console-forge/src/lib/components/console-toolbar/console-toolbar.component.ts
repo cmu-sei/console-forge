@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, output, Type } from '@angular/core';
+import { Component, computed, inject, input, output, signal, Type } from '@angular/core';
 import { ClipboardService } from '../../services/clipboard.service';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { FullScreenService } from '../../services/full-screen.service';
@@ -9,6 +9,8 @@ import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-compon
 import { CanvasRecorderService } from '../../services/canvas-recorder.service';
 import { LoggerService } from '../../services/logger.service';
 import { LogLevel } from '../../models/log-level';
+import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
+import { ConsoleToolbarOrientation } from '../../models/console-toolbar-orientation';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -22,6 +24,7 @@ export class ConsoleToolbarComponent {
   consoleCanvas = input<HTMLCanvasElement>();
   currentNetwork = input<string>();
   customToolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
+  toolbarOrientation = input.required<ConsoleToolbarOrientation>();
 
   canvasRecorded = output<Blob>();
   ctrlAltDelSent = output<void>();
@@ -29,6 +32,7 @@ export class ConsoleToolbarComponent {
   networkDisconnectRequested = output<void>();
   screenshotCopied = output<Blob>();
   toggleFullscreen = output<void>();
+  toolbarPositionChangeRequested = output<ConsoleToolbarPosition>();
 
   private readonly canvasRecorder = inject(CanvasRecorderService);
   private readonly clipboardService = inject(ClipboardService);
@@ -37,6 +41,7 @@ export class ConsoleToolbarComponent {
 
   // component state
   protected readonly fullscreenAvailable = inject(FullScreenService).isAvailable;
+  private readonly isRecording = signal(false);
   protected readonly toolbarComponentContext: ConsoleToolbarContext = {
     console: {
       copyScreenshot: this.handleCopyScreenshot.bind(this),
@@ -54,10 +59,19 @@ export class ConsoleToolbarComponent {
     state: {
       isConnected: computed(() => this.consoleClient().connectionStatus() === "connected"),
       isFullscreenAvailable: inject(FullScreenService).isAvailable,
+      isRecording: this.isRecording,
       isRecordingAvailable: computed(() => !!this.consoleCanvas())
+    },
+    toolbar: {
+      dockTo: position => this.toolbarPositionChangeRequested.emit(position),
+      orientation: this.toolbarOrientation,
     }
   };
   protected readonly toolbarComponent = computed(() => this.customToolbarComponent() || this.config.consoleToolbarComponent);
+
+  protected handleChangeToolbarPosition(toolbarPosition: ConsoleToolbarPosition): void {
+    this.toolbarPositionChangeRequested.emit(toolbarPosition);
+  }
 
   protected async handleCopyScreenshot() {
     const blob = await this.consoleClient().getScreenshot();
@@ -84,10 +98,19 @@ export class ConsoleToolbarComponent {
       throw new Error("Can't resolve canvas for recording");
     }
 
-    this.logger.log(LogLevel.DEBUG, "Recording canvas", this.consoleCanvas());
-    const recording = await this.canvasRecorder.startRecord(this.consoleCanvas()!, 15000);
-    this.canvasRecorded.emit(recording);
-    return recording;
+    try {
+      this.logger.log(LogLevel.DEBUG, "Recording canvas", this.consoleCanvas());
+      this.isRecording.update(() => true);
+      const recording = await this.canvasRecorder.startRecord(this.consoleCanvas()!, 15000);
+      this.canvasRecorded.emit(recording);
+      return recording;
+    }
+    catch (err) {
+      this.logger.log(LogLevel.ERROR, "Screen recording error", err);
+      throw err;
+    } finally {
+      this.isRecording.update(() => false);
+    }
   }
 
   protected handleSendCtrlAltDelete() {
