@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { WINDOW } from '../../injection/window.injection-token';
-import { CanUseBrowserNotificationsResult } from './can-use-browser-notification-result';
 import { SendBrowserNotificationArgs } from './send-browser-notification';
 import { LoggerService } from '../logger.service';
 import { LogLevel } from '../../models/log-level';
@@ -33,19 +32,5 @@ export class BrowserNotificationsService {
         this.window.open(args.href?.url, args.href?.target);
       }
     }
-  }
-
-  private resolveCanSendBrowserNotifications(): CanUseBrowserNotificationsResult {
-    if (!("Notification" in this.window)) {
-      return "unsupported";
-    }
-
-    if (!Notification || Notification.permission === 'denied')
-      return "denied";
-
-    if (Notification.permission === 'granted')
-      return "allowed";
-
-    return "pending";
   }
 }

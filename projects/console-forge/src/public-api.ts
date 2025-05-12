@@ -18,3 +18,6 @@ export * from "./lib/models/console-toolbar-position";
 export * from "./lib/models/console-toolbar-component-base";
 export * from "./lib/models/console-toolbar-context";
 export * from "./lib/models/log-level";
+
+// services
+export * from "./lib/services/user-settings.service";

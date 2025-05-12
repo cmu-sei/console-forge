@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, computed, effect, ElementRef, inject, input, model, OnDestroy, output, signal, Type, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, OnDestroy, output, signal, Type, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
@@ -12,11 +12,17 @@ import { LogLevel } from '../../models/log-level';
 import { ConsoleToolbarComponent } from '../console-toolbar/console-toolbar.component';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
 import { BrowserNotificationsService } from '../../services/browser-notifications/browser-notifications.service';
+import { ConsoleStatusComponent } from '../console-status/console-status.component';
+import { ConsoleUserSettings } from '../../models/console-user-settings';
+import { UserSettingsService } from '../../services/user-settings.service';
 
 @Component({
   selector: 'cf-console',
   standalone: true,
-  imports: [ConsoleToolbarComponent],
+  imports: [
+    ConsoleStatusComponent,
+    ConsoleToolbarComponent
+  ],
   styleUrl: './console.component.scss',
   templateUrl: './console.component.html',
 })
@@ -29,7 +35,7 @@ export class ConsoleComponent implements OnDestroy {
   isViewOnly = input(false);
   scaleToContainerSize = input(true);
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
-  toolbarPosition = model<ConsoleToolbarPosition>("left");
+  toolbarPosition = signal<ConsoleToolbarPosition>("left");
 
   consoleClipboardUpdated = output<string>();
   consoleRecorded = output<Blob>();
@@ -47,6 +53,7 @@ export class ConsoleComponent implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly fullscreen = inject(FullScreenService);
   private readonly logger = inject(LoggerService);
+  private readonly userSettings = inject(UserSettingsService);
   private readonly uuids = inject(UuidService);
 
   // viewkids
@@ -68,7 +75,7 @@ export class ConsoleComponent implements OnDestroy {
       // note that even though `connect` is async, we don't invoke it asynchronously here. This is because
       // effects are _supposed_ to be synchronous, and making them async can cause Angular to ignore the
       // execution completely. If we care about this, we should set up a cancellation pattern on connect() below.
-      this.logger.log(LogLevel.INFO, "Autoconnecting with", this.config(), this.consoleHostElement());
+      this.logger.log(LogLevel.DEBUG, "Autoconnecting with", this.config(), this.consoleHostElement());
       this.connect(this.config());
     });
 
@@ -103,6 +110,9 @@ export class ConsoleComponent implements OnDestroy {
         this.consoleClient()?.setScaleToContainerSize(this.scaleToContainerSize());
       }
     });
+
+    // settings changes
+    effect(() => this.toolbarPosition.update(() => this.userSettings.settings().toolbar.dockTo));
   }
 
   public async ngOnDestroy(): Promise<void> {
@@ -112,7 +122,7 @@ export class ConsoleComponent implements OnDestroy {
   }
 
   protected handleConsoleRecordingStarted(): Promise<void> {
-    return this.browserNotifications.send({ title: "Recording Console", body: "This console is being screen-recorded. Hit \"Recording\" again to stop." })
+    return this.browserNotifications.send({ title: "Recording Console", body: "This console is being screen-recorded. Hit \"Record\" again to stop." })
   }
 
   protected async handleCtrlAltDelSent(): Promise<void> {
@@ -139,8 +149,8 @@ export class ConsoleComponent implements OnDestroy {
     }
   }
 
-  protected handleToolbarPositionChangeRequest(position: ConsoleToolbarPosition) {
-    this.toolbarPosition.update(() => position);
+  protected handleUserSettingsChanged(userSettings: ConsoleUserSettings) {
+    this.toolbarPosition.update(() => userSettings.toolbar.dockTo);
   }
 
   // automatically invoked if autoConnect is on, but can also be manually invoked outside the component

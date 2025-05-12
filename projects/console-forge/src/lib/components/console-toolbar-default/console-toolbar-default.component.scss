@@ -7,6 +7,10 @@
   width: 100%;
 }
 
+fieldset legend {
+  font-weight: bold;
+}
+
 .toolbar-container {
   padding: 4px;
   height: 100%;
@@ -57,4 +61,8 @@
 .power-buttons button {
   display: block;
   width: 100%;
+}
+
+.settings-toolbar-dock {
+  margin-top: 1rem;
 }

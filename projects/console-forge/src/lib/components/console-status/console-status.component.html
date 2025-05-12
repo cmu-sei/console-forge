@@ -1,1 +1,8 @@
-<p>console-status works!</p>
+@if (status() === "connecting") {
+<progress></progress>
+}
+@else if(status() == "disconnected") {
+<div class="disconnected-banner">
+    Console disconnected
+</div>
+}

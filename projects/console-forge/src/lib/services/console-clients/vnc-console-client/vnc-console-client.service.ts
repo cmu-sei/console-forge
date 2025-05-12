@@ -156,6 +156,7 @@ export class VncConsoleClientService implements ConsoleClientService {
     }
 
     if (this.noVncClient) {
+      console.log("here the thing", this.noVncClient);
       this.noVncClient.disconnect();
       this.noVncClient = undefined;
     }

@@ -4,6 +4,7 @@ import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
+import { UserSettingsService } from '../../services/user-settings.service';
 
 @Component({
   selector: 'cf-console-toolbar-default',
@@ -15,16 +16,18 @@ import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBase {
   consoleContext = input.required<ConsoleToolbarContext>();
 
+  // user settings
+
   protected isClipboardDialogOpen = false;
-  protected isDockDialogOpen = false;
   protected isNetworkDialogOpen = false;
   protected isPowerDialogOpen = false;
+  protected isSettingsDialogOpen = false;
   protected readonly cfConfig = inject(ConsoleForgeConfig);
   protected readonly clipboardTextInput = viewChild<ElementRef>("clipboardText");
+  protected readonly userSettings = inject(UserSettingsService);
 
   protected handleChangeToolbarPosition(position: ConsoleToolbarPosition) {
-    this.consoleContext().toolbar.dockTo(position);
-    this.isDockDialogOpen = false;
+    this.userSettings.update({ toolbar: { dockTo: position } });
   }
 
   protected handleClipboardDialogOpenClose(isOpen: boolean) {
@@ -69,5 +72,9 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
     }
 
     this.isClipboardDialogOpen = false;
+  }
+
+  protected handleSettingsDialogOpenClose(isOpen: boolean) {
+    this.isSettingsDialogOpen = isOpen;
   }
 }

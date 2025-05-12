@@ -9,9 +9,9 @@ import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-compon
 import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-recorder.service';
 import { LoggerService } from '../../services/logger.service';
 import { LogLevel } from '../../models/log-level';
-import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
-import { ConsoleToolbarOrientation } from '../../models/console-toolbar-orientation';
 import { CanvasRecording } from '../../services/canvas-recorder/canvas-recording';
+import { UserSettingsService } from '../../services/user-settings.service';
+import { ConsoleUserSettings } from '../../models/console-user-settings';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -25,7 +25,6 @@ export class ConsoleToolbarComponent {
   consoleCanvas = input<HTMLCanvasElement>();
   currentNetwork = input<string>();
   customToolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
-  toolbarOrientation = input.required<ConsoleToolbarOrientation>();
 
   canvasRecordingStarted = output<void>();
   canvasRecordingFinished = output<Blob>();
@@ -34,46 +33,45 @@ export class ConsoleToolbarComponent {
   networkDisconnectRequested = output<void>();
   screenshotCopied = output<Blob>();
   toggleFullscreen = output<void>();
-  toolbarPositionChangeRequested = output<ConsoleToolbarPosition>();
 
   private readonly canvasRecorder = inject(CanvasRecorderService);
   private readonly clipboardService = inject(ClipboardService);
   private readonly config = inject(ConsoleForgeConfig);
   private readonly logger = inject(LoggerService);
+  private readonly userSettings = inject(UserSettingsService);
 
   // component state
-  protected readonly fullscreenAvailable = inject(FullScreenService).isAvailable;
   private readonly activeConsoleRecording = signal<CanvasRecording | undefined>(undefined);
-  protected readonly toolbarComponentContext: ConsoleToolbarContext = {
-    console: {
-      copyScreenshot: this.handleCopyScreenshot.bind(this),
-      recordScreenStart: this.handleRecordScreenStart.bind(this),
-      recordScreenStop: this.handleRecordScreenStop.bind(this),
-      sendCtrlAltDel: this.handleSendCtrlAltDelete.bind(this),
-      sendTextToClipboard: this.handleSendTextToClipboard.bind(this),
-      toggleFullscreen: this.handleFullscreen.bind(this)
-    },
-    networks: {
-      connectionRequested: this.handleNetworkConnectionRequest.bind(this),
-      disconnectRequested: () => this.networkDisconnectRequested.emit(),
-      current: computed(() => this.currentNetwork()),
-      list: computed(() => this.availableNetworks() || [])
-    },
-    state: {
-      activeConsoleRecording: computed(() => this.activeConsoleRecording()),
-      isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
-      isFullscreenAvailable: inject(FullScreenService).isAvailable,
-      isRecordingAvailable: computed(() => !!this.consoleCanvas())
-    },
-    toolbar: {
-      dockTo: position => this.toolbarPositionChangeRequested.emit(position),
-      orientation: this.toolbarOrientation,
-    }
-  };
+  protected readonly fullscreenAvailable = inject(FullScreenService).isAvailable;
+  protected readonly toolbarComponentContext: ConsoleToolbarContext;
   protected readonly toolbarComponent = computed(() => this.customToolbarComponent() || this.config.consoleToolbarComponent);
 
-  protected handleChangeToolbarPosition(toolbarPosition: ConsoleToolbarPosition): void {
-    this.toolbarPositionChangeRequested.emit(toolbarPosition);
+  constructor() {
+    this.toolbarComponentContext = {
+      console: {
+        copyScreenshot: this.handleCopyScreenshot.bind(this),
+        recordScreenStart: this.handleRecordScreenStart.bind(this),
+        recordScreenStop: this.handleRecordScreenStop.bind(this),
+        sendCtrlAltDel: this.handleSendCtrlAltDelete.bind(this),
+        sendTextToClipboard: this.handleSendTextToClipboard.bind(this),
+        toggleFullscreen: this.handleFullscreen.bind(this)
+      },
+      networks: {
+        connectionRequested: this.handleNetworkConnectionRequest.bind(this),
+        disconnectRequested: () => this.networkDisconnectRequested.emit(),
+        current: computed(() => this.currentNetwork()),
+        list: computed(() => this.availableNetworks() || [])
+      },
+      state: {
+        activeConsoleRecording: computed(() => this.activeConsoleRecording()),
+        isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
+        isFullscreenAvailable: inject(FullScreenService).isAvailable,
+        isRecordingAvailable: computed(() => !!this.consoleCanvas())
+      },
+      toolbar: {
+        orientation: computed(() => this.userSettings.settings().toolbar.dockTo === "left" || this.userSettings.settings().toolbar.dockTo === "right" ? "vertical" : "horizontal")
+      }
+    };
   }
 
   protected async handleCopyScreenshot() {
@@ -112,9 +110,11 @@ export class ConsoleToolbarComponent {
       throw new Error("There is no active console recording - unable to stop and emit recorded data.");
     }
 
+    this.logger.log(LogLevel.DEBUG, "Recording stopped.");
     const recording = await this.activeConsoleRecording()!.stop();
     this.activeConsoleRecording.update(() => undefined);
     this.canvasRecordingFinished.emit(recording);
+    this.logger.log(LogLevel.DEBUG, "Recording emitted.");
     return recording;
   }
 
@@ -128,5 +128,10 @@ export class ConsoleToolbarComponent {
     if (text) {
       this.consoleClient().sendClipboardText(text);
     }
+  }
+
+  protected async handleSettingsUpdated(settings: ConsoleUserSettings) {
+    this.userSettings.update(settings);
+    return Promise.resolve();
   }
 }

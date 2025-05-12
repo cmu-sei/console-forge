@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { ConsoleConnectionStatus } from '../../models/console-connection-status';
 
 @Component({
   selector: 'cf-console-status',
@@ -7,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './console-status.component.scss'
 })
 export class ConsoleStatusComponent {
-
+  status = input.required<ConsoleConnectionStatus>();
 }

@@ -6,14 +6,18 @@
         [consoleClient]="consoleClient()!" [currentNetwork]="currentNetwork()"
         (canvasRecordingFinished)="consoleRecorded.emit($event)"
         (canvasRecordingStarted)="handleConsoleRecordingStarted()" [customToolbarComponent]="toolbarComponent()"
-        [toolbarOrientation]="(toolbarPosition() == 'left' || toolbarPosition() == 'right' ? 'vertical' : 'horizontal')"
         (ctrlAltDelSent)="handleCtrlAltDelSent()" (networkConnectionRequested)="networkConnectionRequested.emit($event)"
         (networkDisconnectRequested)="networkDisconnectRequested.emit()"
-        (screenshotCopied)="handleScreenshotCopied($event)" (toggleFullscreen)="handleFullscreen()"
-        (toolbarPositionChangeRequested)="handleToolbarPositionChangeRequest($event)"></cf-console-toolbar>
+        (screenshotCopied)="handleScreenshotCopied($event)"
+        (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
 
     <div class="console-host-container"
         [class.flex-order-0]="toolbarPosition() == 'right' || toolbarPosition() == 'bottom'">
+
+        @if (consoleClient()) {
+        <cf-console-status [status]="consoleClient()!.connectionStatus()"></cf-console-status>
+        }
+
         <div #consoleHost [id]="consoleHostElementId" class="console-host">
         </div>
     </div>

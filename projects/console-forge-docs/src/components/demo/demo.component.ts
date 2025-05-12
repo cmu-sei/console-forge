@@ -34,7 +34,7 @@ export class DemoComponent {
     password: new FormControl(""),
     ticket: new FormControl(""),
     url: new FormControl("http://localhost:5950"),
-    vmId: new FormControl("180672005")
+    vmId: new FormControl("278504305")
   });
 
   protected availableNetworks = model<string[]>(["lan1", "lan2"]);

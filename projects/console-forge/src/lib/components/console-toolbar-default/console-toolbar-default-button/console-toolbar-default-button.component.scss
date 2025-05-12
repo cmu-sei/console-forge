@@ -6,9 +6,9 @@
 
 @keyframes glow-button-color {
   0% {
-    color: var(--pico-secondary);
-    fill: var(--pico-secondary);
-    stroke: var(--pico-secondary);
+    color: var(--pico-muted-color);
+    fill: var(--pico-muted-color);
+    stroke: var(--pico-muted-color);
   }
   35% {
     color: #ee402e;
@@ -21,16 +21,16 @@
     stroke: #ee402e;
   }
   100% {
-    color: var(--pico-secondary);
-    fill: var(--pico-secondary);
-    stroke: var(--pico-secondary);
+    color: var(--pico-muted-color);
+    fill: var(--pico-muted-color);
+    stroke: var(--pico-muted-color);
   }
 }
 
 .svg-button {
   border: none;
   border-width: 0 !important;
-  color: var(--pico-secondary);
+  color: var(--pico-color);
   display: flex;
   font-weight: normal;
   align-items: center;
@@ -44,12 +44,15 @@
     color: var(--pico-primary);
     fill: var(--pico-primary);
     stroke: var(--pico-primary);
-    // font-weight: bold;
     transition: all 0.3s ease;
   }
 
   &.ongoing {
     animation: glow-button-color 2000ms infinite;
+  }
+
+  &.disabled {
+    color: var(--pico-muted-color);
   }
 }
 
@@ -78,8 +81,13 @@
   svg,
   path,
   rect {
-    fill: var(--pico-secondary);
-    stroke: var(--pico-secondary);
+    fill: var(--pico-color);
+    stroke: var(--pico-color);
+
+    &.disabled {
+      fill: var(--pico-muted-color);
+      stroke: var(--pico-muted-color);
+    }
 
     &:hover {
       color: var(--pico-color);

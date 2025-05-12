@@ -5,6 +5,7 @@ import { ConsoleClientFactoryService } from "../services/console-clients/console
 import { UuidService } from "../services/uuid.service";
 import { FullScreenService } from "../services/full-screen.service";
 import { ClipboardService } from "../services/clipboard.service";
+import { UserSettingsService } from "../services/user-settings.service";
 
 export function provideConsoleForge(config?: Partial<ConsoleForgeConfig>): EnvironmentProviders {
     // merge provided with defaults
@@ -19,6 +20,7 @@ export function provideConsoleForge(config?: Partial<ConsoleForgeConfig>): Envir
         { provide: ConsoleClientFactoryService },
         { provide: FullScreenService },
         { provide: LoggerService },
+        { provide: UserSettingsService },
         { provide: UuidService },
         {
             provide: ConsoleForgeConfig,
