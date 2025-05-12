@@ -10,10 +10,7 @@ import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
   imports: [ConsoleToolbarDefaultButtonComponent],
   standalone: true,
   templateUrl: './console-toolbar-default.component.html',
-  styleUrl: './console-toolbar-default.component.scss',
-  // host: {
-  //   '[class.horizontal]': 'this.consoleContext().toolbar.orientation() == "top"',
-  // }
+  styleUrl: './console-toolbar-default.component.scss'
 })
 export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBase {
   consoleContext = input.required<ConsoleToolbarContext>();
@@ -56,13 +53,21 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
     this.isPowerDialogOpen = isOpen;
   }
 
-  protected async handleRecordRequest() {
-    await this.consoleContext().console.recordScreen();
+  protected handleRecordToggle() {
+    if (this.consoleContext().state.activeConsoleRecording()) {
+      this.consoleContext().console.recordScreenStop();
+    } else {
+      this.consoleContext().console.recordScreenStart();
+    }
   }
 
   protected handleSendClipboardText(event: Event, text: string) {
     event.preventDefault();
-    this.consoleContext().console.sendTextToClipboard(text);
+
+    if (text) {
+      this.consoleContext().console.sendTextToClipboard(text);
+    }
+
     this.isClipboardDialogOpen = false;
   }
 }

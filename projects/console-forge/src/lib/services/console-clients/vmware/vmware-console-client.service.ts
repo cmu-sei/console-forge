@@ -113,10 +113,12 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return Promise.resolve();
   }
 
-  dispose(): void {
+  dispose(): Promise<void> {
     if (this.wmksClient) {
       this.wmksClient.destroy();
       this.wmksClient = undefined;
     }
+
+    return Promise.resolve();
   }
 }

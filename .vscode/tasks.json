@@ -47,7 +47,8 @@
         "--password",
         "mypw",
         "-d"
-      ]
+      ],
+      "problemMatcher": []
     }
   ]
 }

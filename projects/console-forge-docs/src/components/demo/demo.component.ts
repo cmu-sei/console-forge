@@ -31,9 +31,10 @@ export class DemoComponent {
   protected configForm = new FormGroup({
     autoFocusOnConnect: new FormControl(false),
     isViewOnly: new FormControl(false),
-    password: new FormControl("mypw"),
-    ticket: new FormControl(),
-    url: new FormControl("http://localhost:5950")
+    password: new FormControl(""),
+    ticket: new FormControl(""),
+    url: new FormControl("http://localhost:5950"),
+    vmId: new FormControl("180672005")
   });
 
   protected availableNetworks = model<string[]>(["lan1", "lan2"]);
@@ -42,19 +43,26 @@ export class DemoComponent {
   protected isViewOnly = model(false);
   protected scaleToContainer = model(false);
 
-  protected configFormSubmit() {
-    if (!this.configForm.value.url) {
-      return;
+  protected async configFormSubmit() {
+    let url = this.configForm.value.url || "";
+
+    if (this.configForm.value.ticket) {
+      url = `wss://foundry.nivix/api2/json/nodes/foundry/qemu/${this.configForm.value.vmId}/vncwebsocket?port=5900&vncticket=${encodeURIComponent(this.configForm.value.ticket)}`;
     }
 
     this.cfConfig = {
       autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
       consoleClientType: "vnc",
       credentials: {
-        password: this.configForm.value.password || undefined
+        accessTicket: this.configForm.value.ticket || undefined,
+        password: this.configForm.value.password || undefined,
       },
-      url: this.configForm.value.url
+      url: url
     };
+
+    if (this.cfConsole()) {
+      await this.cfConsole()!.connect(this.cfConfig);
+    }
   }
 
   protected handleConsoleClipboardUpdated(text: string) {

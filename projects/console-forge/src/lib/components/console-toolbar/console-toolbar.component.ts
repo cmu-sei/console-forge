@@ -6,11 +6,12 @@ import { FullScreenService } from '../../services/full-screen.service';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
-import { CanvasRecorderService } from '../../services/canvas-recorder.service';
+import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-recorder.service';
 import { LoggerService } from '../../services/logger.service';
 import { LogLevel } from '../../models/log-level';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { ConsoleToolbarOrientation } from '../../models/console-toolbar-orientation';
+import { CanvasRecording } from '../../services/canvas-recorder/canvas-recording';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -26,7 +27,8 @@ export class ConsoleToolbarComponent {
   customToolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
   toolbarOrientation = input.required<ConsoleToolbarOrientation>();
 
-  canvasRecorded = output<Blob>();
+  canvasRecordingStarted = output<void>();
+  canvasRecordingFinished = output<Blob>();
   ctrlAltDelSent = output<void>();
   networkConnectionRequested = output<string>();
   networkDisconnectRequested = output<void>();
@@ -41,11 +43,12 @@ export class ConsoleToolbarComponent {
 
   // component state
   protected readonly fullscreenAvailable = inject(FullScreenService).isAvailable;
-  private readonly isRecording = signal(false);
+  private readonly activeConsoleRecording = signal<CanvasRecording | undefined>(undefined);
   protected readonly toolbarComponentContext: ConsoleToolbarContext = {
     console: {
       copyScreenshot: this.handleCopyScreenshot.bind(this),
-      recordScreen: this.handleRecordScreen.bind(this),
+      recordScreenStart: this.handleRecordScreenStart.bind(this),
+      recordScreenStop: this.handleRecordScreenStop.bind(this),
       sendCtrlAltDel: this.handleSendCtrlAltDelete.bind(this),
       sendTextToClipboard: this.handleSendTextToClipboard.bind(this),
       toggleFullscreen: this.handleFullscreen.bind(this)
@@ -57,9 +60,9 @@ export class ConsoleToolbarComponent {
       list: computed(() => this.availableNetworks() || [])
     },
     state: {
-      isConnected: computed(() => this.consoleClient().connectionStatus() === "connected"),
+      activeConsoleRecording: computed(() => this.activeConsoleRecording()),
+      isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
       isFullscreenAvailable: inject(FullScreenService).isAvailable,
-      isRecording: this.isRecording,
       isRecordingAvailable: computed(() => !!this.consoleCanvas())
     },
     toolbar: {
@@ -93,24 +96,26 @@ export class ConsoleToolbarComponent {
     this.networkConnectionRequested.emit(networkName);
   }
 
-  protected async handleRecordScreen(): Promise<Blob> {
+  protected handleRecordScreenStart(): void {
     if (!this.consoleCanvas()) {
       throw new Error("Can't resolve canvas for recording");
     }
 
-    try {
-      this.logger.log(LogLevel.DEBUG, "Recording canvas", this.consoleCanvas());
-      this.isRecording.update(() => true);
-      const recording = await this.canvasRecorder.startRecord(this.consoleCanvas()!, 15000);
-      this.canvasRecorded.emit(recording);
-      return recording;
+    this.logger.log(LogLevel.DEBUG, "Recording canvas", this.consoleCanvas());
+    const recordingInstance = this.canvasRecorder.startRecord(this.consoleCanvas()!);
+    this.activeConsoleRecording.update(() => recordingInstance);
+    this.canvasRecordingStarted.emit();
+  }
+
+  protected async handleRecordScreenStop(): Promise<Blob> {
+    if (!this.activeConsoleRecording()) {
+      throw new Error("There is no active console recording - unable to stop and emit recorded data.");
     }
-    catch (err) {
-      this.logger.log(LogLevel.ERROR, "Screen recording error", err);
-      throw err;
-    } finally {
-      this.isRecording.update(() => false);
-    }
+
+    const recording = await this.activeConsoleRecording()!.stop();
+    this.activeConsoleRecording.update(() => undefined);
+    this.canvasRecordingFinished.emit(recording);
+    return recording;
   }
 
   protected handleSendCtrlAltDelete() {

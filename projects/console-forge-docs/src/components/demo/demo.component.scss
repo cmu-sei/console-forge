@@ -2,9 +2,22 @@ cf-console {
   width: 100%;
 }
 
+h3 {
+  margin-top: 2rem;
+}
+
 form {
   display: flex;
   flex-direction: column;
+}
+
+.flex {
+  width: 100%;
+  gap: 1rem;
+}
+
+.flex-grow {
+  flex-grow: 1;
 }
 
 button[type="submit"] {

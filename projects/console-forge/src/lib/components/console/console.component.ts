@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, computed, effect, ElementRef, inject, input, model, output, signal, Type, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, model, OnDestroy, output, signal, Type, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
@@ -11,6 +11,7 @@ import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { LogLevel } from '../../models/log-level';
 import { ConsoleToolbarComponent } from '../console-toolbar/console-toolbar.component';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
+import { BrowserNotificationsService } from '../../services/browser-notifications/browser-notifications.service';
 
 @Component({
   selector: 'cf-console',
@@ -19,9 +20,9 @@ import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-compon
   styleUrl: './console.component.scss',
   templateUrl: './console.component.html',
 })
-export class ConsoleComponent {
+export class ConsoleComponent implements OnDestroy {
   // component I/O
-  autoConnect = input(true);
+  autoConnect = input(false);
   availableNetworks = input<string[]>();
   config = input.required<ConsoleComponentConfig>();
   currentNetwork = input<string>();
@@ -40,6 +41,7 @@ export class ConsoleComponent {
   status = computed(() => this.consoleClient()?.connectionStatus() || "disconnected");
 
   // services
+  private readonly browserNotifications = inject(BrowserNotificationsService);
   private readonly consoleClientFactory = inject(ConsoleClientFactoryService);
   private readonly consoleForgeConfig = inject(ConsoleForgeConfig);
   private readonly document = inject(DOCUMENT);
@@ -60,13 +62,13 @@ export class ConsoleComponent {
     // we use an effect here because we want to allow the use case of reusing a single console component
     // for multiple console connections. I will 100% regret and delete this at some point.
     effect(() => {
-      if (!this.autoConnect || !this.config() || !this.consoleHostElement()) {
-        this.logger.log(LogLevel.INFO, "Autoconnecting with", this.config(), this.consoleHostElement());
+      if (!this.autoConnect() || !this.config() || !this.consoleHostElement()) {
         return;
       }
       // note that even though `connect` is async, we don't invoke it asynchronously here. This is because
       // effects are _supposed_ to be synchronous, and making them async can cause Angular to ignore the
       // execution completely. If we care about this, we should set up a cancellation pattern on connect() below.
+      this.logger.log(LogLevel.INFO, "Autoconnecting with", this.config(), this.consoleHostElement());
       this.connect(this.config());
     });
 
@@ -84,19 +86,48 @@ export class ConsoleComponent {
       }
     });
     effect(() => {
-      // some (all?) console clients inject a canvas into the doc. If we can find it, we can offer a "record" button
-      if (this.document && this.consoleClient() && this.consoleClient()!.connectionStatus() == "connected") {
+      // all supported console clients inject a canvas into the doc. If we can find it, we can offer a "record" button
+      if (this.document && this.consoleClient() && this.consoleClient()!.connectionStatus() === "connected") {
         this.consoleCanvasElement = this.resolveConsoleCanvas() || undefined;
       }
     })
 
     // input changes
-    effect(() => this.consoleClient()?.setIsViewOnly(this.isViewOnly()));
-    effect(() => this.consoleClient()?.setScaleToContainerSize(this.scaleToContainerSize()));
+    effect(() => {
+      if (this.consoleClient() && this.consoleClient()!.connectionStatus() === "connected") {
+        this.consoleClient()!.setIsViewOnly(this.isViewOnly())
+      }
+    });
+    effect(() => {
+      if (this.consoleClient() && this.consoleClient()!.connectionStatus() === "connected") {
+        this.consoleClient()?.setScaleToContainerSize(this.scaleToContainerSize());
+      }
+    });
+  }
+
+  public async ngOnDestroy(): Promise<void> {
+    if (this.consoleClient()) {
+      await this.consoleClient()!.dispose();
+    }
+  }
+
+  protected handleConsoleRecordingStarted(): Promise<void> {
+    return this.browserNotifications.send({ title: "Recording Console", body: "This console is being screen-recorded. Hit \"Recording\" again to stop." })
+  }
+
+  protected async handleCtrlAltDelSent(): Promise<void> {
+    this.ctrlAltDelSent.emit();
+    await this.browserNotifications.send({ title: "Ctrl + Alt + Del sent", body: "Sent a Ctrl + Alt + Del input to the remote machine." });
+  }
+
+  protected async handleScreenshotCopied(screenshotData: Blob): Promise<Blob> {
+    this.screenshotCopied.emit(screenshotData);
+    await this.browserNotifications.send({ title: "Screenshot copied", body: "A screenshot of this console has been copied to your clipboard." })
+    return screenshotData;
   }
 
   protected async handleFullscreen(): Promise<void> {
-    if (!this.consoleHostElement()) {
+    if (!this.componentContainer()) {
       throw new Error("Can't manipulate fullscreen - can't find the host.");
     }
 
@@ -115,6 +146,8 @@ export class ConsoleComponent {
   // automatically invoked if autoConnect is on, but can also be manually invoked outside the component
   // if retrieved as a ViewChild or whatever
   public async connect(config: ConsoleComponentConfig) {
+    // weirdly, even reading this status here causes an infinite loop or something. i think i got too silly with effects.
+    // console.log("on connection, status was", this.consoleClient()?.connectionStatus());
     await this.consoleClient()?.disconnect();
 
     if (!config.url) {
@@ -130,20 +163,26 @@ export class ConsoleComponent {
     if (!clientType) {
       throw new Error("Couldn't resolve the console client type. Did you specify a default using provideConsoleForgeConfig or pass a console type to this component?");
     }
+    const client = this.consoleClientFactory.get(clientType);
 
     // connect
-    this.consoleClient.update(() => this.consoleClientFactory.get(clientType));
-    await this.consoleClient()!.connect(config.url, {
+    await client.connect(config.url, {
       autoFocusOnConnect: config.autoFocusOnConnect,
       credentials: config.credentials,
       hostElement: this.consoleHostElement().nativeElement,
       isViewOnly: this.isViewOnly(),
     });
+
+    // the order here is important - we only update all the things that care about our console client once we're connected,
+    // otherwise things like trying to set the "view only" property before connection will function strangely.
+    // need to look into ways to validate this via testing
+    this.consoleClient.update(() => client);
   }
 
   public async disconnect() {
     this.logger.log(LogLevel.DEBUG, "Console component disconnect invoked.");
     await this.consoleClient()?.disconnect();
+    this.consoleClient.update(() => undefined);
   }
 
   private resolveConsoleCanvas() {

@@ -7,15 +7,10 @@
   width: 100%;
 }
 
-// :host.horizontal {
-//   height: unset;
-//   width: 100%;
-// }
-
 .toolbar-container {
   padding: 4px;
   height: 100%;
-  width: 84px;
+  width: 92px;
   display: flex;
   justify-content: center;
 
@@ -27,29 +22,27 @@
     gap: 12px;
   }
 
-  hr {
-    border-top: 3px solid var(--pico-primary);
-    margin-left: 0;
-    margin-right: 0;
+  .buttons-divider {
+    border-top: 1px solid var(--pico-secondary);
+    margin: 1rem 0;
+    width: 100%;
   }
 
   &.horizontal {
-    height: 84px;
+    height: 92px;
     width: 100%;
 
     .button-container {
       flex-direction: row;
     }
+
+    .buttons-divider {
+      border-left: 1px solid var(--pico-secondary);
+      height: 100%;
+      margin: 0 1rem;
+      width: 0;
+    }
   }
-}
-
-cf-console-toolbar-default-button {
-  display: block;
-}
-
-.power-buttons button {
-  display: block;
-  width: 100%;
 }
 
 .toolbar-position-buttons {
@@ -59,4 +52,9 @@ cf-console-toolbar-default-button {
   button {
     flex-grow: 1;
   }
+}
+
+.power-buttons button {
+  display: block;
+  width: 100%;
 }

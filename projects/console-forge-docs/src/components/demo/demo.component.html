@@ -1,12 +1,19 @@
 <h2>Using ConsoleForge with VNC</h2>
 
-@if (cfConfig) {
+@if(cfConfig) {
 <cf-console [config]="cfConfig" [availableNetworks]="availableNetworks()" [currentNetwork]="'lan1'"
     (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)" (consoleRecorded)="handleConsoleRecorded($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
     (networkDisconnectRequested)="handleNetworkDisconnectRequest()" [scaleToContainerSize]="scaleToContainer()"
     (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
+}
+
+@if (cfConsole()) {
+<div>
+    <strong>Connection Status:</strong>
+    {{ cfConsole()?.status() || "unknown" }}
+</div>
 }
 
 @if (isConnected()) {
@@ -30,14 +37,26 @@
         <input matInput placeholder="a-password" formControlName="password">
     </mat-form-field>
 
-    <mat-form-field>
-        <mat-label>VNC Ticket</mat-label>
-        <input matInput placeholder="a-secret-ticket" formControlName="ticket">
-    </mat-form-field>
+    <div>
+        OR
+    </div>
+
+    <div class="flex">
+        <mat-form-field class="flex-grow">
+            <mat-label>VM ID</mat-label>
+            <input matInput placeholder="12345" formControlName="vmId">
+        </mat-form-field>
+
+        <mat-form-field class="flex-grow">
+            <mat-label>VNC Ticket</mat-label>
+            <input matInput placeholder="a-secret-ticket" formControlName="ticket">
+        </mat-form-field>
+    </div>
+
 
     <div class="console-checkboxes flex gap-2">
         <mat-checkbox formControlName="autoFocusOnConnect">Autofocus On Connect</mat-checkbox>
     </div>
 
-    <button mat-flat-button type="submit">Connect</button>
+    <button mat-flat-button type="submit" [disabled]="!configForm.valid">Connect</button>
 </form>

@@ -15,5 +15,10 @@ export interface ConsoleClientService {
   sendCtrlAltDelete(): Promise<void>;
   setScaleToContainerSize(scaleToContainerSize: boolean): Promise<void>;
   setIsViewOnly(isViewOnly: boolean): Promise<void>;
-  dispose(): void;
+
+  /**
+   * Automatically called by the console component on destroy. Disconnect any clients/websocket usage here
+   * (or just do it in your disconnect logic and call that internally in your implementation).
+   */
+  dispose(): Promise<void>;
 }

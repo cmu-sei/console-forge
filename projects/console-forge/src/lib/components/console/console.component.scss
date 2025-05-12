@@ -21,6 +21,7 @@ cf-console-toolbar {
 
 ::ng-deep {
   canvas {
+    aspect-ratio: 16 / 9;
     max-width: 100%;
   }
 }

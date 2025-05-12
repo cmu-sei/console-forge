@@ -23,62 +23,55 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   // the actual client from @novnc/novnc
   private noVncClient?: NoVncClient;
-  // track whether a manual disconnection has been requested.
-  // we check this on disconnect to see if the disconnect was unexpected.
-  private manualDisconnectRequested = false;
 
   public async connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures> {
-    try {
-      if (this.noVncClient) {
-        this.noVncClient.disconnect();
+    if (this.noVncClient) {
+      this.noVncClient.disconnect();
+    }
+
+    return new Promise((resolve, reject) => {
+      try {
+        this._connectionStatus.update(() => "connecting");
+        this.logger.log(LogLevel.DEBUG, "Connecting to", url);
+
+        const client = new NoVncClient(options.hostElement, url, {
+          credentials: {
+            password: options?.credentials?.accessTicket || options?.credentials?.password || "",
+            // explicitly not supporting these for now
+            username: "",
+            target: ""
+          }
+        });
+
+        this.noVncClient = this.doPreConnectionConfig(client);
+        client.addEventListener("connect", () => {
+          // do other post-connection config
+          this.noVncClient = this.doPostConnectionConfig(client, options);
+
+          // the vnc client knows its capabilities post-connection
+          // so send this back along with the things we know we can't support
+          resolve({
+            onScreenKeyboard: false,
+            reboot: this.noVncClient.capabilities.power,
+            rebootHard: this.noVncClient.capabilities.power,
+            shutdown: this.noVncClient.capabilities.power
+          });
+        });
       }
-
-      this._connectionStatus.update(() => "connecting");
-      this.logger.log(LogLevel.DEBUG, "Connecting to", url);
-
-      const client = new NoVncClient(options.hostElement, url, {
-        credentials: {
-          username: options?.credentials?.username || "",
-          password: options?.credentials?.password || "",
-          target: options?.credentials?.sessionId || ""
-        }
-      });
-
-      // do other post-connection config
-      this.noVncClient = this.doPostConnectionConfig(client, options);
-
-      // the vnc client knows its capabilities post-connection
-      // so send this back along with the things we know we can't support
-      return Promise.resolve({
-        onScreenKeyboard: false,
-        reboot: this.noVncClient.capabilities.power,
-        rebootHard: this.noVncClient.capabilities.power,
-        shutdown: this.noVncClient.capabilities.power
-      });
-    }
-    catch (err) {
-      this._connectionStatus.update(() => "disconnected");
-      throw err;
-    }
+      catch (err) {
+        this._connectionStatus.update(() => "disconnected");
+        reject(err);
+      }
+    });
   }
 
   public async disconnect(): Promise<void> {
     this.logger.log(LogLevel.DEBUG, "Manual disconnection requested");
-    this.manualDisconnectRequested = true;
-    return this.dispose();
+    return this.handleDisconnect(true);
   }
 
-  public dispose(): void {
-    if (this.noVncClient) {
-      if (this.manualDisconnectRequested) {
-        this.logger.log(LogLevel.WARNING, "Unexpected disconnection");
-        this.manualDisconnectRequested = false;
-      }
-
-      this._connectionStatus.update(() => "disconnected");
-      this.noVncClient.disconnect();
-      this.noVncClient = undefined;
-    }
+  public dispose(): Promise<void> {
+    return this.disconnect();
   }
 
   public async getScreenshot(): Promise<Blob> {
@@ -126,15 +119,23 @@ export class VncConsoleClientService implements ConsoleClientService {
       throw new Error("VNC client isn't connected; can't set properties");
     }
 
-    console.log("setting scale to", scaleToContainerSize);
+    this.logger.log(LogLevel.DEBUG, "Set scale to", scaleToContainerSize);
     this.noVncClient.scaleViewport = scaleToContainerSize;
   }
 
-  private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
-    client.addEventListener("clipboard", ev => this._localClipboardUpdated.update(() => ev.detail.text));
+  private doPreConnectionConfig(client: NoVncClient): NoVncClient {
     client.addEventListener("connect", () => this._connectionStatus.update(() => "connected"));
-    client.addEventListener("disconnect", () => this.dispose());
+    client.addEventListener("disconnect", ev => this.handleDisconnect(ev.detail.clean));
+    client.addEventListener("clipboard", ev => {
+      if (ev.detail.text) {
+        this._localClipboardUpdated.update(() => ev.detail.text)
+      }
+    });
 
+    return client;
+  }
+
+  private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
     client.background = options.backgroundStyle || "";
     client.scaleViewport = options.scaleToContainerSize === undefined ? true : options.scaleToContainerSize;
     client.viewOnly = options.isViewOnly || false;
@@ -145,5 +146,18 @@ export class VncConsoleClientService implements ConsoleClientService {
     }
 
     return client;
+  }
+
+  private handleDisconnect(isManualDisconnect: boolean) {
+    this._connectionStatus.update(() => "disconnected");
+
+    if (!isManualDisconnect) {
+      this.logger.log(LogLevel.WARNING, "Unexpected disconnection");
+    }
+
+    if (this.noVncClient) {
+      this.noVncClient.disconnect();
+      this.noVncClient = undefined;
+    }
   }
 }

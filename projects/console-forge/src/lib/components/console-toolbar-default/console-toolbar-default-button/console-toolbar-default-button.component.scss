@@ -10,7 +10,12 @@
     fill: var(--pico-secondary);
     stroke: var(--pico-secondary);
   }
-  50% {
+  35% {
+    color: #ee402e;
+    fill: #ee402e;
+    stroke: #ee402e;
+  }
+  65% {
     color: #ee402e;
     fill: #ee402e;
     stroke: #ee402e;
@@ -32,19 +37,19 @@
   flex-direction: column;
   justify-content: center;
   height: 74px;
-  width: 74px;
+  min-width: 74px;
   margin: 0;
 
   &:hover:not(.disabled) {
     color: var(--pico-primary);
     fill: var(--pico-primary);
     stroke: var(--pico-primary);
-    font-weight: bold;
+    // font-weight: bold;
     transition: all 0.3s ease;
   }
 
   &.ongoing {
-    animation: glow-button-color 1300ms infinite;
+    animation: glow-button-color 2000ms infinite;
   }
 }
 
@@ -97,7 +102,7 @@
     path,
     rect,
     .svg-button {
-      animation: glow-button-color 1300ms infinite;
+      animation: glow-button-color 2000ms infinite;
     }
   }
 }

@@ -11,6 +11,7 @@ export abstract class ConsoleForgeConfig {
     abstract enableClipboard: boolean;
     abstract enableConsoleRecord: boolean;
     abstract logThreshold: LogLevel;
+    abstract showBrowserNotificationsOnConsoleEvents: boolean;
 }
 
 export const defaultCfConfig: ConsoleForgeConfig = {
@@ -18,5 +19,6 @@ export const defaultCfConfig: ConsoleForgeConfig = {
     consoleToolbarComponent: ConsoleToolbarDefaultComponent,
     enableClipboard: true,
     enableConsoleRecord: true,
-    logThreshold: LogLevel.WARNING
+    logThreshold: LogLevel.WARNING,
+    showBrowserNotificationsOnConsoleEvents: false
 }
