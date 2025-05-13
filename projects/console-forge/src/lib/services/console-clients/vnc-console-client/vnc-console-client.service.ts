@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import NoVncClient from '@novnc/novnc/core/rfb';
 import { ConsoleConnectionOptions } from '../../../models/console-connection-options';
 import { ConsoleConnectionStatus } from '../../../models/console-connection-status';
@@ -9,14 +9,14 @@ import { LoggerService } from '../../../services/logger.service';
 
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {
-  public readonly consoleClipboardUpdated = computed(() => this._consoleClipboardUpdated());
   private readonly _consoleClipboardUpdated = signal<string>("");
+  public readonly consoleClipboardUpdated = this._consoleClipboardUpdated.asReadonly();
 
-  public readonly localClipboardUpdated = computed(() => this._localClipboardUpdated());
   private readonly _localClipboardUpdated = signal<string>("");
+  public readonly localClipboardUpdated = this._localClipboardUpdated.asReadonly();
 
-  public readonly connectionStatus = computed(() => this._connectionStatus());
   private readonly _connectionStatus = signal<ConsoleConnectionStatus>("disconnected");
+  public readonly connectionStatus = this._connectionStatus.asReadonly();
 
   // injected services
   private readonly logger = inject(LoggerService);
@@ -156,7 +156,6 @@ export class VncConsoleClientService implements ConsoleClientService {
     }
 
     if (this.noVncClient) {
-      console.log("here the thing", this.noVncClient);
       this.noVncClient.disconnect();
       this.noVncClient = undefined;
     }
