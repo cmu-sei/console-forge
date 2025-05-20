@@ -5,14 +5,15 @@ import { inject, Injectable, signal } from '@angular/core';
 export class FullScreenService {
   private doc = inject(DOCUMENT);
 
-  public readonly isAvailable = signal(this.doc.fullscreenEnabled);
+  private readonly _isAvailable = signal(this.doc.fullscreenEnabled);
+  public readonly isAvailable = this._isAvailable.asReadonly();
 
   constructor() {
     this.doc.addEventListener("fullscreenchange", () => {
-      this.isAvailable.update(() => this.doc.fullscreenEnabled && !this.doc.fullscreenElement);
+      this._isAvailable.update(() => this.doc.fullscreenEnabled && !this.doc.fullscreenElement);
     });
     this.doc.addEventListener("fullscreenerror", () => {
-      this.isAvailable.update(() => this.doc.fullscreenEnabled && !this.doc.fullscreenElement);
+      this._isAvailable.update(() => this.doc.fullscreenEnabled && !this.doc.fullscreenElement);
     });
   }
 

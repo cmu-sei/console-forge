@@ -12,6 +12,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideConsoleForge({
+      canvasRecording: {
+        frameRate: 30
+      },
       logThreshold: LogLevel.DEBUG,
       showBrowserNotificationsOnConsoleEvents: true
     })

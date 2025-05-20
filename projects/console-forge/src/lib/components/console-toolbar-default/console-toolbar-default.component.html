@@ -1,5 +1,6 @@
 @if (consoleContext()) {
-<div class="toolbar-container" [class.horizontal]="consoleContext().toolbar.orientation() === 'horizontal'">
+<div class="toolbar-container"
+    [class.horizontal]="consoleContext().settings.current().toolbar.dockTo == 'top' || consoleContext().settings.current().toolbar.dockTo == 'bottom' ">
     <div class="button-container">
         <cf-console-toolbar-default-button label="Settings" (clicked)="handleSettingsDialogOpenClose(true)">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -147,7 +148,10 @@
             </svg>
         </cf-console-toolbar-default-button>
 
-        <cf-console-toolbar-default-button label="Power" (clicked)="handlePowerDialogOpenClose(true)">
+        @if (consoleContext().console.supportedFeatures().reboot ||
+        consoleContext().console.supportedFeatures().rebootHard ||
+        consoleContext().console.supportedFeatures().shutdown) {
+        <cf-console-toolbar-default-button label="Power" (clicked)="isPowerDialogOpen = true">
             <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M13 3C13 2.44772 12.5523 2 12 2C11.4477 2 11 2.44772 11 3V13C11 13.5523 11.4477 14 12 14C12.5523 14 13 13.5523 13 13V3Z"
@@ -157,6 +161,7 @@
                     fill="none" />
             </svg>
         </cf-console-toolbar-default-button>
+        }
         }
     </div>
 </div>
@@ -218,17 +223,19 @@
 <dialog [open]="isPowerDialogOpen">
     <article>
         <header>
-            <button aria-label="Close" rel="prev" (click)="handlePowerDialogOpenClose(false)"></button>
+            <button aria-label="Close" rel="prev" (click)="isPowerDialogOpen = false"></button>
             <p>
                 <strong>Console Power</strong>
             </p>
         </header>
 
         <div class="power-buttons">
-            <button type="button">Request Reboot</button>
-            <button type="button">Request Shutdown</button>
+            <button type="button" (click)="handleSendPowerRequest('reboot')">Request Reboot</button>
+            <button type="button" (click)="handleSendPowerRequest('shutdown')">Request Shutdown</button>
             <hr />
-            <button class="secondary" type="button">Request Hard Reboot</button>
+            <button class="secondary" type="button" (click)="handleSendPowerRequest('rebootHard')">
+                Request Hard Reboot
+            </button>
         </div>
     </article>
 </dialog>
@@ -250,8 +257,10 @@
                     Allow the remote machine to copy text to my local clipboard
                 </label>
                 <label>
-                    <input type="checkbox" name="scaleToContainerSize" />
-                    Scale console size to available space
+                    <input #inputScaleToContainerSize type="checkbox" name="scaleToContainerSize"
+                        [checked]="consoleContext().settings.current().console.preserveAspectRatioOnScale"
+                        (change)="handleSettingsPreserveAspectRatioChange(inputScaleToContainerSize.checked)" />
+                    Preserve console aspect ratio when scaling size
                 </label>
             </fieldset>
 

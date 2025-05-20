@@ -5,6 +5,4 @@ export interface ConsoleConnectionOptions {
     backgroundStyle?: string;
     credentials?: ConsoleCredentials;
     hostElement: HTMLElement;
-    isViewOnly?: boolean;
-    scaleToContainerSize?: boolean;
 }

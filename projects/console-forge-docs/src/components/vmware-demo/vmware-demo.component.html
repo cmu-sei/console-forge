@@ -3,14 +3,12 @@
 @if (cfConfig) {
 <cf-console [config]="cfConfig" [autoConnect]="false" (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
-    [scaleToContainerSize]="scaleToContainer()" (screenshotCopied)="handleScreenshotCopied($event)"
-    [isViewOnly]="isViewOnly()"></cf-console>
+    (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
 }
 
 @if (isConnected()) {
 <div class="post-connection-controls flex my-2 gap-2">
     <button mat-flat-button type="button" (click)="handleDisconnect()">Disconnect</button>
-    <button mat-flat-button type="button" (click)="handleToggleScale()">Toggle Scale</button>
 </div>
 }
 

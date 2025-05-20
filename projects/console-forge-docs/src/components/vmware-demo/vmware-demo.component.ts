@@ -35,7 +35,6 @@ export class VmwareDemoComponent {
     url: new FormControl("wss://launchpad.cisa.gov/console/ticket/4b75d37a06e9ca5d?vmhost=10.52.32.13")
   });
   protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
-  protected scaleToContainer = model(false);
   protected isViewOnly = model(false);
 
   protected handleConsoleClipboardUpdated(text: string) {
@@ -70,10 +69,6 @@ export class VmwareDemoComponent {
 
   protected handleScreenshotCopied(blob: Blob) {
     this.showToast("Copied a screenshot from the console!", "Nice!");
-  }
-
-  protected handleToggleScale() {
-    this.scaleToContainer.update(() => !this.scaleToContainer());
   }
 
   private showToast(message: string, action: string) {

@@ -5,6 +5,8 @@ import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-compon
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { UserSettingsService } from '../../services/user-settings.service';
+import { ConsoleUserSettings } from '../../models/console-user-settings';
+import { ConsolePowerRequest } from '../../models/console-power-request';
 
 @Component({
   selector: 'cf-console-toolbar-default',
@@ -16,12 +18,13 @@ import { UserSettingsService } from '../../services/user-settings.service';
 export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBase {
   consoleContext = input.required<ConsoleToolbarContext>();
 
-  // user settings
-
+  // component state
   protected isClipboardDialogOpen = false;
   protected isNetworkDialogOpen = false;
   protected isPowerDialogOpen = false;
   protected isSettingsDialogOpen = false;
+
+  // services and viewkids
   protected readonly cfConfig = inject(ConsoleForgeConfig);
   protected readonly clipboardTextInput = viewChild<ElementRef>("clipboardText");
   protected readonly userSettings = inject(UserSettingsService);
@@ -52,10 +55,6 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
     this.isNetworkDialogOpen = isOpen;
   }
 
-  protected handlePowerDialogOpenClose(isOpen: boolean) {
-    this.isPowerDialogOpen = isOpen;
-  }
-
   protected handleRecordToggle() {
     if (this.consoleContext().state.activeConsoleRecording()) {
       this.consoleContext().console.recordScreenStop();
@@ -74,7 +73,29 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
     this.isClipboardDialogOpen = false;
   }
 
+  protected async handleSendPowerRequest(request: ConsolePowerRequest): Promise<void> {
+    await this.consoleContext().console.sendPowerRequest(request);
+    this.isPowerDialogOpen = false;
+  }
+
   protected handleSettingsDialogOpenClose(isOpen: boolean) {
     this.isSettingsDialogOpen = isOpen;
+  }
+
+  protected handleSettingsChanged(settings: Partial<ConsoleUserSettings>) {
+    this.consoleContext().settings.update(settings);
+  }
+
+  protected handleSettingsAllowLocalClipboardWrite(allow: boolean) {
+    const currentSettings = this.consoleContext().settings.current();
+    currentSettings.console.allowCopyToLocalClipboard = allow;
+    this.consoleContext().settings.update(currentSettings);
+  }
+
+  protected handleSettingsPreserveAspectRatioChange(preserveAspectRatioOnScale: boolean) {
+    // do a simple copy from the current settings (spread doesn't work here because of the hierarchy of the object, maybe a sign of something amiss)
+    const currentSettings = this.consoleContext().settings.current();
+    currentSettings.console.preserveAspectRatioOnScale = preserveAspectRatioOnScale;
+    this.consoleContext().settings.update(currentSettings);
   }
 }

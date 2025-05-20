@@ -5,8 +5,8 @@
     (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)" (consoleRecorded)="handleConsoleRecorded($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
-    (networkDisconnectRequested)="handleNetworkDisconnectRequest()" [scaleToContainerSize]="scaleToContainer()"
-    (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
+    (networkDisconnectRequested)="handleNetworkDisconnectRequest()" (screenshotCopied)="handleScreenshotCopied($event)"
+    [isViewOnly]="isViewOnly()"></cf-console>
 }
 
 @if (cfConsole()) {
@@ -19,7 +19,6 @@
 @if (isConnected()) {
 <div class="post-connection-controls flex my-2 gap-2">
     <button mat-flat-button type="button" (click)="handleDisconnect()">Disconnect</button>
-    <button mat-flat-button type="button" (click)="handleToggleScale()">Toggle Scale</button>
     <mat-checkbox [(ngModel)]="isViewOnly">View Only</mat-checkbox>
 </div>
 }

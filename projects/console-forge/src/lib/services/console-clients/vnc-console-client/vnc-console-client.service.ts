@@ -6,6 +6,7 @@ import { ConsoleSupportedFeatures } from '../../../models/console-supported-feat
 import { LogLevel } from '../../../models/log-level';
 import { ConsoleClientService } from '../../../services/console-clients/console-client.service';
 import { LoggerService } from '../../../services/logger.service';
+import { ConsolePowerRequest } from '../../../models/console-power-request';
 
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {
@@ -17,6 +18,14 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private readonly _connectionStatus = signal<ConsoleConnectionStatus>("disconnected");
   public readonly connectionStatus = this._connectionStatus.asReadonly();
+
+  private readonly _supportedFeatures = signal<ConsoleSupportedFeatures>({
+    onScreenKeyboard: false,
+    reboot: false,
+    rebootHard: false,
+    shutdown: false
+  });
+  public readonly supportedFeatures = this._supportedFeatures.asReadonly();
 
   // injected services
   private readonly logger = inject(LoggerService);
@@ -50,12 +59,15 @@ export class VncConsoleClientService implements ConsoleClientService {
 
           // the vnc client knows its capabilities post-connection
           // so send this back along with the things we know we can't support
-          resolve({
+          const supportedFeatures: ConsoleSupportedFeatures = {
             onScreenKeyboard: false,
             reboot: this.noVncClient.capabilities.power,
             rebootHard: this.noVncClient.capabilities.power,
             shutdown: this.noVncClient.capabilities.power
-          });
+          };
+
+          this._supportedFeatures.update(() => supportedFeatures);
+          resolve(supportedFeatures);
         });
       }
       catch (err) {
@@ -106,6 +118,28 @@ export class VncConsoleClientService implements ConsoleClientService {
     this.noVncClient.sendCtrlAltDel();
   }
 
+  public async sendPowerRequest(request: ConsolePowerRequest): Promise<void> {
+    if (!this.noVncClient) {
+      throw new Error(`VNC client isn't connected; can't send power request "${request}"`);
+    }
+
+    if (!this.noVncClient.capabilities.power) {
+      throw new Error(`The machine you're connected to over VNC doesn't have the "power" capability, so reboots, resets, and shutdowns aren't permitted.`);
+    }
+
+    switch (request) {
+      case "reboot":
+        this.noVncClient.machineReboot();
+        return;
+      case "rebootHard":
+        this.noVncClient.machineReset();
+        return;
+      case "shutdown":
+        this.noVncClient.machineShutdown();
+        return;
+    }
+  }
+
   public async setIsViewOnly(isViewOnly: boolean): Promise<void> {
     if (!this.noVncClient) {
       throw new Error("VNC client isn't connected; can't set properties");
@@ -114,13 +148,13 @@ export class VncConsoleClientService implements ConsoleClientService {
     this.noVncClient.viewOnly = isViewOnly;
   }
 
-  public async setScaleToContainerSize(scaleToContainerSize: boolean): Promise<void> {
+  public async setPreserveAspectRatioOnScale(preserve: boolean): Promise<void> {
     if (!this.noVncClient) {
       throw new Error("VNC client isn't connected; can't set properties");
     }
 
-    this.logger.log(LogLevel.DEBUG, "Set scale to", scaleToContainerSize);
-    this.noVncClient.scaleViewport = scaleToContainerSize;
+    this.logger.log(LogLevel.DEBUG, "Set preserve aspect ratio to", preserve);
+    this.noVncClient.scaleViewport = preserve;
   }
 
   private doPreConnectionConfig(client: NoVncClient): NoVncClient {
@@ -137,8 +171,6 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
     client.background = options.backgroundStyle || "";
-    client.scaleViewport = options.scaleToContainerSize === undefined ? true : options.scaleToContainerSize;
-    client.viewOnly = options.isViewOnly || false;
 
     // try focus if requested
     if (options.autoFocusOnConnect) {

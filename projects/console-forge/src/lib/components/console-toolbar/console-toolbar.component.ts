@@ -12,6 +12,7 @@ import { LogLevel } from '../../models/log-level';
 import { CanvasRecording } from '../../services/canvas-recorder/canvas-recording';
 import { UserSettingsService } from '../../services/user-settings.service';
 import { ConsoleUserSettings } from '../../models/console-user-settings';
+import { ConsolePowerRequest } from '../../models/console-power-request';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -31,6 +32,7 @@ export class ConsoleToolbarComponent {
   ctrlAltDelSent = output<void>();
   networkConnectionRequested = output<string>();
   networkDisconnectRequested = output<void>();
+  powerRequestSent = output<ConsolePowerRequest>();
   screenshotCopied = output<Blob>();
   toggleFullscreen = output<void>();
 
@@ -42,7 +44,6 @@ export class ConsoleToolbarComponent {
 
   // component state
   private readonly activeConsoleRecording = signal<CanvasRecording | undefined>(undefined);
-  protected readonly fullscreenAvailable = inject(FullScreenService).isAvailable;
   protected readonly toolbarComponentContext: ConsoleToolbarContext;
   protected readonly toolbarComponent = computed(() => this.customToolbarComponent() || this.config.consoleToolbarComponent);
 
@@ -53,7 +54,9 @@ export class ConsoleToolbarComponent {
         recordScreenStart: this.handleRecordScreenStart.bind(this),
         recordScreenStop: this.handleRecordScreenStop.bind(this),
         sendCtrlAltDel: this.handleSendCtrlAltDelete.bind(this),
+        sendPowerRequest: this.handleSendPowerRequest.bind(this),
         sendTextToClipboard: this.handleSendTextToClipboard.bind(this),
+        supportedFeatures: computed(() => this.consoleClient().supportedFeatures()),
         toggleFullscreen: this.handleFullscreen.bind(this)
       },
       networks: {
@@ -62,17 +65,20 @@ export class ConsoleToolbarComponent {
         current: computed(() => this.currentNetwork()),
         list: computed(() => this.availableNetworks() || [])
       },
+      settings: {
+        current: this.userSettings.settings,
+        update: this.handleUpdateSettings.bind(this),
+      },
       state: {
         activeConsoleRecording: computed(() => this.activeConsoleRecording()),
         isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
         isFullscreenAvailable: inject(FullScreenService).isAvailable,
         isRecordingAvailable: computed(() => !!this.consoleCanvas())
-      },
-      toolbar: {
-        orientation: computed(() => this.userSettings.settings().toolbar.dockTo === "left" || this.userSettings.settings().toolbar.dockTo === "right" ? "vertical" : "horizontal")
       }
     };
   }
+
+
 
   protected async handleCopyScreenshot() {
     const blob = await this.consoleClient().getScreenshot();
@@ -124,14 +130,21 @@ export class ConsoleToolbarComponent {
     return Promise.resolve();
   }
 
+  private async handleSendPowerRequest(request: ConsolePowerRequest): Promise<void> {
+    this.consoleClient().sendPowerRequest(request);
+    this.powerRequestSent.emit(request);
+    return Promise.resolve();
+  }
+
   protected async handleSendTextToClipboard(text: string) {
     if (text) {
       this.consoleClient().sendClipboardText(text);
     }
   }
 
-  protected async handleSettingsUpdated(settings: ConsoleUserSettings) {
+  protected async handleUpdateSettings(settings: ConsoleUserSettings) {
     this.userSettings.update(settings);
+    this.logger.log(LogLevel.DEBUG, "User settings updated", settings);
     return Promise.resolve();
   }
 }

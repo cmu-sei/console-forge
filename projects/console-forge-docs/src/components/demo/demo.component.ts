@@ -31,17 +31,16 @@ export class DemoComponent {
   protected configForm = new FormGroup({
     autoFocusOnConnect: new FormControl(false),
     isViewOnly: new FormControl(false),
-    password: new FormControl(""),
+    password: new FormControl("mypw"),
     ticket: new FormControl(""),
     url: new FormControl("http://localhost:5950"),
-    vmId: new FormControl("278504305")
+    vmId: new FormControl("")
   });
 
   protected availableNetworks = model<string[]>(["lan1", "lan2"]);
   protected currentNetwork = model<string>("lan1");
   protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
   protected isViewOnly = model(false);
-  protected scaleToContainer = model(false);
 
   protected async configFormSubmit() {
     let url = this.configForm.value.url || "";
@@ -97,11 +96,7 @@ export class DemoComponent {
     this.showToast("Copied a screenshot from the console!", "Nice!");
   }
 
-  protected handleToggleScale() {
-    this.scaleToContainer.update(() => !this.scaleToContainer());
-  }
-
   private showToast(message: string, action: string) {
-    this.snackbarService.open(message, action, { duration: 3000, horizontalPosition: "end", "verticalPosition": "top" });
+    this.snackbarService.open(message, action, { duration: 3000, horizontalPosition: "end", verticalPosition: "top" });
   }
 }

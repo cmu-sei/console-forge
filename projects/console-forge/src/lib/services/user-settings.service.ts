@@ -7,7 +7,7 @@ export class UserSettingsService {
   private readonly _settings = signal<ConsoleUserSettings>({
     console: {
       allowCopyToLocalClipboard: true,
-      scaleToContainerSize: true
+      preserveAspectRatioOnScale: true
     },
     toolbar: {
       dockTo: "left"

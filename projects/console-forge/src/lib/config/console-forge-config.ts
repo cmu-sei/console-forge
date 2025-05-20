@@ -5,6 +5,12 @@ import { ConsoleToolbarComponentBase } from "../models/console-toolbar-component
 import { ConsoleToolbarDefaultComponent } from "../components/console-toolbar-default/console-toolbar-default.component";
 
 export abstract class ConsoleForgeConfig {
+    abstract canvasRecording: {
+        chunkLength?: number;
+        frameRate?: number;
+        maxDuration?: number;
+        mimeType?: string;
+    };
     abstract consoleBackgroundStyle?: string;
     abstract consoleToolbarComponent: Type<ConsoleToolbarComponentBase>;
     abstract defaultConsoleClientType?: ConsoleClientType;
@@ -15,6 +21,12 @@ export abstract class ConsoleForgeConfig {
 }
 
 export const defaultCfConfig: ConsoleForgeConfig = {
+    canvasRecording: {
+        chunkLength: 1000,
+        frameRate: 25,
+        maxDuration: 60000,
+        mimeType: "video/webm"
+    },
     consoleBackgroundStyle: "rgb(40, 40, 40)",
     consoleToolbarComponent: ConsoleToolbarDefaultComponent,
     enableClipboard: true,

@@ -15,6 +15,7 @@ import { BrowserNotificationsService } from '../../services/browser-notification
 import { ConsoleStatusComponent } from '../console-status/console-status.component';
 import { ConsoleUserSettings } from '../../models/console-user-settings';
 import { UserSettingsService } from '../../services/user-settings.service';
+import { ConsolePowerRequest } from '../../models/console-power-request';
 
 @Component({
   selector: 'cf-console',
@@ -33,7 +34,6 @@ export class ConsoleComponent implements OnDestroy {
   config = input.required<ConsoleComponentConfig>();
   currentNetwork = input<string>();
   isViewOnly = input(false);
-  scaleToContainerSize = input(true);
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
   toolbarPosition = signal<ConsoleToolbarPosition>("left");
 
@@ -43,6 +43,7 @@ export class ConsoleComponent implements OnDestroy {
   localClipboardUpdated = output<string>();
   networkConnectionRequested = output<string>();
   networkDisconnectRequested = output<void>();
+  powerRequestSent = output<ConsolePowerRequest>();
   screenshotCopied = output<Blob>();
   status = computed(() => this.consoleClient()?.connectionStatus() || "disconnected");
 
@@ -105,14 +106,15 @@ export class ConsoleComponent implements OnDestroy {
         this.consoleClient()!.setIsViewOnly(this.isViewOnly())
       }
     });
-    effect(() => {
-      if (this.consoleClient() && this.consoleClient()!.connectionStatus() === "connected") {
-        this.consoleClient()?.setScaleToContainerSize(this.scaleToContainerSize());
-      }
-    });
 
     // settings changes
-    effect(() => this.toolbarPosition.update(() => this.userSettings.settings().toolbar.dockTo));
+    effect(() => {
+      const currentSettings = this.userSettings.settings();
+      this.toolbarPosition.update(() => currentSettings.toolbar.dockTo);
+      if (this.consoleClient() && this.consoleClient()?.connectionStatus() === "connected") {
+        this.consoleClient()!.setPreserveAspectRatioOnScale(currentSettings.console.preserveAspectRatioOnScale);
+      }
+    });
   }
 
   public async ngOnDestroy(): Promise<void> {
@@ -180,7 +182,6 @@ export class ConsoleComponent implements OnDestroy {
       autoFocusOnConnect: config.autoFocusOnConnect,
       credentials: config.credentials,
       hostElement: this.consoleHostElement().nativeElement,
-      isViewOnly: this.isViewOnly(),
     });
 
     // the order here is important - we only update all the things that care about our console client once we're connected,

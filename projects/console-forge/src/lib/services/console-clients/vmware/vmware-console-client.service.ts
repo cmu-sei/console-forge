@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { ConsoleClientService } from '../console-client.service';
 import { ConsoleConnectionOptions } from '../../../models/console-connection-options';
 import { ConsoleConnectionStatus } from '../../../models/console-connection-status';
@@ -7,6 +7,7 @@ import { createWmksClient, WmksClient } from "../../../shims/vmware-wmks.shim";
 import { WmksConnectionState, WmksEvents, WmksPosition } from '../../../shims/vmware-mks.models';
 import { LoggerService } from '../../logger.service';
 import { LogLevel } from '../../../models/log-level';
+import { ConsolePowerRequest } from '../../../models/console-power-request';
 
 @Injectable({ providedIn: 'root' })
 export class VmWareConsoleClientService implements ConsoleClientService {
@@ -21,6 +22,14 @@ export class VmWareConsoleClientService implements ConsoleClientService {
 
   public readonly localClipboardUpdated = computed(() => this._localClipboardUpdated());
   private readonly _localClipboardUpdated = signal<string>("");
+
+  private readonly _supportedFeatures = signal<ConsoleSupportedFeatures>({
+    onScreenKeyboard: true,
+    reboot: false,
+    rebootHard: false,
+    shutdown: false
+  });
+  public readonly supportedFeatures = this._supportedFeatures.asReadonly();
 
   connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures> {
     if (!options.hostElement) {
@@ -101,6 +110,11 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return Promise.resolve();
   }
 
+  sendPowerRequest(request: ConsolePowerRequest): Promise<void> {
+    console.warn("NYI");
+    return Promise.resolve();
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setIsViewOnly(isViewOnly: boolean): Promise<void> {
     console.warn("NYI");
@@ -108,7 +122,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setScaleToContainerSize(scaleToContainerSize: boolean): Promise<void> {
+  setPreserveAspectRatioOnScale(scaleToContainerSize: boolean): Promise<void> {
     console.warn("NYI");
     return Promise.resolve();
   }
