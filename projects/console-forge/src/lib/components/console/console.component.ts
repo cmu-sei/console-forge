@@ -7,15 +7,14 @@ import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { UuidService } from '../../services/uuid.service';
 import { LoggerService } from '../../services/logger.service';
 import { FullScreenService } from '../../services/full-screen.service';
-import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { LogLevel } from '../../models/log-level';
 import { ConsoleToolbarComponent } from '../console-toolbar/console-toolbar.component';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
 import { BrowserNotificationsService } from '../../services/browser-notifications/browser-notifications.service';
 import { ConsoleStatusComponent } from '../console-status/console-status.component';
-import { ConsoleUserSettings } from '../../models/console-user-settings';
 import { UserSettingsService } from '../../services/user-settings.service';
 import { ConsolePowerRequest } from '../../models/console-power-request';
+import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-recorder.service';
 
 @Component({
   selector: 'cf-console',
@@ -35,7 +34,6 @@ export class ConsoleComponent implements OnDestroy {
   currentNetwork = input<string>();
   isViewOnly = input(false);
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
-  toolbarPosition = signal<ConsoleToolbarPosition>("left");
 
   consoleClipboardUpdated = output<string>();
   consoleRecorded = output<Blob>();
@@ -54,7 +52,7 @@ export class ConsoleComponent implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly fullscreen = inject(FullScreenService);
   private readonly logger = inject(LoggerService);
-  private readonly userSettings = inject(UserSettingsService);
+  private readonly userSettingsService = inject(UserSettingsService);
   private readonly uuids = inject(UuidService);
 
   // viewkids
@@ -65,6 +63,8 @@ export class ConsoleComponent implements OnDestroy {
   // other component state
   protected readonly consoleClient = signal<ConsoleClientService | undefined>(undefined);
   protected readonly consoleHostElementId = `cf-console-${this.uuids.get()}`;
+  protected readonly isRecording = inject(CanvasRecorderService).isRecording;
+  protected readonly userSettings = this.userSettingsService.settings;
 
   constructor() {
     // we use an effect here because we want to allow the use case of reusing a single console component
@@ -109,8 +109,7 @@ export class ConsoleComponent implements OnDestroy {
 
     // settings changes
     effect(() => {
-      const currentSettings = this.userSettings.settings();
-      this.toolbarPosition.update(() => currentSettings.toolbar.dockTo);
+      const currentSettings = this.userSettingsService.settings();
       if (this.consoleClient() && this.consoleClient()?.connectionStatus() === "connected") {
         this.consoleClient()!.setPreserveAspectRatioOnScale(currentSettings.console.preserveAspectRatioOnScale);
       }
@@ -149,10 +148,6 @@ export class ConsoleComponent implements OnDestroy {
     else {
       await this.fullscreen.tryFullscreen(this.componentContainer().nativeElement);
     }
-  }
-
-  protected handleUserSettingsChanged(userSettings: ConsoleUserSettings) {
-    this.toolbarPosition.update(() => userSettings.toolbar.dockTo);
   }
 
   // automatically invoked if autoConnect is on, but can also be manually invoked outside the component

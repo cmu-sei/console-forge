@@ -5,4 +5,5 @@ export interface CanvasRecordingSettings {
     mimeType: string;
     chunkLength: number;
     maxDuration: number;
+    onStopCallback: () => void;
 }

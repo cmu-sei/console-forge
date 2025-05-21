@@ -4,8 +4,6 @@ import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
-import { UserSettingsService } from '../../services/user-settings.service';
-import { ConsoleUserSettings } from '../../models/console-user-settings';
 import { ConsolePowerRequest } from '../../models/console-power-request';
 
 @Component({
@@ -27,10 +25,12 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
   // services and viewkids
   protected readonly cfConfig = inject(ConsoleForgeConfig);
   protected readonly clipboardTextInput = viewChild<ElementRef>("clipboardText");
-  protected readonly userSettings = inject(UserSettingsService);
 
   protected handleChangeToolbarPosition(position: ConsoleToolbarPosition) {
-    this.userSettings.update({ toolbar: { dockTo: position } });
+    this.consoleContext().settings.update(settings => {
+      settings.toolbar.dockTo = position;
+      return settings;
+    });
   }
 
   protected handleClipboardDialogOpenClose(isOpen: boolean) {
@@ -82,20 +82,17 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
     this.isSettingsDialogOpen = isOpen;
   }
 
-  protected handleSettingsChanged(settings: Partial<ConsoleUserSettings>) {
-    this.consoleContext().settings.update(settings);
-  }
-
   protected handleSettingsAllowLocalClipboardWrite(allow: boolean) {
-    const currentSettings = this.consoleContext().settings.current();
-    currentSettings.console.allowCopyToLocalClipboard = allow;
-    this.consoleContext().settings.update(currentSettings);
+    this.consoleContext().settings.update(settings => {
+      settings.console.allowCopyToLocalClipboard = allow;
+      return settings;
+    });
   }
 
   protected handleSettingsPreserveAspectRatioChange(preserveAspectRatioOnScale: boolean) {
-    // do a simple copy from the current settings (spread doesn't work here because of the hierarchy of the object, maybe a sign of something amiss)
-    const currentSettings = this.consoleContext().settings.current();
-    currentSettings.console.preserveAspectRatioOnScale = preserveAspectRatioOnScale;
-    this.consoleContext().settings.update(currentSettings);
+    this.consoleContext().settings.update(settings => {
+      settings.console.preserveAspectRatioOnScale = preserveAspectRatioOnScale;
+      return settings;
+    });
   }
 }

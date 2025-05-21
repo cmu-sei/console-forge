@@ -1,7 +1,8 @@
 <div #componentContainer class="console-component flex"
-    [class.flex-column]="toolbarPosition() === 'top' || toolbarPosition() === 'bottom'">
+    [class.flex-column]="userSettings().toolbar.dockTo === 'top' || userSettings().toolbar.dockTo === 'bottom'">
 
-    <cf-console-toolbar [class.flex-order-1]="toolbarPosition() == 'right' || toolbarPosition() == 'bottom'"
+    <cf-console-toolbar
+        [class.flex-order-1]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'"
         [availableNetworks]="availableNetworks()" [consoleCanvas]="consoleCanvasElement"
         [consoleClient]="consoleClient()!" [currentNetwork]="currentNetwork()"
         (canvasRecordingFinished)="consoleRecorded.emit($event)"
@@ -13,13 +14,13 @@
         (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
 
     <div class="console-host-container"
-        [class.flex-order-0]="toolbarPosition() == 'right' || toolbarPosition() == 'bottom'">
+        [class.flex-order-0]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'">
 
         @if (consoleClient()) {
         <cf-console-status [status]="consoleClient()!.connectionStatus()"></cf-console-status>
         }
 
-        <div #consoleHost [id]="consoleHostElementId" class="console-host">
+        <div #consoleHost [id]="consoleHostElementId" class="console-host" [class.recording]="isRecording()">
         </div>
     </div>
 </div>

@@ -10,10 +10,9 @@ export class UserSettingsService {
       preserveAspectRatioOnScale: true
     },
     toolbar: {
-      dockTo: "left"
+      dockTo: "top"
     }
   });
-
   public readonly settings = this._settings.asReadonly();
 
   private readonly settingsKey = "consoleForge:userSettings";
@@ -22,15 +21,8 @@ export class UserSettingsService {
   constructor() {
     // read out of storage
     const storedSettings: ConsoleUserSettings = JSON.parse(this.window.localStorage.getItem(this.settingsKey) || "{}");
-    this.update(storedSettings);
+    this._settings.update(() => storedSettings);
   }
 
-  update(value: Partial<ConsoleUserSettings>): void {
-    const newSettings = {
-      ...this.settings(),
-      ...value
-    };
-    this.window.localStorage.setItem(this.settingsKey, JSON.stringify(newSettings));
-    this._settings.update(() => newSettings);
-  }
+  public update = this._settings.update;
 }

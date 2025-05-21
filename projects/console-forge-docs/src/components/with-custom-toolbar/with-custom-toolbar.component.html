@@ -1,5 +1,5 @@
 @if (consoleConfig) {
-<cf-console [config]="consoleConfig" [toolbarComponent]="customToolbar"
+<cf-console #cfConsole [config]="consoleConfig" [toolbarComponent]="customToolbar"
     (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (networkConnectionRequested)="handleNetworkConnectionRequest($event)"

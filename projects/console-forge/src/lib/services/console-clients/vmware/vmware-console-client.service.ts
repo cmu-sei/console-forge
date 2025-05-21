@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, Signal, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { ConsoleClientService } from '../console-client.service';
 import { ConsoleConnectionOptions } from '../../../models/console-connection-options';
 import { ConsoleConnectionStatus } from '../../../models/console-connection-status';
@@ -14,14 +14,14 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   private readonly logger = inject(LoggerService);
   private wmksClient?: WmksClient;
 
-  public readonly connectionStatus = computed(() => this._connectionStatus());
   private readonly _connectionStatus = signal<ConsoleConnectionStatus>("disconnected")
+  public readonly connectionStatus = this._connectionStatus.asReadonly();
 
-  public readonly consoleClipboardUpdated = computed(() => this._consoleClipboardUpdated());
   private readonly _consoleClipboardUpdated = signal<string>("");
+  public readonly consoleClipboardUpdated = this._consoleClipboardUpdated.asReadonly();
 
-  public readonly localClipboardUpdated = computed(() => this._localClipboardUpdated());
   private readonly _localClipboardUpdated = signal<string>("");
+  public readonly localClipboardUpdated = this._localClipboardUpdated.asReadonly()
 
   private readonly _supportedFeatures = signal<ConsoleSupportedFeatures>({
     onScreenKeyboard: true,

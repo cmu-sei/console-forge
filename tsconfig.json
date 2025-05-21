@@ -21,7 +21,6 @@
     "typeRoots": [
       "./node_modules/@types",
       "./projects/console-forge/node_modules/@types",
-      "./projects/console-forge/src/types",
       "./projects/console-forge-docs/typings"
     ]
   },

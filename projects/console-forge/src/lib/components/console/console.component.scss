@@ -17,6 +17,10 @@ cf-console-toolbar {
 .console-host {
   width: 100%;
   height: 100%;
+
+  &.recording {
+    outline: 4px solid #ee402e;
+  }
 }
 
 ::ng-deep {

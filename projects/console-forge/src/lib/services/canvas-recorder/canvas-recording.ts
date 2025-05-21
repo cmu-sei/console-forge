@@ -11,8 +11,11 @@ export class CanvasRecording {
     // Stopping is a bit tricky.
     //
     // The MediaRecorder doesn't guarantee the validity of the emitted blob until `onstop` is fired. This means that when someone
-    // calls in to stop the recording, we need to create a Promise that `.onstop` can resolve when it fires successfully. We store
-    // the promise at the class level, because we should only ever have one of them (set when .stop` is called).
+    // calls in to stop the recording, we need to create a (deferred) promise that `.onstop` can resolve when it fires successfully.
+    //
+    //
+    // We store the promise at the class level, because we should only ever have one of them (set when .stop` is called). But we also
+    // store the "resolve" call here, because its value is set in `.stop` but consumed in the `.onstop` event of the recorder.
     private stopPromise?: Promise<Blob>;
     private stopResolveFn?: (blob: Blob) => void;
 
@@ -30,10 +33,15 @@ export class CanvasRecording {
             throw (ev.error);
         }
         this.recorder.onstop = () => {
+            // the "resolve" is set at the class level by the `.stop` method for access here
             if (this.stopResolveFn) {
                 const blob = new Blob(this.chunks, { type: this.mimeType });
                 this.stopResolveFn(blob);
                 this.stopResolveFn = undefined;
+
+                // the settings have an OnStop callback that should be invoked so
+                // the service constructing these things can know if any are going on
+                this.settings.onStopCallback();
             }
         }
         this.recorder.start(settings.chunkLength);
@@ -43,7 +51,8 @@ export class CanvasRecording {
 
     public stop(): Promise<Blob> {
         if (this.stopPromise) {
-            // if defined, stop's already been called
+            // if defined, stop's already been called, so we 
+            // want to give back the same promise
             return this.stopPromise;
         }
 
@@ -52,6 +61,7 @@ export class CanvasRecording {
             this.autostopTimeoutRef = undefined;
         }
 
+        // set
         this.stopPromise = new Promise(resolve => this.stopResolveFn = resolve);
 
         this.recorder.stop();

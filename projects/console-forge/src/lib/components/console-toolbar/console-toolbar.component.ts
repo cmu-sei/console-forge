@@ -11,7 +11,6 @@ import { LoggerService } from '../../services/logger.service';
 import { LogLevel } from '../../models/log-level';
 import { CanvasRecording } from '../../services/canvas-recorder/canvas-recording';
 import { UserSettingsService } from '../../services/user-settings.service';
-import { ConsoleUserSettings } from '../../models/console-user-settings';
 import { ConsolePowerRequest } from '../../models/console-power-request';
 
 @Component({
@@ -67,7 +66,7 @@ export class ConsoleToolbarComponent {
       },
       settings: {
         current: this.userSettings.settings,
-        update: this.handleUpdateSettings.bind(this),
+        update: this.userSettings.update
       },
       state: {
         activeConsoleRecording: computed(() => this.activeConsoleRecording()),
@@ -140,11 +139,5 @@ export class ConsoleToolbarComponent {
     if (text) {
       this.consoleClient().sendClipboardText(text);
     }
-  }
-
-  protected async handleUpdateSettings(settings: ConsoleUserSettings) {
-    this.userSettings.update(settings);
-    this.logger.log(LogLevel.DEBUG, "User settings updated", settings);
-    return Promise.resolve();
   }
 }

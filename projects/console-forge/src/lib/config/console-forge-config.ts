@@ -32,5 +32,5 @@ export const defaultCfConfig: ConsoleForgeConfig = {
     enableClipboard: true,
     enableConsoleRecord: true,
     logThreshold: LogLevel.WARNING,
-    showBrowserNotificationsOnConsoleEvents: false
+    showBrowserNotificationsOnConsoleEvents: false,
 }

@@ -253,7 +253,9 @@
             <h4>Behavior</h4>
             <fieldset>
                 <label>
-                    <input type="checkbox" name="allowTextCopy" checked />
+                    <input #inputAllowLocalClipboardWrite type="checkbox" name="allowLocalClipboardWrite"
+                        [checked]="consoleContext().settings.current().console.allowCopyToLocalClipboard"
+                        (change)="handleSettingsAllowLocalClipboardWrite(inputAllowLocalClipboardWrite.checked)" />
                     Allow the remote machine to copy text to my local clipboard
                 </label>
                 <label>
@@ -268,13 +270,13 @@
                 <h4>Toolbar Position</h4>
                 <div role="group">
                     <button (click)="handleChangeToolbarPosition('left')"
-                        [disabled]="userSettings.settings().toolbar.dockTo === 'left'">Left</button>
+                        [disabled]="consoleContext().settings.current().toolbar.dockTo === 'left'">Left</button>
                     <button (click)="handleChangeToolbarPosition('right')"
-                        [disabled]="userSettings.settings().toolbar.dockTo === 'right'">Right</button>
+                        [disabled]="consoleContext().settings.current().toolbar.dockTo === 'right'">Right</button>
                     <button (click)="handleChangeToolbarPosition('top')"
-                        [disabled]="userSettings.settings().toolbar.dockTo === 'top'">Top</button>
+                        [disabled]="consoleContext().settings.current().toolbar.dockTo === 'top'">Top</button>
                     <button (click)="handleChangeToolbarPosition('bottom')"
-                        [disabled]="userSettings.settings().toolbar.dockTo === 'bottom'">Bottom</button>
+                        [disabled]="consoleContext().settings.current().toolbar.dockTo === 'bottom'">Bottom</button>
                 </div>
             </div>
         </div>

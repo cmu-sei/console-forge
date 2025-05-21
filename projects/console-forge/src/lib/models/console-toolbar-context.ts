@@ -23,7 +23,7 @@ export interface ConsoleToolbarContext {
     };
     settings: {
         current: Signal<ConsoleUserSettings>;
-        update(settings: Partial<ConsoleUserSettings>): Promise<void>;
+        update(updateFn: (settings: ConsoleUserSettings) => ConsoleUserSettings): void;
     };
     state: {
         activeConsoleRecording: Signal<CanvasRecording | undefined>;

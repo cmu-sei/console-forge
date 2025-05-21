@@ -1,12 +1,14 @@
 import { inject, Injectable, signal } from '@angular/core';
 import NoVncClient from '@novnc/novnc/core/rfb';
+import { ConsoleForgeConfig } from '../../../config/console-forge-config';
 import { ConsoleConnectionOptions } from '../../../models/console-connection-options';
 import { ConsoleConnectionStatus } from '../../../models/console-connection-status';
+import { ConsolePowerRequest } from '../../../models/console-power-request';
 import { ConsoleSupportedFeatures } from '../../../models/console-supported-features';
 import { LogLevel } from '../../../models/log-level';
 import { ConsoleClientService } from '../../../services/console-clients/console-client.service';
 import { LoggerService } from '../../../services/logger.service';
-import { ConsolePowerRequest } from '../../../models/console-power-request';
+import { UserSettingsService } from '../../user-settings.service';
 
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {
@@ -28,7 +30,9 @@ export class VncConsoleClientService implements ConsoleClientService {
   public readonly supportedFeatures = this._supportedFeatures.asReadonly();
 
   // injected services
+  private readonly cfConfig = inject(ConsoleForgeConfig);
   private readonly logger = inject(LoggerService);
+  private readonly userSettings = inject(UserSettingsService);
 
   // the actual client from @novnc/novnc
   private noVncClient?: NoVncClient;
@@ -161,6 +165,17 @@ export class VncConsoleClientService implements ConsoleClientService {
     client.addEventListener("connect", () => this._connectionStatus.update(() => "connected"));
     client.addEventListener("disconnect", ev => this.handleDisconnect(ev.detail.clean));
     client.addEventListener("clipboard", ev => {
+      if (!this.cfConfig.enableClipboard) {
+        this.logger.log(LogLevel.INFO, "The remote console tried to copy text to the local clipboard, but local clipboard access is disabled in ConsoleForge's configuration.");
+        return;
+      }
+
+      const currentUserSettings = this.userSettings.settings();
+      if (!currentUserSettings.console.allowCopyToLocalClipboard) {
+        this.logger.log(LogLevel.INFO, "The remote console tried to copy text to the local clipboard, but you've disabled local clipboard copy. Use ConsoleForge's settings to allow it to copy text to your local clipboard.");
+        return;
+      }
+
       if (ev.detail.text) {
         this._localClipboardUpdated.update(() => ev.detail.text)
       }
@@ -171,6 +186,7 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
     client.background = options.backgroundStyle || "";
+    client.resizeSession = true;
 
     // try focus if requested
     if (options.autoFocusOnConnect) {

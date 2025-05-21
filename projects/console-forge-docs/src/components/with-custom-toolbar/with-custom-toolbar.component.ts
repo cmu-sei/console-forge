@@ -1,4 +1,4 @@
-import { Component, inject, Type } from '@angular/core';
+import { Component, inject, Type, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -25,6 +25,7 @@ import { CustomConsoleToolbarComponent } from '../custom-console-toolbar/custom-
 export class WithCustomToolbarComponent {
   private readonly snackbarService = inject(MatSnackBar);
 
+  protected cfConsole = viewChild<ConsoleComponent>("cfConsole");
   protected consoleConfig?: ConsoleComponentConfig;
   protected configForm = new FormGroup({
     password: new FormControl("mypw"),
@@ -32,7 +33,7 @@ export class WithCustomToolbarComponent {
   });
   protected customToolbar: Type<ConsoleToolbarComponentBase> = CustomConsoleToolbarComponent;
 
-  protected handleConfigFormSubmit() {
+  protected async handleConfigFormSubmit() {
     if (!this.configForm.value.url) {
       return;
     }
@@ -44,6 +45,9 @@ export class WithCustomToolbarComponent {
       },
       url: this.configForm.value.url
     };
+    if (this.cfConsole()) {
+      await this.cfConsole()?.connect(this.consoleConfig);
+    }
   }
 
   protected handleConsoleClipboardUpdated(text: string) {
