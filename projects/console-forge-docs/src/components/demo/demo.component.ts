@@ -81,7 +81,9 @@ export class DemoComponent {
   }
 
   protected handleLocalClipboardUpdated(text: string) {
-    this.showToast(`Copied to local clipboard: ${text}`, "Yeahhh");
+    if (text) {
+      this.showToast(`Copied to local clipboard: ${text}`, "Yeahhh");
+    }
   }
 
   protected handleNetworkConnectionRequest(networkName: string) {

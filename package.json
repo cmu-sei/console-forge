@@ -21,8 +21,6 @@
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
     "@novnc/novnc": "^1.4.0",
-    "jquery": "^3.7.1",
-    "jquery-ui": "^1.14.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

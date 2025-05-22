@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, input, viewChild, ViewEncapsulation } from '@angular/core';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
@@ -11,7 +11,12 @@ import { ConsolePowerRequest } from '../../models/console-power-request';
   imports: [ConsoleToolbarDefaultButtonComponent],
   standalone: true,
   templateUrl: './console-toolbar-default.component.html',
-  styleUrl: './console-toolbar-default.component.scss'
+  styleUrl: './console-toolbar-default.component.scss',
+  // using ViewEncapsulation.ShadowDom lets us apply styling from this component to child components.
+  // Critically, we do this do allow PicoCSS to apply to this element's children, but nothing else on the page
+  // (because PicoCSS is really aggressive about styling whatever it can on the page). This also stops
+  // us from loading PicoCSS if the default toolbar is replaced.
+  encapsulation: ViewEncapsulation.ShadowDom
 })
 export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBase {
   consoleContext = input.required<ConsoleToolbarContext>();

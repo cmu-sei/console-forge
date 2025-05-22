@@ -56,14 +56,17 @@ export class CanvasRecording {
             return this.stopPromise;
         }
 
+        // clear the autotimeout if it's been set for this
         if (this.autostopTimeoutRef) {
             this.window.clearTimeout(this.autostopTimeoutRef);
             this.autostopTimeoutRef = undefined;
         }
 
-        // set
+        // record the stop promise we're about to send back, so we can return it to
+        // anyone who calls .stop again by mistake
         this.stopPromise = new Promise(resolve => this.stopResolveFn = resolve);
 
+        // stop the recorder and return
         this.recorder.stop();
         return this.stopPromise;
     }
