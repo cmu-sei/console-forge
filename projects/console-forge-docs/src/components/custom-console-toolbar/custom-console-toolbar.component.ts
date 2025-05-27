@@ -1,11 +1,13 @@
 import { Component, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { ConsoleToolbarComponentBase, ConsoleToolbarContext } from 'console-forge';
+import { MatButtonToggleModule } from "@angular/material/button-toggle";
+import { ConsoleToolbarComponentBase, ConsoleToolbarContext, ConsoleToolbarPosition } from 'console-forge';
 
 @Component({
   selector: 'app-custom-console-toolbar',
   imports: [
     MatButtonModule,
+    MatButtonToggleModule,
   ],
   standalone: true,
   templateUrl: './custom-console-toolbar.component.html',
@@ -13,4 +15,19 @@ import { ConsoleToolbarComponentBase, ConsoleToolbarContext } from 'console-forg
 })
 export class CustomConsoleToolbarComponent implements ConsoleToolbarComponentBase {
   public consoleContext = input.required<ConsoleToolbarContext>();
+
+  protected handleClipboardSend() {
+    this.consoleContext().console.sendTextToClipboard(new Date().toLocaleDateString());
+  }
+
+  protected handleFullscreen() {
+    this.consoleContext().console.toggleFullscreen();
+  }
+
+  protected handleDockToChange(dockTo: string) {
+    this.consoleContext().settings.update(settings => {
+      settings.toolbar.dockTo = dockTo as ConsoleToolbarPosition;
+      return settings;
+    });
+  }
 }

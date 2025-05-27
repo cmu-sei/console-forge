@@ -28,7 +28,6 @@ import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-rec
 })
 export class ConsoleComponent implements OnDestroy {
   // component I/O
-  autoConnect = input(false);
   availableNetworks = input<string[]>();
   config = input.required<ConsoleComponentConfig>();
   currentNetwork = input<string>();
@@ -67,19 +66,6 @@ export class ConsoleComponent implements OnDestroy {
   protected readonly userSettings = this.userSettingsService.settings;
 
   constructor() {
-    // we use an effect here because we want to allow the use case of reusing a single console component
-    // for multiple console connections. I will 100% regret and delete this at some point.
-    effect(() => {
-      if (!this.autoConnect() || !this.config() || !this.consoleHostElement()) {
-        return;
-      }
-      // note that even though `connect` is async, we don't invoke it asynchronously here. This is because
-      // effects are _supposed_ to be synchronous, and making them async can cause Angular to ignore the
-      // execution completely. If we care about this, we should set up a cancellation pattern on connect() below.
-      this.logger.log(LogLevel.DEBUG, "Autoconnecting with", this.config(), this.consoleHostElement());
-      this.connect(this.config());
-    });
-
     // we need this component to emit from outputs or call the client when signals change, so an effect
     // is the recommended solution: https://github.com/angular/angular/issues/57208
     // clipboard events

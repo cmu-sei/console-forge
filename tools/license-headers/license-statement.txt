@@ -1,0 +1,2 @@
+Copyright %YEAR% Carnegie Mellon University. All rights reserved.
+Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.

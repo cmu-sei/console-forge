@@ -1,2 +1,10 @@
-<button mat-flat-button color="danger">Do my actual taxes</button>
-<button mat-flat-button (click)="consoleContext().console.copyScreenshot()">How bout a screenshot?</button>
+<button mat-flat-button (click)="consoleContext().console.copyScreenshot()">Take a screenshot</button>
+<button mat-flat-button (click)="handleClipboardSend()">Send date to clipboard</button>
+<button mat-flat-button (click)="handleFullscreen()">Toggle fullscreen</button>
+
+<mat-button-toggle-group name="dock-to" aria-label="Dock To" (change)="handleDockToChange($event.value)">
+    <mat-button-toggle mat-flat-button value="left">Left</mat-button-toggle>
+    <mat-button-toggle mat-flat-button value="right">Right</mat-button-toggle>
+    <mat-button-toggle mat-flat-button value="top">Top</mat-button-toggle>
+    <mat-button-toggle mat-flat-button value="bottom">Bottom</mat-button-toggle>
+</mat-button-toggle-group>

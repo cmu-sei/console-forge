@@ -1,11 +1,11 @@
 import { Component, inject, Type, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConsoleComponent, ConsoleComponentConfig, ConsoleToolbarComponentBase } from 'console-forge';
-import { MatButtonModule } from '@angular/material/button';
 import { CustomConsoleToolbarComponent } from '../custom-console-toolbar/custom-console-toolbar.component';
 
 @Component({
