@@ -11,7 +11,9 @@ const COMMENT_STYLES = {
 
 function loadHeaderLines(headerPath) {
   const rawText = readFileSync(headerPath, "utf8");
-  return rawText.split("\n").map((t) => t.trim());
+  return rawText.split("\n").map((t) => {
+    return t.replace("%YEAR%", new Date().getFullYear()).trim();
+  });
 }
 
 function formatHeader(ext, text) {
@@ -23,7 +25,7 @@ function formatHeader(ext, text) {
 
   let out = `${style.prefix} ===BEGIN LICENSE===\n`;
   out += text.map((t) => `${style.prefix} ${t}${resolveSuffix}`).join("\n");
-  out += `\n${style.prefix} ===END LICENSE===${resolveSuffix}`;
+  out += `===END LICENSE===${resolveSuffix}`;
 
   return out;
 }
