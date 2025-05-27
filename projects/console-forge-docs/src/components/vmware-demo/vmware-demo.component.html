@@ -1,7 +1,7 @@
 <h2>Using ConsoleForge with VNC</h2>
 
 @if (cfConfig) {
-<cf-console [config]="cfConfig" [autoConnect]="false" (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
+<cf-console [config]="cfConfig" (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
 }

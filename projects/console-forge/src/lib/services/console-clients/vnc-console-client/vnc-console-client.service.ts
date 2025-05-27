@@ -1,3 +1,8 @@
+//  ===BEGIN LICENSE===
+//  Copyright 2025 Carnegie Mellon University. All rights reserved.
+//  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
+//  ===END LICENSE===
+
 import { inject, Injectable, signal } from '@angular/core';
 import NoVncClient from '@novnc/novnc/core/rfb';
 import { ConsoleForgeConfig } from '../../../config/console-forge-config';
@@ -186,7 +191,7 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
     client.background = options.backgroundStyle || "";
-    client.resizeSession = true;
+    // client.resizeSession = true;
 
     // try focus if requested
     if (options.autoFocusOnConnect) {

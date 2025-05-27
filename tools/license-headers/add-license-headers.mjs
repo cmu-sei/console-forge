@@ -6,7 +6,8 @@ import console from "console";
 const LICENSE_START = "===BEGIN LICENSE===";
 const LICENSE_END = "===END LICENSE===";
 const COMMENT_STYLES = {
-  ".html": { prefix: "<!--", suffix: "-->" },
+  // TODO: problem stripping old license text in HTML files because of the suffix coming after the "end license" token
+  // ".html": { prefix: "<!--", suffix: "-->" },
   ".scss": { prefix: "// " },
   ".ts": { prefix: "// " },
 };
@@ -47,7 +48,7 @@ function applyLicense(filePath, headerLines) {
 
   console.log(`Mark: ${filePath}`);
   const contentLicenseStripped = stripOldLicense(content);
-  const newContent = formattedHeader + "\n\n" + contentLicenseStripped;
+  const newContent = formattedHeader.trim() + "\n\n" + contentLicenseStripped;
   writeFileSync(filePath, newContent, "utf8");
 }
 

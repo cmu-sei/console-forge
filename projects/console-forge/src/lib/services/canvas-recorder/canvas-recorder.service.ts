@@ -1,3 +1,8 @@
+//  ===BEGIN LICENSE===
+//  Copyright 2025 Carnegie Mellon University. All rights reserved.
+//  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
+//  ===END LICENSE===
+
 import { inject, Injectable, signal } from '@angular/core';
 import { CanvasRecording } from './canvas-recording';
 import { WINDOW } from '../../injection/window.injection-token';

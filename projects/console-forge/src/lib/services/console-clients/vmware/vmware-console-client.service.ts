@@ -1,3 +1,8 @@
+//  ===BEGIN LICENSE===
+//  Copyright 2025 Carnegie Mellon University. All rights reserved.
+//  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
+//  ===END LICENSE===
+
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ConsoleClientService } from '../console-client.service';
 import { ConsoleConnectionOptions } from '../../../models/console-connection-options';

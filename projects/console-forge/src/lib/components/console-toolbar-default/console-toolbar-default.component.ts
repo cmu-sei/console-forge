@@ -1,3 +1,8 @@
+//  ===BEGIN LICENSE===
+//  Copyright 2025 Carnegie Mellon University. All rights reserved.
+//  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
+//  ===END LICENSE===
+
 import { Component, ElementRef, inject, input, viewChild, ViewEncapsulation } from '@angular/core';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';

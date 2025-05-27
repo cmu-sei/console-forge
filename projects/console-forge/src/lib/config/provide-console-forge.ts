@@ -1,3 +1,8 @@
+//  ===BEGIN LICENSE===
+//  Copyright 2025 Carnegie Mellon University. All rights reserved.
+//  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
+//  ===END LICENSE===
+
 import { EnvironmentProviders, makeEnvironmentProviders } from "@angular/core";
 import { ConsoleForgeConfig, defaultCfConfig } from "./console-forge-config";
 import { LoggerService } from "../services/logger.service";

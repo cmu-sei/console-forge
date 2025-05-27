@@ -1,3 +1,8 @@
+//  ===BEGIN LICENSE===
+//  Copyright 2025 Carnegie Mellon University. All rights reserved.
+//  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
+//  ===END LICENSE===
+
 import { Signal } from "@angular/core";
 import { ConsoleConnectionOptions } from "../../models/console-connection-options";
 import { ConsoleConnectionStatus } from "../../models/console-connection-status";

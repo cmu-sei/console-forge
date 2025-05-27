@@ -1,3 +1,8 @@
+//  ===BEGIN LICENSE===
+//  Copyright 2025 Carnegie Mellon University. All rights reserved.
+//  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
+//  ===END LICENSE===
+
 import { Signal } from "@angular/core";
 import { CanvasRecording } from "../services/canvas-recorder/canvas-recording";
 import { ConsoleUserSettings } from "./console-user-settings";

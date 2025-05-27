@@ -1,3 +1,8 @@
+//  ===BEGIN LICENSE===
+//  Copyright 2025 Carnegie Mellon University. All rights reserved.
+//  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
+//  ===END LICENSE===
+
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input, output, signal, Type } from '@angular/core';
 import { ClipboardService } from '../../services/clipboard.service';

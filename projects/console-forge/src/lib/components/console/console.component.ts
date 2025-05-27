@@ -1,3 +1,8 @@
+//  ===BEGIN LICENSE===
+//  Copyright 2025 Carnegie Mellon University. All rights reserved.
+//  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
+//  ===END LICENSE===
+
 import { DOCUMENT } from '@angular/common';
 import { Component, computed, effect, ElementRef, inject, input, OnDestroy, output, signal, Type, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from './console-component-config';
