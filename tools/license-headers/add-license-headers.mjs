@@ -11,9 +11,11 @@ const COMMENT_STYLES = {
 
 function loadHeaderLines(headerPath) {
   const rawText = readFileSync(headerPath, "utf8");
-  return rawText.split("\n").map((t) => {
+  const lines = rawText.split("\n").map((t) => {
     return t.replace("%YEAR%", new Date().getFullYear()).trim();
   });
+
+  return ["===BEGIN LICENSE===", ...lines, "===END LICENSE==="];
 }
 
 function formatHeader(ext, text) {
@@ -21,13 +23,10 @@ function formatHeader(ext, text) {
   if (!style) {
     return null;
   }
-  const resolveSuffix = style.suffix ? " " + style.suffix : "";
 
-  let out = `${style.prefix} ===BEGIN LICENSE===\n`;
-  out += text.map((t) => `${style.prefix} ${t}${resolveSuffix}`).join("\n");
-  out += `===END LICENSE===${resolveSuffix}`;
-
-  return out;
+  return text
+    .map((t) => `${style.prefix} ${t}${style.suffix ? " " + style.suffix : ""}`)
+    .join("\n");
 }
 
 function applyLicense(filePath, headerLines) {
