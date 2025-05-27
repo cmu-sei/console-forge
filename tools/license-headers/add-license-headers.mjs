@@ -3,6 +3,8 @@ import { extname, join } from "path";
 import process from "node:process";
 import console from "console";
 
+const LICENSE_START = "===BEGIN LICENSE===";
+const LICENSE_END = "===END LICENSE===";
 const COMMENT_STYLES = {
   ".html": { prefix: "<!--", suffix: "-->" },
   ".scss": { prefix: "// " },
@@ -11,11 +13,14 @@ const COMMENT_STYLES = {
 
 function loadHeaderLines(headerPath) {
   const rawText = readFileSync(headerPath, "utf8");
-  const lines = rawText.split("\n").map((t) => {
-    return t.replace("%YEAR%", new Date().getFullYear()).trim();
-  });
+  const lines = rawText
+    .split("\n")
+    .map((t) => {
+      return t.replace("%YEAR%", new Date().getFullYear()).trim();
+    })
+    .filter((t) => !!t.trim());
 
-  return ["===BEGIN LICENSE===", ...lines, "===END LICENSE==="];
+  return [LICENSE_START, ...lines, LICENSE_END];
 }
 
 function formatHeader(ext, text) {
@@ -40,13 +45,15 @@ function applyLicense(filePath, headerLines) {
 
   const content = readFileSync(filePath, "utf8");
 
-  if (content.match(/^.*?=== BEGIN LICENSE ===.*?=== END LICENSE ===/gm)) {
-    return;
-  }
-
   console.log(`Mark: ${filePath}`);
-  const newContent = formattedHeader + "\n\n" + content;
+  const contentLicenseStripped = stripOldLicense(content);
+  const newContent = formattedHeader + "\n\n" + contentLicenseStripped;
   writeFileSync(filePath, newContent, "utf8");
+}
+
+function stripOldLicense(content) {
+  const regex = /[\s\S]*?===BEGIN LICENSE===([\s\S]*?)===END LICENSE===\n?/g;
+  return content.replace(regex, "").trimStart();
 }
 
 function getAllFiles(dirPath, extensions, fileList = []) {
@@ -68,7 +75,7 @@ function getAllFiles(dirPath, extensions, fileList = []) {
   return fileList;
 }
 
-if (process.argv.length < 1) {
+if (process.argv.length < 2) {
   console.log(
     "Pass the root directory from which to mark and the file containing the license header text."
   );
