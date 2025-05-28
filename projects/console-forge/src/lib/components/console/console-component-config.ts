@@ -27,11 +27,6 @@ export interface ConsoleComponentConfig {
     credentials?: ConsoleCredentials;
 
     /**
-     * A list of networks the console user can request the VM to connect to. 
-     */
-    initialAvailableNetworks?: string[];
-
-    /**
      * The URL of the console's accessible web socket interface.
      */
     url: string;

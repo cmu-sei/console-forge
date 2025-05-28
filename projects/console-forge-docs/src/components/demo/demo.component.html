@@ -9,13 +9,6 @@
     [isViewOnly]="isViewOnly()"></cf-console>
 }
 
-@if (cfConsole()) {
-<div>
-    <strong>Connection Status:</strong>
-    {{ cfConsole()?.status() || "unknown" }}
-</div>
-}
-
 @if (isConnected()) {
 <div class="post-connection-controls flex my-2 gap-2">
     <button mat-flat-button type="button" (click)="handleDisconnect()">Disconnect</button>

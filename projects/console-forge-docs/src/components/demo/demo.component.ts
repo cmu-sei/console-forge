@@ -80,10 +80,13 @@ export class DemoComponent {
     this.showToast("Ctrl+Alt+Del sent!", "Sweet!");
   }
 
-  protected handleLocalClipboardUpdated(text: string) {
-    if (text) {
-      this.showToast(`Copied to local clipboard: ${text}`, "Yeahhh");
+  protected async handleLocalClipboardUpdated(clipboardItem: ClipboardItem) {
+    if (!clipboardItem.types.includes('text/plain')) {
+      return;
     }
+
+    const textBlob = await clipboardItem.getType("text/plain");
+    this.showToast(`Copied to local clipboard: ${await textBlob.text()}`, "Awesome!");
   }
 
   protected handleNetworkConnectionRequest(networkName: string) {

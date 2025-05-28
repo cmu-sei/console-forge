@@ -20,6 +20,7 @@ import { ConsoleStatusComponent } from '../console-status/console-status.compone
 import { UserSettingsService } from '../../services/user-settings.service';
 import { ConsolePowerRequest } from '../../models/console-power-request';
 import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-recorder.service';
+import { ClipboardService } from '../../services/clipboard.service';
 
 @Component({
   selector: 'cf-console',
@@ -42,7 +43,7 @@ export class ConsoleComponent implements OnDestroy {
   consoleClipboardUpdated = output<string>();
   consoleRecorded = output<Blob>();
   ctrlAltDelSent = output<void>();
-  localClipboardUpdated = output<string>();
+  localClipboardUpdated = output<ClipboardItem>();
   networkConnectionRequested = output<string>();
   networkDisconnectRequested = output<void>();
   powerRequestSent = output<ConsolePowerRequest>();
@@ -51,6 +52,7 @@ export class ConsoleComponent implements OnDestroy {
 
   // services
   private readonly browserNotifications = inject(BrowserNotificationsService);
+  private readonly clipboardService = inject(ClipboardService);
   private readonly consoleClientFactory = inject(ConsoleClientFactoryService);
   private readonly consoleForgeConfig = inject(ConsoleForgeConfig);
   private readonly document = inject(DOCUMENT);
@@ -80,8 +82,8 @@ export class ConsoleComponent implements OnDestroy {
       }
     });
     effect(() => {
-      if (this.consoleClient()) {
-        this.localClipboardUpdated.emit(this.consoleClient()!.localClipboardUpdated());
+      if (this.clipboardService.localClipboardContentWritten()) {
+        this.localClipboardUpdated.emit(this.clipboardService.localClipboardContentWritten()!);
       }
     });
     effect(() => {

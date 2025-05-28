@@ -17,6 +17,7 @@ import { LogLevel } from '../../models/log-level';
 import { CanvasRecording } from '../../services/canvas-recorder/canvas-recording';
 import { UserSettingsService } from '../../services/user-settings.service';
 import { ConsolePowerRequest } from '../../models/console-power-request';
+import { ConsoleUserSettings } from '../../models/console-user-settings';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -71,7 +72,7 @@ export class ConsoleToolbarComponent {
       },
       settings: {
         current: this.userSettings.settings,
-        update: this.userSettings.update
+        update: this.handleUserSettingsUpdate.bind(this)
       },
       state: {
         activeConsoleRecording: computed(() => this.activeConsoleRecording()),
@@ -81,8 +82,6 @@ export class ConsoleToolbarComponent {
       }
     };
   }
-
-
 
   protected async handleCopyScreenshot() {
     const blob = await this.consoleClient().getScreenshot();
@@ -144,5 +143,13 @@ export class ConsoleToolbarComponent {
     if (text) {
       this.consoleClient().sendClipboardText(text);
     }
+  }
+
+  protected handleUserSettingsUpdate(updateFn: (value: ConsoleUserSettings) => ConsoleUserSettings) {
+    this.userSettings.update(updateFn);
+
+    // propagate import settings changes to the active console client
+    const currentSettings = this.userSettings.settings();
+    this.consoleClient().setPreserveAspectRatioOnScale(currentSettings.console.preserveAspectRatioOnScale);
   }
 }

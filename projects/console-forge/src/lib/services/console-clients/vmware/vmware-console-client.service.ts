@@ -3,7 +3,7 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { ConsoleClientService } from '../console-client.service';
 import { ConsoleConnectionOptions } from '../../../models/console-connection-options';
 import { ConsoleConnectionStatus } from '../../../models/console-connection-status';
@@ -24,9 +24,6 @@ export class VmWareConsoleClientService implements ConsoleClientService {
 
   private readonly _consoleClipboardUpdated = signal<string>("");
   public readonly consoleClipboardUpdated = this._consoleClipboardUpdated.asReadonly();
-
-  private readonly _localClipboardUpdated = signal<string>("");
-  public readonly localClipboardUpdated = this._localClipboardUpdated.asReadonly()
 
   private readonly _supportedFeatures = signal<ConsoleSupportedFeatures>({
     onScreenKeyboard: true,

@@ -14,14 +14,12 @@ import { LogLevel } from '../../../models/log-level';
 import { ConsoleClientService } from '../../../services/console-clients/console-client.service';
 import { LoggerService } from '../../../services/logger.service';
 import { UserSettingsService } from '../../user-settings.service';
+import { ClipboardService } from '../../clipboard.service';
 
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {
   private readonly _consoleClipboardUpdated = signal<string>("");
   public readonly consoleClipboardUpdated = this._consoleClipboardUpdated.asReadonly();
-
-  private readonly _localClipboardUpdated = signal<string>("");
-  public readonly localClipboardUpdated = this._localClipboardUpdated.asReadonly();
 
   private readonly _connectionStatus = signal<ConsoleConnectionStatus>("disconnected");
   public readonly connectionStatus = this._connectionStatus.asReadonly();
@@ -36,6 +34,7 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   // injected services
   private readonly cfConfig = inject(ConsoleForgeConfig);
+  private readonly clipboardService = inject(ClipboardService);
   private readonly logger = inject(LoggerService);
   private readonly userSettings = inject(UserSettingsService);
 
@@ -182,7 +181,7 @@ export class VncConsoleClientService implements ConsoleClientService {
       }
 
       if (ev.detail.text) {
-        this._localClipboardUpdated.update(() => ev.detail.text)
+        this.clipboardService.copyText(ev.detail.text);
       }
     });
 
@@ -191,7 +190,7 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
     client.background = options.backgroundStyle || "";
-    // client.resizeSession = true;
+    client.resizeSession = true;
 
     // try focus if requested
     if (options.autoFocusOnConnect) {

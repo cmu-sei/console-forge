@@ -12,7 +12,6 @@ import { ConsoleSupportedFeatures } from "../../models/console-supported-feature
 export interface ConsoleClientService {
   readonly connectionStatus: Signal<ConsoleConnectionStatus>;
   readonly consoleClipboardUpdated: Signal<string>;
-  readonly localClipboardUpdated: Signal<string>;
   readonly supportedFeatures: Signal<ConsoleSupportedFeatures>;
 
   connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures>;
