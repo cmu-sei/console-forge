@@ -1,3 +1,5 @@
+_This project is still in pre-release status and does not yet have an installable NPM package. Star the repository for notifications and updates!_
+
 # Welcome to ConsoleForge!
 
 ConsoleForge is an [Angular](https://angular.dev/) 19+ library with a single purpose: to make serving hypervisor-hosted virtual machine console access easy and satisfying. It currently supports access to VNC and VMWare virtual machines.
