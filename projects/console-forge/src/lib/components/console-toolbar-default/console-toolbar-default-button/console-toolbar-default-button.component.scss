@@ -39,8 +39,6 @@
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  height: 74px;
-  min-width: 74px;
   margin: 0;
 
   &:hover:not(.disabled) {
@@ -60,8 +58,8 @@
 }
 
 .svg-container {
-  height: 60px;
-  width: 60px;
+  height: 52px;
+  width: 52px;
 }
 
 .button-label {

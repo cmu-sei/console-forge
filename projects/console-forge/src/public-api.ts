@@ -27,3 +27,6 @@ export * from "./lib/models/log-level";
 
 // services
 export * from "./lib/services/user-settings.service";
+
+// helpers
+export * from "./lib/services/clipboard/clipboard.helpers";

@@ -212,7 +212,8 @@
                     </option>
 
                     @for(network of consoleContext().networks.list(); track network) {
-                    <option [value]="network" [selected]="network === consoleContext().networks.current()">{{ network }}
+                    <option [value]="network" [selected]="network === consoleContext().networks.current()">
+                        {{ network }}
                     </option>
                     }
                 </select>

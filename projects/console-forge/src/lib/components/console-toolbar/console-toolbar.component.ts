@@ -5,7 +5,7 @@
 
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input, output, signal, Type } from '@angular/core';
-import { ClipboardService } from '../../services/clipboard.service';
+import { ClipboardService } from '../../services/clipboard/clipboard.service';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { FullScreenService } from '../../services/full-screen.service';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
@@ -84,9 +84,18 @@ export class ConsoleToolbarComponent {
   }
 
   protected async handleCopyScreenshot() {
-    const blob = await this.consoleClient().getScreenshot();
-    await this.clipboardService.copyBlob(blob);
-    this.screenshotCopied.emit(blob);
+    if (!this.consoleCanvas()) {
+      throw new Error("Couldn't resolve the canvas; can't copy screenshot.");
+    }
+
+    this.consoleCanvas()?.toBlob(blob => {
+      if (!blob) {
+        throw new Error("Couldn't resolve canvas blob.");
+      }
+
+      this.clipboardService.copyBlob(blob);
+      this.screenshotCopied.emit(blob);
+    })
   }
 
   protected handleFullscreen(): Promise<void> {

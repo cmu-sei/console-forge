@@ -6,7 +6,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { ConsoleClientType, ConsoleComponent, ConsoleComponentConfig } from 'console-forge';
+import { ConsoleClientType, ConsoleComponent, ConsoleComponentConfig, getTextFromClipboardItem } from 'console-forge';
 
 @Component({
   selector: 'app-vmware-demo',
@@ -63,8 +63,12 @@ export class VmwareDemoComponent {
     this.showToast("Ctrl+Alt+Del sent!", "Sweet!");
   }
 
-  protected handleLocalClipboardUpdated(text: string) {
-    this.showToast(`Copied to local clipboard: ${text}`, "Yeahhh");
+  protected async handleLocalClipboardUpdated(clipboardItem: ClipboardItem) {
+    const text = await getTextFromClipboardItem(clipboardItem);
+
+    if (text) {
+      this.showToast(`Copied to local clipboard: ${text}`, "Yeahhh");
+    }
   }
 
   protected handleScreenshotCopied(blob: Blob) {

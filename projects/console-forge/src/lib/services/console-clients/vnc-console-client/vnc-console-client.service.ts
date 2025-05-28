@@ -14,7 +14,7 @@ import { LogLevel } from '../../../models/log-level';
 import { ConsoleClientService } from '../../../services/console-clients/console-client.service';
 import { LoggerService } from '../../../services/logger.service';
 import { UserSettingsService } from '../../user-settings.service';
-import { ClipboardService } from '../../clipboard.service';
+import { ClipboardService } from '../../clipboard/clipboard.service';
 
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {
@@ -92,21 +92,6 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   public dispose(): Promise<void> {
     return this.disconnect();
-  }
-
-  public async getScreenshot(): Promise<Blob> {
-    if (!this.noVncClient) {
-      throw new Error("VNC client isn't connected, can't screenshot.");
-    }
-
-    return new Promise((resolve, reject) => {
-      try {
-        this.noVncClient!.toBlob(blob => resolve(blob));
-      }
-      catch (err) {
-        reject(err);
-      }
-    });
   }
 
   public async sendClipboardText(text: string) {

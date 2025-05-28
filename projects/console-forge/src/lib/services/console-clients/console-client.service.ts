@@ -16,7 +16,6 @@ export interface ConsoleClientService {
 
   connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures>;
   disconnect(): Promise<void>;
-  getScreenshot(): Promise<Blob>;
   sendClipboardText(text: string): Promise<void>;
   sendCtrlAltDelete(): Promise<void>;
   sendPowerRequest(request: ConsolePowerRequest): Promise<void>

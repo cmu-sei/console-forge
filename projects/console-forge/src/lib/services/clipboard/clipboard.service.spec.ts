@@ -4,7 +4,6 @@
 //  ===END LICENSE===
 
 import { TestBed } from '@angular/core/testing';
-
 import { ClipboardService } from './clipboard.service';
 
 describe('ClipboardService', () => {

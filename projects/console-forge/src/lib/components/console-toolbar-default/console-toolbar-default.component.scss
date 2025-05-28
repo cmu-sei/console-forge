@@ -19,7 +19,6 @@ fieldset legend {
 .toolbar-container {
   padding: 4px;
   height: 100%;
-  width: 92px;
   display: flex;
   justify-content: center;
 
@@ -38,7 +37,6 @@ fieldset legend {
   }
 
   &.horizontal {
-    height: 92px;
     width: 100%;
 
     .button-container {

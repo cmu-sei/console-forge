@@ -96,11 +96,6 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return Promise.resolve();
   }
 
-  getScreenshot(): Promise<Blob> {
-    console.warn("NYI");
-    return Promise.resolve(new Blob());
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   sendClipboardText(text: string): Promise<void> {
     console.warn("NYI");

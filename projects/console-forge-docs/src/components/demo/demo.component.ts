@@ -5,7 +5,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { ConsoleComponent, ConsoleComponentConfig } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, getTextFromClipboardItem } from 'console-forge';
 import { BlobDownloaderService } from '../../services/blob-downloader.service';
 
 @Component({
@@ -81,12 +81,11 @@ export class DemoComponent {
   }
 
   protected async handleLocalClipboardUpdated(clipboardItem: ClipboardItem) {
-    if (!clipboardItem.types.includes('text/plain')) {
-      return;
-    }
+    const text = await getTextFromClipboardItem(clipboardItem);
 
-    const textBlob = await clipboardItem.getType("text/plain");
-    this.showToast(`Copied to local clipboard: ${await textBlob.text()}`, "Awesome!");
+    if (text) {
+      this.showToast(`Copied to local clipboard: ${text}`, "Yeahhh");
+    }
   }
 
   protected handleNetworkConnectionRequest(networkName: string) {

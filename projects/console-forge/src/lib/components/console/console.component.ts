@@ -20,7 +20,7 @@ import { ConsoleStatusComponent } from '../console-status/console-status.compone
 import { UserSettingsService } from '../../services/user-settings.service';
 import { ConsolePowerRequest } from '../../models/console-power-request';
 import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-recorder.service';
-import { ClipboardService } from '../../services/clipboard.service';
+import { ClipboardService } from '../../services/clipboard/clipboard.service';
 
 @Component({
   selector: 'cf-console',
