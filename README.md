@@ -6,6 +6,8 @@ ConsoleForge is an [Angular](https://angular.dev/) 19+ library with a single pur
 
 Since ConsoleForge is all about virtual consoles, you're going to need at least one to test drive it. If you don't have easy access to a Proxmox cluster or some other hypervisor host, you can check out [this repo](https://github.com/x11vnc/x11vnc-desktop) to grab yourself a Docker image that hosts a headless VNC server.
 
+**NOTE:** If you have Python installed locally and are a VS Code user, you can use the included VS Code Task "Run X11VNC Desktop" to pull and start the container. Easy-peasy!
+
 # Requirements
 
 The ConsoleForge library is built on Angular 19. Consult its [package.json](/projects/console-forge/package.json) for specific dependencies.
