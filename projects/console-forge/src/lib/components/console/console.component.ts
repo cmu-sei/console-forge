@@ -5,7 +5,7 @@
 
 import { DOCUMENT } from '@angular/common';
 import { Component, computed, effect, ElementRef, inject, input, OnDestroy, output, signal, Type, viewChild } from '@angular/core';
-import { ConsoleComponentConfig } from './console-component-config';
+import { ConsoleComponentConfig } from '../../models/console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
@@ -21,6 +21,7 @@ import { UserSettingsService } from '../../services/user-settings.service';
 import { ConsolePowerRequest } from '../../models/console-power-request';
 import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-recorder.service';
 import { ClipboardService } from '../../services/clipboard/clipboard.service';
+import { ConsoleComponentNetworkConfig } from '../../models/console-component-network-config';
 
 @Component({
   selector: 'cf-console',
@@ -34,10 +35,9 @@ import { ClipboardService } from '../../services/clipboard/clipboard.service';
 })
 export class ConsoleComponent implements OnDestroy {
   // component I/O
-  availableNetworks = input<string[]>();
   config = input.required<ConsoleComponentConfig>();
-  currentNetwork = input<string>();
   isViewOnly = input(false);
+  networkConfig = input<ConsoleComponentNetworkConfig>();
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
 
   consoleClipboardUpdated = output<string>();
@@ -75,6 +75,11 @@ export class ConsoleComponent implements OnDestroy {
   constructor() {
     // we need this component to emit from outputs or call the client when signals change, so an effect
     // is the recommended solution: https://github.com/angular/angular/issues/57208
+    // automatic connection
+    effect(() => {
+
+    });
+
     // clipboard events
     effect(() => {
       if (this.consoleClient()) {

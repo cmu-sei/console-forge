@@ -3,8 +3,8 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { ConsoleCredentials } from "../../models/console-credentials";
-import { ConsoleClientType } from "../../models/console-client-type";
+import { ConsoleCredentials } from "./console-credentials";
+import { ConsoleClientType } from "./console-client-type";
 
 export interface ConsoleComponentConfig {
     /**

@@ -119,10 +119,11 @@
             }
         </cf-console-toolbar-default-button>
 
-        @if (consoleContext().networks.list().length && consoleContext().state.isConnected()) {
+        @if (consoleContext().networks.config()?.available?.length && consoleContext().state.isConnected()) {
         <div class="buttons-divider"></div>
 
-        <cf-console-toolbar-default-button label="Networks ({{ consoleContext().networks.list().length }})"
+        <cf-console-toolbar-default-button
+            label="Networks ({{ consoleContext().networks.config()?.available?.length }})"
             (clicked)="handleNetworkDialogOpenClose(true)">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -211,8 +212,8 @@
                         [Disconnect from network]
                     </option>
 
-                    @for(network of consoleContext().networks.list(); track network) {
-                    <option [value]="network" [selected]="network === consoleContext().networks.current()">
+                    @for(network of consoleContext().networks.config()?.available; track network) {
+                    <option [value]="network" [selected]="network === consoleContext().networks.config()?.current">
                         {{ network }}
                     </option>
                     }

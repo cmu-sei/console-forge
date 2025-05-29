@@ -18,6 +18,7 @@ import { CanvasRecording } from '../../services/canvas-recorder/canvas-recording
 import { UserSettingsService } from '../../services/user-settings.service';
 import { ConsolePowerRequest } from '../../models/console-power-request';
 import { ConsoleUserSettings } from '../../models/console-user-settings';
+import { ConsoleComponentNetworkConfig } from '../../models/console-component-network-config';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -26,10 +27,9 @@ import { ConsoleUserSettings } from '../../models/console-user-settings';
   styleUrl: './console-toolbar.component.scss'
 })
 export class ConsoleToolbarComponent {
-  availableNetworks = input<string[]>();
   consoleClient = input.required<ConsoleClientService>();
   consoleCanvas = input<HTMLCanvasElement>();
-  currentNetwork = input<string>();
+  consoleNetworkConfig = input<ConsoleComponentNetworkConfig>();
   customToolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
 
   canvasRecordingStarted = output<void>();
@@ -65,10 +65,9 @@ export class ConsoleToolbarComponent {
         toggleFullscreen: this.handleFullscreen.bind(this)
       },
       networks: {
+        config: this.consoleNetworkConfig,
         connectionRequested: this.handleNetworkConnectionRequest.bind(this),
         disconnectRequested: () => this.networkDisconnectRequested.emit(),
-        current: computed(() => this.currentNetwork()),
-        list: computed(() => this.availableNetworks() || [])
       },
       settings: {
         current: this.userSettings.settings,
@@ -104,7 +103,7 @@ export class ConsoleToolbarComponent {
   }
 
   protected handleNetworkConnectionRequest(networkName: string) {
-    const availableNetworks = this.availableNetworks() || [];
+    const availableNetworks = this.consoleNetworkConfig()?.available || [];
     if (availableNetworks.indexOf(networkName) === -1) {
       throw new Error(`Network ${networkName} is not available to this console.`);
     }

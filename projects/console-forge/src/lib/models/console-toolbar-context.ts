@@ -8,6 +8,7 @@ import { CanvasRecording } from "../services/canvas-recorder/canvas-recording";
 import { ConsoleUserSettings } from "./console-user-settings";
 import { ConsolePowerRequest } from "./console-power-request";
 import { ConsoleSupportedFeatures } from "./console-supported-features";
+import { ConsoleComponentNetworkConfig } from "./console-component-network-config";
 
 export interface ConsoleToolbarContext {
     console: {
@@ -21,10 +22,9 @@ export interface ConsoleToolbarContext {
         toggleFullscreen(): Promise<void>;
     };
     networks: {
+        config: Signal<ConsoleComponentNetworkConfig | undefined>;
         connectionRequested(networkName: string): void;
         disconnectRequested(): void;
-        current: Signal<string | undefined>;
-        list: Signal<string[]>;
     };
     settings: {
         current: Signal<ConsoleUserSettings>;

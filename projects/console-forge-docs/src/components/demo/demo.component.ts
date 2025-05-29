@@ -5,7 +5,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { ConsoleComponent, ConsoleComponentConfig, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, getTextFromClipboardItem } from 'console-forge';
 import { BlobDownloaderService } from '../../services/blob-downloader.service';
 
 @Component({
@@ -37,8 +37,10 @@ export class DemoComponent {
     vmId: new FormControl("")
   });
 
-  protected availableNetworks = model<string[]>(["lan1", "lan2"]);
-  protected currentNetwork = model<string>("lan1");
+  protected networkConfig = model<ConsoleComponentNetworkConfig>({
+    available: ["GreenNet", "PurpleNet"],
+    current: "GreenNet"
+  });
   protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
   protected isViewOnly = model(false);
 
@@ -48,6 +50,9 @@ export class DemoComponent {
     if (this.configForm.value.ticket) {
       url = `wss://foundry.nivix/api2/json/nodes/foundry/qemu/${this.configForm.value.vmId}/vncwebsocket?port=5900&vncticket=${encodeURIComponent(this.configForm.value.ticket)}`;
     }
+
+    // make some imaginary networks, just to show off the network switching UI
+    this
 
     this.cfConfig = {
       autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
