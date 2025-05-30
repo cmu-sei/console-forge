@@ -3,16 +3,11 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { WmksEvents, WmksPosition } from "./vmware-mks.models";
+import { WmksConnectionState, WmksEvents, WmksPosition, WmksSettableOptions } from "./vmware-mks.models";
 
 function resolveWMKSLib(): WMKS {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (window as any).WMKS;
-}
-
-
-export function getVersion(): string {
-    return resolveWMKSLib().version;
 }
 
 export function createWmksClient(hostElementId: string, options?: WmksClientCreateOptions): WmksClient {
@@ -25,7 +20,10 @@ export interface WmksClient {
     destroy(): void;
     disconnect(): void;
 
+    getConnectionState(): WmksConnectionState;
     register(event: WmksEvents, handler: WmksEventHandler): WmksClient;
+    sendCAD(): void;
+    setOption(option: WmksSettableOptions, value: boolean): void;
 }
 
 export interface WmksClientCreateOptions {

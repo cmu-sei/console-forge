@@ -26,12 +26,19 @@ cf-console-toolbar {
   &.recording {
     outline: 4px solid #ee402e;
   }
-}
 
-::ng-deep {
-  canvas {
-    aspect-ratio: 16 / 9;
-    max-width: 100%;
+  &.wmks {
+    display: flex;
+    justify-content: center;
+  }
+
+  ::ng-deep {
+    /* we really have to bludgeon this because WMKS does nutty things to the canvas */
+    canvas {
+      position: unset !important;
+      // height: 100% !important;
+      // width: 100% !important;
+    }
   }
 }
 

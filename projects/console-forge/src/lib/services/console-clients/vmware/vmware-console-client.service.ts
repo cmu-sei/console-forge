@@ -40,18 +40,22 @@ export class VmWareConsoleClientService implements ConsoleClientService {
 
     return new Promise((resolve, reject) => {
       this.wmksClient = createWmksClient(options.hostElement.id, {
+        changeResolution: true,
         rescale: true,
-        changeResolution: false,
         useVNCHandshake: false,
         position: WmksPosition.CENTER
       })
         .register(WmksEvents.CONNECTION_STATE_CHANGE, (ev, data) => {
           this.logger.log(LogLevel.DEBUG, "WMKS state change", ev, data);
+
           if (data.state === WmksConnectionState.DISCONNECTED) {
+            this._connectionStatus.update(() => "disconnected");
             reject();
           }
 
           if (data.state === WmksConnectionState.CONNECTED) {
+            this.logger.log(LogLevel.DEBUG, "WMKS confirms connection", this.wmksClient?.getConnectionState())
+            this._connectionStatus.update(() => "connected");
             resolve({
               onScreenKeyboard: true,
               reboot: false,
@@ -60,6 +64,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
             });
           }
         })
+        .register(WmksEvents.COPY, (ev, data) => this.logger.log(LogLevel.DEBUG, "Copied!", ev, data))
         .register(WmksEvents.HEARTBEAT, (ev, data) => this.logger.log(LogLevel.DEBUG, "WMKS heartbeat!", ev, data));
 
       this.wmksClient.connect(url);
@@ -103,13 +108,23 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   }
 
   sendCtrlAltDelete(): Promise<void> {
-    console.warn("NYI");
-    return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      try {
+        if (!this.wmksClient) {
+          throw new Error("Couldn't resolve client; can't send Ctrl+Alt+Del");
+        }
+
+        this.wmksClient.sendCAD();
+        resolve()
+      }
+      catch (err) {
+        reject(err)
+      }
+    });
   }
 
   sendPowerRequest(request: ConsolePowerRequest): Promise<void> {
-    console.warn("NYI");
-    return Promise.resolve();
+    return Promise.reject(`Power management request aren't supported for VMWare consoles. (rejected request: "${request}")`);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -118,10 +133,20 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return Promise.resolve();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setPreserveAspectRatioOnScale(scaleToContainerSize: boolean): Promise<void> {
-    console.warn("NYI");
-    return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      try {
+        if (!this.wmksClient) {
+          throw new Error("Couldn't resolve client; can't set option");
+        }
+
+        this.wmksClient.setOption("rescale", scaleToContainerSize);
+        resolve();
+      }
+      catch (err) {
+        reject(err);
+      }
+    });
   }
 
   dispose(): Promise<void> {

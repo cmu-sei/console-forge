@@ -6,6 +6,11 @@
     (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
 }
 
+<div>
+    <strong>Console Status: </strong>
+    <span>{{ cfConsole()?.status() || "disconnected" }} </span>
+</div>
+
 @if (isConnected()) {
 <div class="post-connection-controls flex my-2 gap-2">
     <button mat-flat-button type="button" (click)="handleDisconnect()">Disconnect</button>

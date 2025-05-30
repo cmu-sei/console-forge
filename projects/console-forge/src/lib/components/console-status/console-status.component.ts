@@ -13,5 +13,5 @@ import { ConsoleConnectionStatus } from '../../models/console-connection-status'
   styleUrl: './console-status.component.scss'
 })
 export class ConsoleStatusComponent {
-  status = input.required<ConsoleConnectionStatus>();
+  status = input<ConsoleConnectionStatus | undefined>("disconnected");
 }

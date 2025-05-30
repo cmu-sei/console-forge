@@ -20,9 +20,7 @@
     <div class="console-host-container"
         [class.flex-order-0]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'">
 
-        @if (consoleClient()) {
-        <cf-console-status [status]="consoleClient()!.connectionStatus()"></cf-console-status>
-        }
+        <cf-console-status [status]="consoleClient()?.connectionStatus()"></cf-console-status>
 
         <div #consoleHost [id]="consoleHostElementId" class="console-host" [class.recording]="isRecording()">
         </div>

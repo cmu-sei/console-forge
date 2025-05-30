@@ -32,7 +32,7 @@ export class VmwareDemoComponent {
   protected configForm = new FormGroup({
     autoFocusOnConnect: new FormControl(false),
     consoleClientType: new FormControl<ConsoleClientType>("vmware"),
-    url: new FormControl("wss://esxi-dev.cmrtest.org:443/ticket/d53100e84108d852844d9995df8af33b")
+    url: new FormControl("wss://esxi-dev.cmrtest.org:443/ticket/4b352b9e1703a405a74a14f65a51cec4")
   });
   protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
   protected isViewOnly = model(false);

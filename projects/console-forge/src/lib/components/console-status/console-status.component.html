@@ -6,7 +6,7 @@
 @if (status() === "connecting") {
 <progress></progress>
 }
-@else if(status() == "disconnected") {
+@else if(!status() || status() == "disconnected") {
 <div class="disconnected-banner">
     Console disconnected
 </div>

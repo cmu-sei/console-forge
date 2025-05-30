@@ -35,3 +35,5 @@ export enum WmksPosition {
     CENTER = 0,
     LEFT_TOP = 1
 }
+
+export type WmksSettableOptions = "changeResolution" | "position" | "rescale"

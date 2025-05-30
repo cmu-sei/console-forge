@@ -4,5 +4,12 @@
   "lib": {
     "entryFile": "src/public-api.ts"
   },
-  "assets": ["./LICENSE.md"]
+  "assets": [
+    "./LICENSE.md",
+    {
+      "input": "./src/vendor/vmware-wmks",
+      "glob": "**/*",
+      "output": "vendor/vmware-wmks"
+    }
+  ]
 }

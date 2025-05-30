@@ -20,9 +20,30 @@ ConsoleForge uses [noVNC](https://www.npmjs.com/package/@novnc/novnc) for VNC cl
 
 ## VMWare WMKS and jQuery dependencies
 
-If your use case for ConsoleForge doesn't require the ability to connect to VMWare-hosted consoles, you won't need any dependencies beyond ConsoleForge. Sweet!
+If your use case for ConsoleForge doesn't require the ability to connect to VMWare-hosted consoles you can ignore everything about this section. Sweet!
 
-If it does, things are a little become slightly complex. The [VMWare HTML Console SDK](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-sdks-tools/8-0/html-console-sdk-programming-guide.html) is not licensed for open-source distribution. You'll need to create a Broadcom account, download it, and manually include it in your Angular project. This SDK also has dependencies on jQuery and jQuery UI, which you'll also need to add to your Angular project. (Note that the HTML Console SDK's current documentation is not specific about which versions of jQuery/jQuery UI are required.) Assuming you're able to install and correctly configure the inclusion of these three dependencies, VMWare consoles in ConsoleForge should work as expected. Having trouble? [Drop as an issue and let us know.](https://github.com/cmu-sei/console-forge/issues)
+If it does, things are a little become slightly complex.
+
+### jQuery
+
+This SDK also has dependencies on jQuery and jQuery UI, which you'll also need to add to your Angular project. Depending on your use case, you can either do this through a CDN like [code.jquery.com](https://code.jquery.com/jquery-3.7.1.min.js) or via your favorite Node package manager. (Note that the HTML Console SDK's current documentation is not specific about which versions of jQuery/jQuery UI are required.) Assuming you're able to install and correctly configure the inclusion of these three dependencies, VMWare consoles in ConsoleForge should work as expected. Having trouble? [Drop as an issue and let us know.](https://github.com/cmu-sei/console-forge/issues)
+
+### Including the HTML Console SDK's assets
+
+We use a lightly modified version of the [VMWare HTML Console SDK](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-sdks-tools/8-0/html-console-sdk-programming-guide.html) to deliver VMWare console support. For convenience, we include that SDK in the library. To include it in your Angular app's scripts, you'll need to update the `"styles"` and `"scripts"` sections of your `angular.json` file to include it. It'll look something like this:
+
+```json
+//snip
+"styles": ["dist/console-forge/vendor/vmware-wmks/css/main-ui.css"],
+// snip
+"scripts": ["node_modules/console-forge/vendor/vmware-wmks/js/wmks.min.js"]
+// snip
+```
+
+We make the following adjustments due to our use case:
+
+- We include only the `main-ui.css` stylesheet in the library
+- We don't include images referenced by this CSS for reasons of distribution complexity
 
 # Maintainers
 
