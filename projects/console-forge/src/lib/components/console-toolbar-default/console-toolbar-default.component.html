@@ -5,7 +5,7 @@
 
 @if (consoleContext()) {
 <div class="toolbar-container"
-    [class.horizontal]="consoleContext().settings.current().toolbar.dockTo == 'top' || consoleContext().settings.current().toolbar.dockTo == 'bottom' ">
+    [class.horizontal]="consoleContext().userSettings.settings().toolbar.dockTo == 'top' || consoleContext().userSettings.settings().toolbar.dockTo == 'bottom' ">
     <div class="button-container">
         <cf-console-toolbar-default-button label="Settings" (clicked)="handleSettingsDialogOpenClose(true)">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -24,6 +24,7 @@
 
         <div class="buttons-divider"></div>
 
+        @if(cfConfig.enableClipboard) {
         <cf-console-toolbar-default-button [disabled]="!consoleContext().state.isConnected()" label="Clipboard"
             (clicked)="handleClipboardDialogOpenClose(true)">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,6 +37,7 @@
                 </g>
             </svg>
         </cf-console-toolbar-default-button>
+        }
 
         <cf-console-toolbar-default-button (clicked)="consoleContext().console.copyScreenshot()"
             [disabled]="!consoleContext().state.isConnected()" label="Screenshot">
@@ -154,9 +156,7 @@
             </svg>
         </cf-console-toolbar-default-button>
 
-        @if (consoleContext().console.supportedFeatures().reboot ||
-        consoleContext().console.supportedFeatures().rebootHard ||
-        consoleContext().console.supportedFeatures().shutdown) {
+        @if (consoleContext().console.supportedFeatures().powerManagement) {
         <cf-console-toolbar-default-button label="Power" (clicked)="isPowerDialogOpen = true">
             <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -185,8 +185,8 @@
         <div>
             <form (submit)="handleSendClipboardText($event, clipboardText.value)">
                 <fieldset role="group">
-                    <input type="text" class="clipboard-text"
-                        placeholder="Enter text to send to the console's clipboard" #clipboardText autofocus />
+                    <textarea class="clipboard-text" aria-label="Clipboard text" rows="6"
+                        placeholder="Enter text to send to the console's clipboard" #clipboardText autofocus></textarea>
                     <button type="submit"
                         [disabled]="!clipboardText.value || !consoleContext().state.isConnected">Send</button>
                 </fieldset>
@@ -219,8 +219,9 @@
                     }
                 </select>
 
-                <button type="button" (click)="handleNetworkChangeRequested(availableNetworksSelect.value)">{{
-                    availableNetworksSelect.value ? "Connect" : "Disconnect" }}</button>
+                <button type="button" (click)="handleNetworkChangeRequested(availableNetworksSelect.value)">
+                    {{ availableNetworksSelect.value ? "Connect" : "Disconnect" }}
+                </button>
             </fieldset>
         </form>
     </article>
@@ -261,13 +262,13 @@
             <fieldset>
                 <label>
                     <input #inputAllowLocalClipboardWrite type="checkbox" name="allowLocalClipboardWrite"
-                        [checked]="consoleContext().settings.current().console.allowCopyToLocalClipboard"
+                        [checked]="consoleContext().userSettings.settings().console.allowCopyToLocalClipboard"
                         (change)="handleSettingsAllowLocalClipboardWrite(inputAllowLocalClipboardWrite.checked)" />
                     Allow the remote machine to copy text to my local clipboard
                 </label>
                 <label>
                     <input #inputScaleToContainerSize type="checkbox" name="scaleToContainerSize"
-                        [checked]="consoleContext().settings.current().console.preserveAspectRatioOnScale"
+                        [checked]="consoleContext().userSettings.settings().console.preserveAspectRatioOnScale"
                         (change)="handleSettingsPreserveAspectRatioChange(inputScaleToContainerSize.checked)" />
                     Preserve console aspect ratio when scaling size
                 </label>
@@ -277,13 +278,13 @@
                 <h4>Toolbar Position</h4>
                 <div role="group">
                     <button (click)="handleChangeToolbarPosition('left')"
-                        [disabled]="consoleContext().settings.current().toolbar.dockTo === 'left'">Left</button>
+                        [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'left'">Left</button>
                     <button (click)="handleChangeToolbarPosition('right')"
-                        [disabled]="consoleContext().settings.current().toolbar.dockTo === 'right'">Right</button>
+                        [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'right'">Right</button>
                     <button (click)="handleChangeToolbarPosition('top')"
-                        [disabled]="consoleContext().settings.current().toolbar.dockTo === 'top'">Top</button>
+                        [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'top'">Top</button>
                     <button (click)="handleChangeToolbarPosition('bottom')"
-                        [disabled]="consoleContext().settings.current().toolbar.dockTo === 'bottom'">Bottom</button>
+                        [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'bottom'">Bottom</button>
                 </div>
             </div>
         </div>

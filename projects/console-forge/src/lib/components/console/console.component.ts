@@ -22,6 +22,7 @@ import { ConsolePowerRequest } from '../../models/console-power-request';
 import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-recorder.service';
 import { ClipboardService } from '../../services/clipboard/clipboard.service';
 import { ConsoleComponentNetworkConfig } from '../../models/console-component-network-config';
+import { CanvasService } from '../../services/canvas.service';
 
 @Component({
   selector: 'cf-console',
@@ -30,11 +31,16 @@ import { ConsoleComponentNetworkConfig } from '../../models/console-component-ne
     ConsoleStatusComponent,
     ConsoleToolbarComponent
   ],
+  providers: [
+    // the console component has access to the canvas which is injected by 
+    CanvasService
+  ],
   styleUrl: './console.component.scss',
   templateUrl: './console.component.html',
 })
 export class ConsoleComponent implements OnDestroy {
   // component I/O
+  autoConnect = input(true);
   config = input.required<ConsoleComponentConfig>();
   isViewOnly = input(false);
   networkConfig = input<ConsoleComponentNetworkConfig>();
@@ -52,6 +58,7 @@ export class ConsoleComponent implements OnDestroy {
 
   // services
   private readonly browserNotifications = inject(BrowserNotificationsService);
+  private readonly canvasService = inject(CanvasService);
   private readonly clipboardService = inject(ClipboardService);
   private readonly consoleClientFactory = inject(ConsoleClientFactoryService);
   private readonly consoleForgeConfig = inject(ConsoleForgeConfig);
@@ -62,7 +69,6 @@ export class ConsoleComponent implements OnDestroy {
   private readonly uuids = inject(UuidService);
 
   // viewkids
-  protected consoleCanvasElement?: HTMLCanvasElement;
   protected readonly componentContainer = viewChild.required<ElementRef<HTMLElement>>("componentContainer");
   protected readonly consoleHostElement = viewChild.required<ElementRef<HTMLElement>>("consoleHost");
 
@@ -75,9 +81,12 @@ export class ConsoleComponent implements OnDestroy {
   constructor() {
     // we need this component to emit from outputs or call the client when signals change, so an effect
     // is the recommended solution: https://github.com/angular/angular/issues/57208
-    // automatic connection
-    effect(() => {
 
+    // when config is provided and autoconnect is on, attempt to automatically connect
+    effect(() => {
+      if (this.autoConnect() && this.config()) {
+        this.connect(this.config());
+      }
     });
 
     // clipboard events
@@ -92,9 +101,14 @@ export class ConsoleComponent implements OnDestroy {
       }
     });
     effect(() => {
-      // all supported console clients inject a canvas into the doc. If we can find it, we can offer a "record" button
+      // all supported console clients inject a canvas into the doc. We provide it to the canvas service so it
+      // can be consumed by other components (e.g. the ConsoleToolbarComponent and its implementations)
       if (this.document && this.consoleClient() && this.consoleClient()!.connectionStatus() === "connected") {
-        this.consoleCanvasElement = this.resolveConsoleCanvas() || undefined;
+        const canvas = this.resolveConsoleCanvas();
+
+        if (canvas) {
+          this.canvasService.setCanvas(canvas);
+        }
       }
     })
 
@@ -151,8 +165,12 @@ export class ConsoleComponent implements OnDestroy {
   // automatically invoked if autoConnect is on, but can also be manually invoked outside the component
   // if retrieved as a ViewChild or whatever
   public async connect(config: ConsoleComponentConfig) {
+    this.logger.log(LogLevel.DEBUG, "Connecting with config", config);
+
     // weirdly, even reading this status here causes an infinite loop or something. i think i got too silly with effects.
-    // console.log("on connection, status was", this.consoleClient()?.connectionStatus());
+    // if (this.consoleClient()?.connectionStatus() !== "disconnected") {
+    //   await this.consoleClient()?.disconnect();
+    // }
     await this.consoleClient()?.disconnect();
 
     if (!config.url) {

@@ -37,10 +37,7 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
   protected readonly clipboardTextInput = viewChild<ElementRef>("clipboardText");
 
   protected handleChangeToolbarPosition(position: ConsoleToolbarPosition) {
-    this.consoleContext().settings.update(settings => {
-      settings.toolbar.dockTo = position;
-      return settings;
-    });
+    this.consoleContext().userSettings.patch({ toolbar: { dockTo: position } });
   }
 
   protected handleClipboardDialogOpenClose(isOpen: boolean) {
@@ -93,16 +90,10 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
   }
 
   protected handleSettingsAllowLocalClipboardWrite(allow: boolean) {
-    this.consoleContext().settings.update(settings => {
-      settings.console.allowCopyToLocalClipboard = allow;
-      return settings;
-    });
+    this.consoleContext().userSettings.patch({ console: { allowCopyToLocalClipboard: allow } });
   }
 
   protected handleSettingsPreserveAspectRatioChange(preserveAspectRatioOnScale: boolean) {
-    this.consoleContext().settings.update(settings => {
-      settings.console.preserveAspectRatioOnScale = preserveAspectRatioOnScale;
-      return settings;
-    });
+    this.consoleContext().userSettings.patch({ console: { preserveAspectRatioOnScale } });
   }
 }

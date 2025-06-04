@@ -25,9 +25,6 @@ export class CustomConsoleToolbarComponent implements ConsoleToolbarComponentBas
   }
 
   protected handleDockToChange(dockTo: string) {
-    this.consoleContext().settings.update(settings => {
-      settings.toolbar.dockTo = dockTo as ConsoleToolbarPosition;
-      return settings;
-    });
+    this.consoleContext().userSettings.patch({ toolbar: { dockTo: dockTo as ConsoleToolbarPosition } });
   }
 }

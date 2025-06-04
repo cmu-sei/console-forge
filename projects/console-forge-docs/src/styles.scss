@@ -29,6 +29,7 @@ body {
 /* UTILITY */
 .flex {
   display: flex;
+  gap: 1rem;
 }
 
 .flex-grow {
@@ -42,4 +43,27 @@ body {
 .my-2 {
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+/* SITEWIDE */
+cf-console {
+  width: 100%;
+}
+
+h3 {
+  margin-top: 2rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+button[type="submit"] {
+  display: block;
+  margin-top: 2rem;
 }

@@ -1,15 +1,15 @@
 import { Component, computed, inject, model, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, getTextFromClipboardItem } from 'console-forge';
 import { BlobDownloaderService } from '../../services/blob-downloader.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
-  selector: 'app-demo',
+  selector: 'app-with-custom-event-handling',
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -19,10 +19,10 @@ import { BlobDownloaderService } from '../../services/blob-downloader.service';
     MatInputModule,
     ConsoleComponent
   ],
-  templateUrl: './demo.component.html',
-  styleUrl: './demo.component.scss'
+  templateUrl: './with-custom-event-handling.component.html',
+  styleUrl: './with-custom-event-handling.component.scss'
 })
-export class DemoComponent {
+export class WithCustomEventHandlingComponent {
   private readonly blobDownloader = inject(BlobDownloaderService);
   private readonly snackbarService = inject(MatSnackBar);
 
@@ -32,11 +32,10 @@ export class DemoComponent {
     autoFocusOnConnect: new FormControl(false),
     isViewOnly: new FormControl(false),
     password: new FormControl("mypw"),
-    ticket: new FormControl(""),
     url: new FormControl("http://localhost:5950"),
-    vmId: new FormControl("")
   });
 
+  // make some imaginary networks, just to show off the network switching UI
   protected networkConfig = model<ConsoleComponentNetworkConfig>({
     available: ["GreenNet", "PurpleNet"],
     current: "GreenNet"
@@ -47,15 +46,10 @@ export class DemoComponent {
   protected async configFormSubmit() {
     let url = this.configForm.value.url || "";
 
-    if (this.configForm.value.ticket) {
-      url = `wss://foundry.nivix/api2/json/nodes/foundry/qemu/${this.configForm.value.vmId}/vncwebsocket?port=5900&vncticket=${encodeURIComponent(this.configForm.value.ticket)}`;
-    }
-
     this.cfConfig = {
       autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
       consoleClientType: "vnc",
       credentials: {
-        accessTicket: this.configForm.value.ticket || undefined,
         password: this.configForm.value.password || undefined,
       },
       url: url

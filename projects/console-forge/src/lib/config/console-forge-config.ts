@@ -29,7 +29,7 @@ export const defaultCfConfig: ConsoleForgeConfig = {
     canvasRecording: {
         chunkLength: 1000,
         frameRate: 25,
-        maxDuration: 60000,
+        maxDuration: 10000,
         mimeType: "video/webm"
     },
     consoleBackgroundStyle: "rgb(40, 40, 40)",
@@ -37,5 +37,5 @@ export const defaultCfConfig: ConsoleForgeConfig = {
     enableClipboard: true,
     enableConsoleRecord: true,
     logThreshold: LogLevel.WARNING,
-    showBrowserNotificationsOnConsoleEvents: false,
+    showBrowserNotificationsOnConsoleEvents: true,
 }

@@ -30,6 +30,13 @@ export default defineConfig([
                 "Don't import Angular Material stuff in the library. We're only using it for the docs site.",
             },
           ],
+          patterns: [
+            {
+              group: ["console-forge"],
+              message:
+                "Don't use the global tsconfig alias to import resources within the library - use relative paths.",
+            },
+          ],
         },
       ],
     },

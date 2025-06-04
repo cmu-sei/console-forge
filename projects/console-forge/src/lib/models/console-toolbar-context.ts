@@ -5,10 +5,10 @@
 
 import { Signal } from "@angular/core";
 import { CanvasRecording } from "../services/canvas-recorder/canvas-recording";
-import { ConsoleUserSettings } from "./console-user-settings";
 import { ConsolePowerRequest } from "./console-power-request";
 import { ConsoleSupportedFeatures } from "./console-supported-features";
 import { ConsoleComponentNetworkConfig } from "./console-component-network-config";
+import { UserSettingsService } from "../services/user-settings.service";
 
 export interface ConsoleToolbarContext {
     console: {
@@ -26,14 +26,11 @@ export interface ConsoleToolbarContext {
         connectionRequested(networkName: string): void;
         disconnectRequested(): void;
     };
-    settings: {
-        current: Signal<ConsoleUserSettings>;
-        update(updateFn: (settings: ConsoleUserSettings) => ConsoleUserSettings): void;
-    };
     state: {
         activeConsoleRecording: Signal<CanvasRecording | undefined>;
         isConnected: Signal<boolean>;
         isFullscreenAvailable: Signal<boolean>;
         isRecordingAvailable: Signal<boolean>;
     };
+    userSettings: UserSettingsService;
 }

@@ -1,0 +1,53 @@
+<h2>With Custom Event Handling</h2>
+
+<p class="my-2">
+    By default, ConsoleForge uses the browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/Notification"
+        target="_blank" rel="noopener noreferer">
+        Notifications
+    </a>
+    API when important console events happen (like copying to the user clipboard, taking a screenshot, or starting a
+    recording. You can disable this by setting <code>showBrowserNotificationsOnConsoleEvents</code> to
+    <code>false</code> when calling the <code>provideConsoleForge</code>function in your Angular app's configuration.
+</p>
+
+<p>
+    If you do, you might want to use a tool like Angular Material's "snackbar" to alert the user to these events. You
+    can do this by using the <code>ConsoleComponent</code>'s various outputs to show alerts in whatever
+    way suits your app best.
+</p>
+
+@if(cfConfig) {
+<cf-console [autoConnect]="false" [config]="cfConfig" [networkConfig]="networkConfig()"
+    (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)" (consoleRecorded)="handleConsoleRecorded($event)"
+    (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
+    (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
+    (networkDisconnectRequested)="handleNetworkDisconnectRequest()" (screenshotCopied)="handleScreenshotCopied($event)"
+    [isViewOnly]="isViewOnly()"></cf-console>
+}
+
+@if (isConnected()) {
+<div class="post-connection-controls flex my-2 gap-2">
+    <button mat-flat-button type="button" (click)="handleDisconnect()">Disconnect</button>
+    <mat-checkbox [(ngModel)]="isViewOnly">View Only</mat-checkbox>
+</div>
+}
+
+<h3>Set up your console</h3>
+
+<form class="console-config-form" (submit)="configFormSubmit()" [formGroup]="configForm">
+    <mat-form-field>
+        <mat-label>VNC Console URL</mat-label>
+        <input matInput placeholder="http://localhost:5950" formControlName="url">
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>VNC Password</mat-label>
+        <input matInput placeholder="a-password" formControlName="password">
+    </mat-form-field>
+
+    <div class="console-checkboxes flex gap-2">
+        <mat-checkbox formControlName="autoFocusOnConnect">Autofocus On Connect</mat-checkbox>
+    </div>
+
+    <button mat-flat-button type="submit" [disabled]="!configForm.valid">Connect</button>
+</form>

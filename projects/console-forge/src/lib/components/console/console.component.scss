@@ -9,6 +9,7 @@
 
 .console-component {
   width: 100%;
+  max-width: 100%;
 }
 
 cf-console-toolbar {
@@ -36,8 +37,6 @@ cf-console-toolbar {
     /* we really have to bludgeon this because WMKS does nutty things to the canvas */
     canvas {
       position: unset !important;
-      // height: 100% !important;
-      // width: 100% !important;
     }
   }
 }

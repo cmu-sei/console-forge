@@ -1,0 +1,45 @@
+<h2>Using ConsoleForge with x11VNC (Docker Image)</h2>
+
+<p class="my-2">
+    For development on ConsoleForge, or just to try it out, this page is probably your best starting point. Setting up
+    access to a virtual machine can require specialized infrastructure and a lot of configuration. Fortunately, someone
+    has already
+    <a href="https://github.com/x11vnc/x11vnc-desktop" target="_blank" rel="noopener noreferrer">
+        done that work for you (and us)
+    </a>.
+    If you already have Python 3 and Docker installed, you can run the Python script there to kick off a VM in a Docker
+    container. For easier dev, you can also use the VS Code task <strong>"Run X11VNC Desktop"</strong> included in the
+    ConsoleForge repo.
+</p>
+
+@if(cfConfig) {
+<cf-console [config]="cfConfig" [networkConfig]="networkConfig()" [isViewOnly]="isViewOnly()"
+    (consoleRecorded)="handleConsoleRecorded($event)"></cf-console>
+}
+
+@if (isConnected()) {
+<div class="post-connection-controls flex my-2 gap-2">
+    <button mat-flat-button type="button" (click)="handleDisconnect()">Disconnect</button>
+    <mat-checkbox [(ngModel)]="isViewOnly">View Only</mat-checkbox>
+</div>
+}
+
+<h3>Set up your console</h3>
+
+<form class="console-config-form" (submit)="configFormSubmit()" [formGroup]="configForm">
+    <mat-form-field>
+        <mat-label>VNC Console URL</mat-label>
+        <input matInput placeholder="http://localhost:5950" formControlName="url">
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>VNC Password</mat-label>
+        <input matInput placeholder="a-password" formControlName="password">
+    </mat-form-field>
+
+    <div class="console-checkboxes flex gap-2">
+        <mat-checkbox formControlName="autoFocusOnConnect">Autofocus On Connect</mat-checkbox>
+    </div>
+
+    <button mat-flat-button type="submit" [disabled]="!configForm.valid">Connect</button>
+</form>

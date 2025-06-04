@@ -20,6 +20,10 @@ export class CanvasRecorderService {
   public readonly isRecording = this._isRecording.asReadonly();
 
   public startRecord(canvas: HTMLCanvasElement): CanvasRecording {
+    if (!this.cfConfig.enableConsoleRecord) {
+      throw new Error("Console recording has been disabled in ConsoleForge.");
+    }
+
     const recording = new CanvasRecording({
       id: this.uuids.get(),
       stream: canvas.captureStream(this.cfConfig.canvasRecording.frameRate || 25),

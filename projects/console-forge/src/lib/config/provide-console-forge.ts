@@ -5,19 +5,17 @@
 
 import { EnvironmentProviders, makeEnvironmentProviders } from "@angular/core";
 import { ConsoleForgeConfig, defaultCfConfig } from "./console-forge-config";
-import { LoggerService } from "../services/logger.service";
-import { ConsoleClientFactoryService } from "../services/console-clients/console-client-factory.service";
-import { UuidService } from "../services/uuid.service";
-import { FullScreenService } from "../services/full-screen.service";
 import { ClipboardService } from "../services/clipboard/clipboard.service";
+import { ConsoleClientFactoryService } from "../services/console-clients/console-client-factory.service";
+import { FullScreenService } from "../services/full-screen.service";
+import { LoggerService } from "../services/logger.service";
 import { UserSettingsService } from "../services/user-settings.service";
+import { UuidService } from "../services/uuid.service";
+import { deepMerge, DeepPartial } from "../services/object.helpers";
 
-export function provideConsoleForge(config?: Partial<ConsoleForgeConfig>): EnvironmentProviders {
+export function provideConsoleForge(config?: DeepPartial<ConsoleForgeConfig>): EnvironmentProviders {
     // merge provided with defaults
-    const finalConfig = {
-        ...defaultCfConfig,
-        ...config || {}
-    };
+    const finalConfig = config ? deepMerge(defaultCfConfig, config) : defaultCfConfig;
 
     // provide to the env
     return makeEnvironmentProviders([

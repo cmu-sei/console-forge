@@ -15,10 +15,10 @@ import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-rec
 import { LoggerService } from '../../services/logger.service';
 import { LogLevel } from '../../models/log-level';
 import { CanvasRecording } from '../../services/canvas-recorder/canvas-recording';
-import { UserSettingsService } from '../../services/user-settings.service';
 import { ConsolePowerRequest } from '../../models/console-power-request';
-import { ConsoleUserSettings } from '../../models/console-user-settings';
 import { ConsoleComponentNetworkConfig } from '../../models/console-component-network-config';
+import { UserSettingsService } from '../../services/user-settings.service';
+import { CanvasService } from '../../services/canvas.service';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -28,7 +28,6 @@ import { ConsoleComponentNetworkConfig } from '../../models/console-component-ne
 })
 export class ConsoleToolbarComponent {
   consoleClient = input.required<ConsoleClientService>();
-  consoleCanvas = input<HTMLCanvasElement>();
   consoleNetworkConfig = input<ConsoleComponentNetworkConfig>();
   customToolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
 
@@ -41,6 +40,7 @@ export class ConsoleToolbarComponent {
   screenshotCopied = output<Blob>();
   toggleFullscreen = output<void>();
 
+  private readonly canvas = inject(CanvasService);
   private readonly canvasRecorder = inject(CanvasRecorderService);
   private readonly clipboardService = inject(ClipboardService);
   private readonly config = inject(ConsoleForgeConfig);
@@ -69,25 +69,22 @@ export class ConsoleToolbarComponent {
         connectionRequested: this.handleNetworkConnectionRequest.bind(this),
         disconnectRequested: () => this.networkDisconnectRequested.emit(),
       },
-      settings: {
-        current: this.userSettings.settings,
-        update: this.handleUserSettingsUpdate.bind(this)
-      },
       state: {
         activeConsoleRecording: computed(() => this.activeConsoleRecording()),
         isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
         isFullscreenAvailable: inject(FullScreenService).isAvailable,
-        isRecordingAvailable: computed(() => !!this.consoleCanvas())
-      }
+        isRecordingAvailable: computed(() => !!this.canvas.canvas())
+      },
+      userSettings: this.userSettings
     };
   }
 
   protected async handleCopyScreenshot() {
-    if (!this.consoleCanvas()) {
+    if (!this.canvas.canvas()) {
       throw new Error("Couldn't resolve the canvas; can't copy screenshot.");
     }
 
-    this.consoleCanvas()?.toBlob(blob => {
+    this.canvas.canvas()!.toBlob(blob => {
       if (!blob) {
         throw new Error("Couldn't resolve canvas blob.");
       }
@@ -112,12 +109,12 @@ export class ConsoleToolbarComponent {
   }
 
   protected handleRecordScreenStart(): void {
-    if (!this.consoleCanvas()) {
+    if (!this.canvas.canvas()) {
       throw new Error("Can't resolve canvas for recording");
     }
 
-    this.logger.log(LogLevel.DEBUG, "Recording canvas", this.consoleCanvas());
-    const recordingInstance = this.canvasRecorder.startRecord(this.consoleCanvas()!);
+    this.logger.log(LogLevel.DEBUG, "Recording canvas", this.canvas.canvas());
+    const recordingInstance = this.canvasRecorder.startRecord(this.canvas.canvas()!);
     this.activeConsoleRecording.update(() => recordingInstance);
     this.canvasRecordingStarted.emit();
   }
@@ -151,13 +148,5 @@ export class ConsoleToolbarComponent {
     if (text) {
       this.consoleClient().sendClipboardText(text);
     }
-  }
-
-  protected handleUserSettingsUpdate(updateFn: (value: ConsoleUserSettings) => ConsoleUserSettings) {
-    this.userSettings.update(updateFn);
-
-    // propagate import settings changes to the active console client
-    const currentSettings = this.userSettings.settings();
-    this.consoleClient().setPreserveAspectRatioOnScale(currentSettings.console.preserveAspectRatioOnScale);
   }
 }

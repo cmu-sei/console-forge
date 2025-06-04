@@ -26,9 +26,7 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private readonly _supportedFeatures = signal<ConsoleSupportedFeatures>({
     onScreenKeyboard: false,
-    reboot: false,
-    rebootHard: false,
-    shutdown: false
+    powerManagement: false
   });
   public readonly supportedFeatures = this._supportedFeatures.asReadonly();
 
@@ -51,7 +49,7 @@ export class VncConsoleClientService implements ConsoleClientService {
         this._connectionStatus.update(() => "connecting");
         this.logger.log(LogLevel.DEBUG, "Connecting to", url);
 
-        const client = new NoVncClient(options.hostElement, url, {
+        let client = new NoVncClient(options.hostElement, url, {
           credentials: {
             password: options?.credentials?.accessTicket || options?.credentials?.password || "",
             // explicitly not supporting these for now
@@ -60,7 +58,7 @@ export class VncConsoleClientService implements ConsoleClientService {
           }
         });
 
-        this.noVncClient = this.doPreConnectionConfig(client);
+        client = this.doPreConnectionConfig(client);
         client.addEventListener("connect", () => {
           // do other post-connection config
           this.noVncClient = this.doPostConnectionConfig(client, options);
@@ -69,12 +67,11 @@ export class VncConsoleClientService implements ConsoleClientService {
           // so send this back along with the things we know we can't support
           const supportedFeatures: ConsoleSupportedFeatures = {
             onScreenKeyboard: false,
-            reboot: this.noVncClient.capabilities.power,
-            rebootHard: this.noVncClient.capabilities.power,
-            shutdown: this.noVncClient.capabilities.power
+            powerManagement: this.noVncClient.capabilities.power,
           };
 
           this._supportedFeatures.update(() => supportedFeatures);
+          this.noVncClient = client;
           resolve(supportedFeatures);
         });
       }

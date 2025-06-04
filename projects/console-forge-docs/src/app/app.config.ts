@@ -15,8 +15,7 @@ export const appConfig: ApplicationConfig = {
       canvasRecording: {
         frameRate: 30
       },
-      logThreshold: LogLevel.DEBUG,
-      showBrowserNotificationsOnConsoleEvents: true
+      logThreshold: LogLevel.DEBUG
     })
   ]
 };

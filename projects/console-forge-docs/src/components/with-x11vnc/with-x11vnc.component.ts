@@ -1,15 +1,15 @@
 import { Component, computed, inject, model, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, getTextFromClipboardItem } from 'console-forge';
 import { BlobDownloaderService } from '../../services/blob-downloader.service';
 
 @Component({
-  selector: 'app-demo',
+  selector: 'app-with-x11vnc',
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -19,24 +19,30 @@ import { BlobDownloaderService } from '../../services/blob-downloader.service';
     MatInputModule,
     ConsoleComponent
   ],
-  templateUrl: './demo.component.html',
-  styleUrl: './demo.component.scss'
+  templateUrl: './with-x11vnc.component.html',
+  styleUrl: './with-x11vnc.component.scss'
 })
-export class DemoComponent {
+export class WithX11vncComponent {
   private readonly blobDownloader = inject(BlobDownloaderService);
   private readonly snackbarService = inject(MatSnackBar);
 
-  protected cfConfig?: ConsoleComponentConfig;
+  protected cfConfig: ConsoleComponentConfig = {
+    autoFocusOnConnect: true,
+    consoleClientType: "vnc",
+    credentials: {
+      password: "mypw",
+    },
+    url: "http://localhost:5950"
+  };
   protected cfConsole = viewChild(ConsoleComponent);
   protected configForm = new FormGroup({
     autoFocusOnConnect: new FormControl(false),
     isViewOnly: new FormControl(false),
     password: new FormControl("mypw"),
-    ticket: new FormControl(""),
     url: new FormControl("http://localhost:5950"),
-    vmId: new FormControl("")
   });
 
+  // make some imaginary networks, just to show off the network switching UI
   protected networkConfig = model<ConsoleComponentNetworkConfig>({
     available: ["GreenNet", "PurpleNet"],
     current: "GreenNet"
@@ -47,15 +53,10 @@ export class DemoComponent {
   protected async configFormSubmit() {
     let url = this.configForm.value.url || "";
 
-    if (this.configForm.value.ticket) {
-      url = `wss://foundry.nivix/api2/json/nodes/foundry/qemu/${this.configForm.value.vmId}/vncwebsocket?port=5900&vncticket=${encodeURIComponent(this.configForm.value.ticket)}`;
-    }
-
     this.cfConfig = {
       autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
       consoleClientType: "vnc",
       credentials: {
-        accessTicket: this.configForm.value.ticket || undefined,
         password: this.configForm.value.password || undefined,
       },
       url: url

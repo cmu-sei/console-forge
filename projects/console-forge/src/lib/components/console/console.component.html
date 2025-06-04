@@ -8,8 +8,8 @@
 
     <cf-console-toolbar
         [class.flex-order-1]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'"
-        [consoleCanvas]="consoleCanvasElement" [consoleClient]="consoleClient()!"
-        [consoleNetworkConfig]="networkConfig()" (canvasRecordingFinished)="consoleRecorded.emit($event)"
+        [consoleClient]="consoleClient()!" [consoleNetworkConfig]="networkConfig()"
+        (canvasRecordingFinished)="consoleRecorded.emit($event)"
         (canvasRecordingStarted)="handleConsoleRecordingStarted()" [customToolbarComponent]="toolbarComponent()"
         (ctrlAltDelSent)="handleCtrlAltDelSent()" (networkConnectionRequested)="networkConnectionRequested.emit($event)"
         (powerRequestSent)="powerRequestSent.emit($event)"

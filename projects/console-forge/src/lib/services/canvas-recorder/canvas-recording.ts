@@ -30,7 +30,7 @@ export class CanvasRecording {
         this.settings = settings;
         this.mimeType = settings.mimeType;
         this.recorder = new MediaRecorder(settings.stream, { mimeType: settings.mimeType });
-        this.window = window;
+        this.window = settings.window;
 
         // pipe the output of the recorder into the local chunks array
         this.recorder.ondataavailable = ev => this.chunks.push(ev.data);

@@ -27,9 +27,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
 
   private readonly _supportedFeatures = signal<ConsoleSupportedFeatures>({
     onScreenKeyboard: true,
-    reboot: false,
-    rebootHard: false,
-    shutdown: false
+    powerManagement: false
   });
   public readonly supportedFeatures = this._supportedFeatures.asReadonly();
 
@@ -58,9 +56,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
             this._connectionStatus.update(() => "connected");
             resolve({
               onScreenKeyboard: true,
-              reboot: false,
-              rebootHard: false,
-              shutdown: false
+              powerManagement: false
             });
           }
         })
