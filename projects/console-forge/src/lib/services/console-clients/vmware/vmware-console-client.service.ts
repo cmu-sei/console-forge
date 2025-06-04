@@ -65,31 +65,25 @@ export class VmWareConsoleClientService implements ConsoleClientService {
           }
         })
         .register(WmksEvents.COPY, (ev, data) => this.logger.log(LogLevel.DEBUG, "Copied!", ev, data))
-        .register(WmksEvents.HEARTBEAT, (ev, data) => this.logger.log(LogLevel.DEBUG, "WMKS heartbeat!", ev, data));
+        .register(WmksEvents.HEARTBEAT, (ev, data) => this.logger.log(LogLevel.DEBUG, "WMKS heartbeat", ev, data))
+        .register(WmksEvents.REMOTE_SCREEN_SIZE_CHANGE, (ev, data) => {
+          if (!this.wmksClient) {
+            return;
+          }
+
+          this.logger.log(LogLevel.DEBUG, "Remote screen size change", ev, data);
+          this.wmksClient.updateScreen();
+        })
+        .register(WmksEvents.TOGGLE, (ev, data) => {
+          this.logger.log(LogLevel.DEBUG, "Visible devices toggle", ev, data)
+        });
 
       this.wmksClient.connect(url);
     });
-    // this.wmksClient = createWmksClient(options.hostElement.id)
-
-    //   .register(WMKS.CONST.Events.REMOTE_SCREEN_SIZE_CHANGE, (e: any, data: any) => {
-    //     // console.log('wmks remote_screen_size_change: ' + data.width + 'x' + data.height);
-    //     // TODO: if embedded, pass along dimension to canvas wrapper element
-    //   })
-    //   .register(WMKS.CONST.Events.HEARTBEAT, (e: any, data: any) => {
-    //     // debug('wmks heartbeat: ' + data);
-    //     console.log('wmks heartbeat: ' + data);
-    //   })
-    //   .register(WMKS.CONST.Events.COPY, (e: any, data: any) => {
-    //     // console.log('wmks copy: ' + data);
-    //     stateCallback('clip:' + data);
-    //   })
     //   .register(WMKS.CONST.Events.ERROR, (e: any, data: any) => {
     //     // debug('wmks error: ' + data.errorType);
 
     //   })
-    //   .register(WMKS.CONST.Events.FULL_SCREEN_CHANGE, (e: any, data: any) => {
-    //     // debug('wmks full_screen_change: ' + data.isFullScreen);
-    //   });;
   }
 
   disconnect(): Promise<void> {
@@ -115,7 +109,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
         }
 
         this.wmksClient.sendCAD();
-        resolve()
+        resolve();
       }
       catch (err) {
         reject(err)
