@@ -185,8 +185,8 @@
         <div>
             <form (submit)="handleSendClipboardText($event, clipboardText.value)">
                 <fieldset role="group">
-                    <textarea class="clipboard-text" aria-label="Clipboard text" rows="6"
-                        placeholder="Enter text to send to the console's clipboard" #clipboardText autofocus></textarea>
+                    <input type="text" class="clipboard-text" aria-label="Clipboard text"
+                        placeholder="Enter text to send to the console's clipboard" #clipboardText autofocus>
                     <button type="submit"
                         [disabled]="!clipboardText.value || !consoleContext().state.isConnected">Send</button>
                 </fieldset>
