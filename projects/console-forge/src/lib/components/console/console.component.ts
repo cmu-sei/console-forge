@@ -9,6 +9,7 @@ import { ConsoleComponentConfig } from '../../models/console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
+import { getTextFromClipboardItem } from "../../services/clipboard/clipboard.helpers";
 import { UuidService } from '../../services/uuid.service';
 import { LoggerService } from '../../services/logger.service';
 import { FullScreenService } from '../../services/full-screen.service';
@@ -96,8 +97,15 @@ export class ConsoleComponent implements OnDestroy {
       }
     });
     effect(() => {
-      if (this.clipboardService.localClipboardContentWritten()) {
-        this.localClipboardUpdated.emit(this.clipboardService.localClipboardContentWritten()!);
+      const clipboardItem = this.clipboardService.localClipboardContentWritten();
+
+      if (clipboardItem) {
+        this.localClipboardUpdated.emit(clipboardItem);
+        getTextFromClipboardItem(clipboardItem).then(value => {
+          if (value) {
+            this.browserNotifications.send({ title: "Copied to local clipboard", body: value });
+          }
+        })
       }
     });
     effect(() => {
@@ -143,12 +151,6 @@ export class ConsoleComponent implements OnDestroy {
     await this.browserNotifications.send({ title: "Ctrl + Alt + Del sent", body: "Sent a Ctrl + Alt + Del input to the remote machine." });
   }
 
-  protected async handleScreenshotCopied(screenshotData: Blob): Promise<Blob> {
-    this.screenshotCopied.emit(screenshotData);
-    await this.browserNotifications.send({ title: "Screenshot copied", body: "A screenshot of this console has been copied to your clipboard." })
-    return screenshotData;
-  }
-
   protected async handleFullscreen(): Promise<void> {
     if (!this.componentContainer()) {
       throw new Error("Can't manipulate fullscreen - can't find the host.");
@@ -160,6 +162,12 @@ export class ConsoleComponent implements OnDestroy {
     else {
       await this.fullscreen.tryFullscreen(this.componentContainer().nativeElement);
     }
+  }
+
+  protected async handleScreenshotCopied(screenshotData: Blob): Promise<Blob> {
+    this.screenshotCopied.emit(screenshotData);
+    await this.browserNotifications.send({ title: "Screenshot copied", body: "A screenshot of this console has been copied to your clipboard." })
+    return screenshotData;
   }
 
   // automatically invoked if autoConnect is on, but can also be manually invoked outside the component

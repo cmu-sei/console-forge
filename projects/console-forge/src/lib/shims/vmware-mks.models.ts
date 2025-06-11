@@ -15,6 +15,12 @@ export enum WmksConnectionState {
     DISCONNECTED = "disconnected"
 }
 
+export enum WmksErrorType {
+    AUTHENTICATION_FAILED = "authenticationfailed",
+    PROTOCOL_ERROR = "protocolerror",
+    WEBSOCKET_ERROR = "websocketerror"
+}
+
 export enum WmksEvents {
     AUDIO = "audio",
     CONNECTION_STATE_CHANGE = "connectionstatechange",

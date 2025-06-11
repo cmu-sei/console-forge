@@ -7,6 +7,7 @@ import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, signal } from '@angular/core';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { UserSettingsService } from '../user-settings.service';
+import { getClipboardItemFromText } from './clipboard.helpers';
 
 @Injectable({ providedIn: 'root' })
 export class ClipboardService {
@@ -22,9 +23,7 @@ export class ClipboardService {
   }
 
   public copyText(text: string) {
-    return this.writeToClipboard(new ClipboardItem({
-      'text/plain': new Blob([text], { type: 'text/plain' }),
-    }));
+    return this.writeToClipboard(getClipboardItemFromText(text));
   }
 
   public async readText() {
@@ -33,7 +32,7 @@ export class ClipboardService {
       throw new Error("Can't access the clipboard to read text");
     }
 
-    clipboard.readText();
+    return clipboard.readText();
   }
 
   private getClipboard(): Clipboard | undefined {

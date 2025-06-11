@@ -2,8 +2,9 @@
 
 @if (cfConfig) {
 <cf-console [autoConnect]="false" [config]="cfConfig" (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
-    (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
-    (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
+    (consoleRecorded)="handleConsoleRecorded($event)" (localClipboardUpdated)="handleLocalClipboardUpdated($event)"
+    (ctrlAltDelSent)="handleCtrlAltDelSent()" (screenshotCopied)="handleScreenshotCopied($event)"
+    [isViewOnly]="isViewOnly()"></cf-console>
 }
 
 <div>
@@ -14,6 +15,7 @@
 @if (isConnected()) {
 <div class="post-connection-controls flex my-2 gap-2">
     <button mat-flat-button type="button" (click)="handleDisconnect()">Disconnect</button>
+    <mat-checkbox [(ngModel)]="isViewOnly">View Only</mat-checkbox>
 </div>
 }
 

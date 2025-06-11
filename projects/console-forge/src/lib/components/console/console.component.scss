@@ -3,17 +3,29 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-:host {
-  display: block;
-}
-
 .console-component {
-  width: 100%;
   max-width: 100%;
+
+  &:not(:fullscreen) {
+    // we have to take a hammer to the canvas when VMWare's "WMKS" gets involved, because it does crazy things.
+    // we need these hacks when we're _not_ in full screen mode so that it doesn't break the layout, but when it's
+    // fullscreen, we need to turn them off so that the local mouse aligns with the remote one. It's a whole thing.
+    ::ng-deep {
+      canvas {
+        aspect-ratio: 16 / 9 !important;
+        max-height: 100% !important;
+        max-width: 100% !important;
+        position: unset !important;
+      }
+    }
+  }
 }
 
 cf-console-toolbar {
   display: block;
+  // if all goes according to plan, the z-index shouldn't matter, since the toolbar should never be over anything else in the layout.
+  // this said, VMWare's canvas does _bonkers_ stuff, so setting this as a safety valve.
+  z-index: 5;
 }
 
 .console-host-container {
@@ -22,24 +34,21 @@ cf-console-toolbar {
 }
 
 .console-host {
-  max-width: 100%;
   width: 100%;
   height: 100%;
+  margin: 0 auto;
 
   &.recording {
     outline: 4px solid #ee402e;
   }
 
+  // VMWare adds the "wmks" class to the console host
   &.wmks {
     display: flex;
     justify-content: center;
-  }
 
-  ::ng-deep {
-    /* we really have to bludgeon this because WMKS does nutty things to the canvas */
-    canvas {
-      position: unset !important;
-    }
+    // it seems incapable of making reasonable guesses about how to size itself unless we tell it, so:
+    aspect-ratio: 16 / 9;
   }
 }
 
@@ -59,4 +68,11 @@ cf-console-toolbar {
 
 .flex-order-1 {
   order: 1;
+}
+
+/* DEALING WITH WMKS INSANITY */
+::ng-deep {
+  .view-only canvas {
+    pointer-events: none !important;
+  }
 }

@@ -27,6 +27,6 @@ export class FullScreenService {
   }
 
   public async tryFullscreen(element: Element): Promise<void> {
-    return element.requestFullscreen();
+    return element.requestFullscreen({ navigationUI: "hide" });
   }
 }

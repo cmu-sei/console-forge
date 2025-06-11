@@ -91,6 +91,10 @@ export class VncConsoleClientService implements ConsoleClientService {
     return this.disconnect();
   }
 
+  public async copyVmClipboard(): Promise<void> {
+    throw new Error("Unsupported over VNC");
+  }
+
   public async sendClipboardText(text: string) {
     if (!this.noVncClient) {
       throw new Error("VNC client isn't connected; can't send clipboard text.");

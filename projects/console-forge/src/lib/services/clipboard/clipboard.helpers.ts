@@ -24,3 +24,7 @@ export async function getTextFromClipboardItem(clipboardItem?: ClipboardItem): P
 
     return blob.text();
 }
+
+export function getClipboardItemFromText(text: string): ClipboardItem {
+    return new ClipboardItem({ 'text/plain': new Blob([text], { type: 'text/plain' }) });
+}

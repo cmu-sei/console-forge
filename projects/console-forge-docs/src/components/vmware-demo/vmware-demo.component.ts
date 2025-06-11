@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ConsoleClientType, ConsoleComponent, ConsoleComponentConfig, getTextFromClipboardItem } from 'console-forge';
+import { BlobDownloaderService } from '../../services/blob-downloader.service';
 
 @Component({
   selector: 'app-vmware-demo',
@@ -25,6 +26,7 @@ import { ConsoleClientType, ConsoleComponent, ConsoleComponentConfig, getTextFro
   styleUrl: './vmware-demo.component.scss'
 })
 export class VmwareDemoComponent {
+  private readonly blobDownloader = inject(BlobDownloaderService);
   private snackbarService = inject(MatSnackBar);
 
   protected cfConfig?: ConsoleComponentConfig;
@@ -57,6 +59,10 @@ export class VmwareDemoComponent {
 
   protected async handleDisconnect() {
     await this.cfConsole()?.disconnect();
+  }
+
+  protected handleConsoleRecorded(blob: Blob) {
+    this.blobDownloader.download(blob, "your-screen-recording.webm");
   }
 
   protected handleCtrlAltDelSent() {

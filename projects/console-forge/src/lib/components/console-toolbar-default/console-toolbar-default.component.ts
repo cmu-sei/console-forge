@@ -10,6 +10,7 @@ import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-compon
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { ConsolePowerRequest } from '../../models/console-power-request';
+import { UserSettingsService } from '../../services/user-settings.service';
 
 @Component({
   selector: 'cf-console-toolbar-default',
@@ -35,6 +36,7 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
   // services and viewkids
   protected readonly cfConfig = inject(ConsoleForgeConfig);
   protected readonly clipboardTextInput = viewChild<ElementRef>("clipboardText");
+  protected readonly userSettings = inject(UserSettingsService).settings;
 
   protected handleChangeToolbarPosition(position: ConsoleToolbarPosition) {
     this.consoleContext().userSettings.patch({ toolbar: { dockTo: position } });
@@ -47,6 +49,10 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
       // Is there a better way to ensure .focus works other than timeouting it?
       setTimeout(() => this.clipboardTextInput()?.nativeElement?.focus(), 100);
     }
+  }
+
+  protected handleClipboardCopyLastText(text: string) {
+    console.log("fyi, i would totally have copied", text);
   }
 
   protected handleNetworkChangeRequested(networkName?: string) {

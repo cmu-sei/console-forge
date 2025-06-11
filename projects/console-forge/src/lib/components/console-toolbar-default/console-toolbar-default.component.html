@@ -183,6 +183,7 @@
         </header>
 
         <div>
+            <h2>Send Text to Console</h2>
             <form (submit)="handleSendClipboardText($event, clipboardText.value)">
                 <fieldset role="group">
                     <input type="text" class="clipboard-text" aria-label="Clipboard text"
@@ -192,6 +193,19 @@
                 </fieldset>
             </form>
         </div>
+
+        @if(!userSettings().console.allowCopyToLocalClipboard) {
+        <div>
+            <h2>Console Clipboard</h2>
+            <form (submit)="handleClipboardCopyLastText(consoleLastClipboardText.value)">
+                <fieldset role="group">
+                    <input type="text" class="clipboard-text" aria-label="Clipboard text"
+                        placeholder="Enter text to send to the console's clipboard" #consoleLastClipboardText autofocus>
+                    <button type="submit" [disabled]="!consoleLastClipboardText.value">Copy</button>
+                </fieldset>
+            </form>
+        </div>
+        }
     </article>
 </dialog>
 
