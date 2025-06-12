@@ -20,7 +20,10 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
+        # we need to install both the Angular project dependencies (e.g. @angular/cli), but also
+        # the library's specific distributional dependencies
         run: |
+          npm ci
           cd projects/console-forge
           npm ci
 
