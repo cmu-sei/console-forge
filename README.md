@@ -1,4 +1,5 @@
-_This project is still in pre-release status and does not yet have an installable NPM package. Star the repository for notifications and updates!_
+![NPM Version](https://img.shields.io/npm/v/%40cmusei%2Fconsole-forge)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/%40cmusei%2Fconsole-forge)
 
 # Welcome to ConsoleForge!
 
@@ -65,7 +66,8 @@ ConsoleForge is proudly maintained by the [Software Engineering Institute](https
 
 # Assets
 
-ConsoleForge's default toolbar (which can be replaced by end developers) uses SVG Icons by [thewolfkit](https://www.svgrepo.com/collection/wolf-kit-rounded-line-icons/) under the [Attribution CC BY license](https://www.svgrepo.com/page/licensing/#CC%20Attribution).
+ConsoleForge's default toolbar (which can be replaced by end developers) uses SVG Icons by [thewolfkit](https://www.svgrepo.com/collection/wolf-kit-rounded-line-icons/) and [Iconship](https://www.svgrepo.com/collection/iconship-interface-icons/)
+under the [Attribution CC BY license](https://www.svgrepo.com/page/licensing/#CC%20Attribution).
 
 # Special thanks
 
