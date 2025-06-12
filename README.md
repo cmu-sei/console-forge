@@ -45,6 +45,20 @@ We make the following adjustments due to our use case:
 - We include only the `main-ui.css` stylesheet in the library
 - We don't include images referenced by this CSS for reasons of distribution complexity
 
+# Building ConsoleForge
+
+You can build your own copy of ConsoleForge using the Angular CLI (currently, 19+). Just clone:
+
+```bash
+git clone https://github.com/cmu-sei/console-forge
+```
+
+And build!
+
+```bash
+ng build console-forge
+```
+
 # Maintainers
 
 ConsoleForge is proudly maintained by the [Software Engineering Institute](https://sei.cmu.edu/) at [Carnegie Mellon University](https://www.cmu.edu/).

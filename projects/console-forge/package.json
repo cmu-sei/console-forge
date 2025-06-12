@@ -1,6 +1,10 @@
 {
-  "name": "console-forge",
+  "name": "@cmusei/console-forge",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cmu-sei/console-forge.git"
+  },
   "peerDependencies": {
     "@angular/common": "^19.2.0",
     "@angular/core": "^19.2.0",
