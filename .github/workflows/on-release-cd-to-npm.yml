@@ -20,9 +20,12 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd projects/console-forge
+          npm ci
 
       - name: Build library
+        # note this happens in the root, thus relies on the root `package.json`'s build script
         run: npm run build
 
       - run: |

@@ -3,7 +3,7 @@
   "dest": "../../dist/console-forge",
   "lib": {
     "entryFile": "src/public-api.ts",
-    "styleIncludePaths": ["../../node_modules"]
+    "styleIncludePaths": ["./node_modules"]
   },
   "allowedNonPeerDependencies": ["@picocss/pico"],
   "assets": [
