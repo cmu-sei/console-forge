@@ -10,7 +10,7 @@ import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-compon
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { ConsolePowerRequest } from '../../models/console-power-request';
-import { UserSettingsService } from '../../services/user-settings.service';
+import { ClipboardService } from '../../services/clipboard/clipboard.service';
 
 @Component({
   selector: 'cf-console-toolbar-default',
@@ -35,8 +35,8 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
 
   // services and viewkids
   protected readonly cfConfig = inject(ConsoleForgeConfig);
+  private readonly clipboardService = inject(ClipboardService);
   protected readonly clipboardTextInput = viewChild<ElementRef>("clipboardText");
-  protected readonly userSettings = inject(UserSettingsService).settings;
 
   protected handleChangeToolbarPosition(position: ConsoleToolbarPosition) {
     this.consoleContext().userSettings.patch({ toolbar: { dockTo: position } });
@@ -52,7 +52,7 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
   }
 
   protected handleClipboardCopyLastText(text: string) {
-    console.log("fyi, i would totally have copied", text);
+    this.clipboardService.copyText(text);
   }
 
   protected handleNetworkChangeRequested(networkName?: string) {
@@ -80,7 +80,7 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
     event.preventDefault();
 
     if (text) {
-      this.consoleContext().console.sendTextToClipboard(text);
+      this.consoleContext().clipboard.sendTextToConsoleClipboard(text);
     }
 
     this.isClipboardDialogOpen = false;

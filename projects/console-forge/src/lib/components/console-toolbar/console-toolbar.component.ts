@@ -54,14 +54,17 @@ export class ConsoleToolbarComponent {
 
   constructor() {
     this.toolbarComponentContext = {
+      clipboard: {
+        consoleClipboardText: computed(() => this.consoleClient()?.consoleClipboardUpdated()),
+        sendTextToConsoleClipboard: this.handleSendTextToClipboard.bind(this)
+      },
       console: {
         copyScreenshot: this.handleCopyScreenshot.bind(this),
         recordScreenStart: this.handleRecordScreenStart.bind(this),
         recordScreenStop: this.handleRecordScreenStop.bind(this),
         sendCtrlAltDel: this.handleSendCtrlAltDelete.bind(this),
         sendPowerRequest: this.handleSendPowerRequest.bind(this),
-        sendTextToClipboard: this.handleSendTextToClipboard.bind(this),
-        supportedFeatures: computed(() => this.consoleClient().supportedFeatures()),
+        supportedFeatures: computed(() => this.consoleClient()?.supportedFeatures() || {}),
         toggleFullscreen: this.handleFullscreen.bind(this)
       },
       networks: {

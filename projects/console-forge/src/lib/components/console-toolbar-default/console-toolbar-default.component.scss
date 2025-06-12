@@ -69,3 +69,14 @@ fieldset legend {
 .settings-toolbar-dock {
   margin-top: 1rem;
 }
+
+dialog {
+  h2 {
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+
+  .dialog-section:not(:last-of-type) {
+    margin-bottom: 1.5rem;
+  }
+}

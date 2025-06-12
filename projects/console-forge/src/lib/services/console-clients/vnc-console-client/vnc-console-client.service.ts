@@ -25,6 +25,8 @@ export class VncConsoleClientService implements ConsoleClientService {
   public readonly connectionStatus = this._connectionStatus.asReadonly();
 
   private readonly _supportedFeatures = signal<ConsoleSupportedFeatures>({
+    clipboardAutomaticLocalCopy: true,
+    clipboardRemoteWrite: true,
     onScreenKeyboard: false,
     powerManagement: false
   });
@@ -66,6 +68,8 @@ export class VncConsoleClientService implements ConsoleClientService {
           // the vnc client knows its capabilities post-connection
           // so send this back along with the things we know we can't support
           const supportedFeatures: ConsoleSupportedFeatures = {
+            clipboardAutomaticLocalCopy: true,
+            clipboardRemoteWrite: true,
             onScreenKeyboard: false,
             powerManagement: this.noVncClient.capabilities.power,
           };
@@ -155,6 +159,10 @@ export class VncConsoleClientService implements ConsoleClientService {
     client.addEventListener("connect", () => this._connectionStatus.update(() => "connected"));
     client.addEventListener("disconnect", ev => this.handleDisconnect(ev.detail.clean));
     client.addEventListener("clipboard", ev => {
+      // emit the event
+      this._consoleClipboardUpdated.update(() => ev.detail.text);
+
+      // if enabled at the app level and permitted by the user, automatically copy text to local clipboard
       if (!this.cfConfig.enableClipboard) {
         this.logger.log(LogLevel.INFO, "The remote console tried to copy text to the local clipboard, but local clipboard access is disabled in ConsoleForge's configuration.");
         return;

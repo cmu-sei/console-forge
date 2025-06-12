@@ -19,6 +19,7 @@ import { WmksConnectionState, WmksEvents, WmksPosition } from '../../../shims/vm
 import { WINDOW } from '../../../injection/window.injection-token';
 import { ClipboardService } from '../../clipboard/clipboard.service';
 import { ConsoleForgeConfig } from '../../../config/console-forge-config';
+import { UserSettingsService } from '../../user-settings.service';
 
 @Injectable({ providedIn: 'root' })
 export class VmWareConsoleClientService implements ConsoleClientService {
@@ -26,6 +27,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   private readonly clipboardService = inject(ClipboardService);
   private readonly logger = inject(LoggerService);
   private readonly document = inject(DOCUMENT);
+  private readonly userSettings = inject(UserSettingsService);
   private readonly window = inject(WINDOW);
   private wmksClient?: WmksClient;
 
@@ -35,7 +37,12 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   private readonly _consoleClipboardUpdated = signal<string>("");
   public readonly consoleClipboardUpdated = this._consoleClipboardUpdated.asReadonly();
 
-  private readonly _supportedFeatures = signal<ConsoleSupportedFeatures>({ onScreenKeyboard: true, powerManagement: false });
+  private readonly _supportedFeatures = signal<ConsoleSupportedFeatures>({
+    clipboardAutomaticLocalCopy: false,
+    clipboardRemoteWrite: false,
+    onScreenKeyboard: true,
+    powerManagement: false
+  });
   public readonly supportedFeatures = this._supportedFeatures.asReadonly();
 
   private readonly _needsCanvasSizeUpdate = new Subject<void>();
@@ -79,6 +86,8 @@ export class VmWareConsoleClientService implements ConsoleClientService {
             this.doPostConnectionConfig(options.hostElement);
             this._connectionStatus.update(() => "connected");
             resolve({
+              clipboardAutomaticLocalCopy: false,
+              clipboardRemoteWrite: false,
               onScreenKeyboard: true,
               powerManagement: false
             });
@@ -87,7 +96,11 @@ export class VmWareConsoleClientService implements ConsoleClientService {
         .register(WmksEvents.COPY, (ev, data) => {
           this.logger.log(LogLevel.DEBUG, "Clipboard data available", ev, data);
 
-          if (this.cfConfig.enableClipboard) {
+          // emit the event
+          this._consoleClipboardUpdated.update(() => data);
+
+          // if enabled in config and permitted by the user, copy text to local clipboard
+          if (this.cfConfig.enableClipboard && this.userSettings.settings().console.allowCopyToLocalClipboard) {
             this.clipboardService.copyText(data);
           }
         })

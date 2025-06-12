@@ -17,7 +17,7 @@ export class CustomConsoleToolbarComponent implements ConsoleToolbarComponentBas
   public consoleContext = input.required<ConsoleToolbarContext>();
 
   protected handleClipboardSend() {
-    this.consoleContext().console.sendTextToClipboard(new Date().toLocaleDateString());
+    this.consoleContext().clipboard.sendTextToConsoleClipboard(new Date().toLocaleDateString());
   }
 
   protected handleFullscreen() {

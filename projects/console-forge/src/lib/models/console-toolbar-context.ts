@@ -11,13 +11,16 @@ import { ConsoleComponentNetworkConfig } from "./console-component-network-confi
 import { UserSettingsService } from "../services/user-settings.service";
 
 export interface ConsoleToolbarContext {
+    clipboard: {
+        consoleClipboardText: Signal<string>;
+        sendTextToConsoleClipboard(text: string): Promise<void>;
+    };
     console: {
         copyScreenshot(): Promise<void>;
         recordScreenStart(): void;
         recordScreenStop(): Promise<Blob>;
         sendCtrlAltDel(): Promise<void>;
         sendPowerRequest(request: ConsolePowerRequest): Promise<void>;
-        sendTextToClipboard(text: string): Promise<void>;
         supportedFeatures: Signal<ConsoleSupportedFeatures>;
         toggleFullscreen(): Promise<void>;
     };
