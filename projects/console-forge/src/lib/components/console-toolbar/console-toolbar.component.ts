@@ -34,6 +34,7 @@ export class ConsoleToolbarComponent {
   canvasRecordingStarted = output<void>();
   canvasRecordingFinished = output<Blob>();
   ctrlAltDelSent = output<void>();
+  keyboardInputSent = output<string>();
   networkConnectionRequested = output<string>();
   networkDisconnectRequested = output<void>();
   powerRequestSent = output<ConsolePowerRequest>();
@@ -63,6 +64,7 @@ export class ConsoleToolbarComponent {
         recordScreenStart: this.handleRecordScreenStart.bind(this),
         recordScreenStop: this.handleRecordScreenStop.bind(this),
         sendCtrlAltDel: this.handleSendCtrlAltDelete.bind(this),
+        sendKeyboardInput: this.handleKeyboardInputSend.bind(this),
         sendPowerRequest: this.handleSendPowerRequest.bind(this),
         supportedFeatures: computed(() => this.consoleClient()?.supportedFeatures() || {}),
         toggleFullscreen: this.handleFullscreen.bind(this)
@@ -100,6 +102,11 @@ export class ConsoleToolbarComponent {
   protected handleFullscreen(): Promise<void> {
     this.toggleFullscreen.emit();
     return Promise.resolve();
+  }
+
+  protected async handleKeyboardInputSend(text: string): Promise<void> {
+    await this.consoleClient().sendKeyboardInput(text);
+    this.keyboardInputSent.emit(text);
   }
 
   protected handleNetworkConnectionRequest(networkName: string) {

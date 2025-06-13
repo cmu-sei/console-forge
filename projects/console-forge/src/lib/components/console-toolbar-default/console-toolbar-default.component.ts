@@ -3,7 +3,7 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { Component, ElementRef, inject, input, viewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, inject, input, model, viewChild, ViewEncapsulation } from '@angular/core';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
@@ -11,10 +11,14 @@ import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { ConsolePowerRequest } from '../../models/console-power-request';
 import { ClipboardService } from '../../services/clipboard/clipboard.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'cf-console-toolbar-default',
-  imports: [ConsoleToolbarDefaultButtonComponent],
+  imports: [
+    FormsModule,
+    ConsoleToolbarDefaultButtonComponent
+  ],
   standalone: true,
   templateUrl: './console-toolbar-default.component.html',
   styleUrl: './console-toolbar-default.component.scss',
@@ -29,9 +33,12 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
 
   // component state
   protected isClipboardDialogOpen = false;
+  protected isKeyboardDialogOpen = false;
   protected isNetworkDialogOpen = false;
   protected isPowerDialogOpen = false;
   protected isSettingsDialogOpen = false;
+
+  protected keyboardInputText = model<string>("");
 
   // services and viewkids
   protected readonly cfConfig = inject(ConsoleForgeConfig);
@@ -76,14 +83,31 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
     }
   }
 
-  protected handleSendClipboardText(event: Event, text: string) {
+  protected async handleSendClipboardText(event: Event, text: string) {
     event.preventDefault();
 
     if (text) {
-      this.consoleContext().clipboard.sendTextToConsoleClipboard(text);
+      await this.consoleContext().clipboard.sendTextToConsoleClipboard(text);
     }
 
     this.isClipboardDialogOpen = false;
+  }
+
+  protected async handlSendKeyboardCtrlAltDel(): Promise<void> {
+    await this.consoleContext().console.sendCtrlAltDel();
+    this.isKeyboardDialogOpen = false;
+  }
+
+  protected async handleSendKeyboardInput(event: Event, text: string) {
+    // prevent the form submit default
+    event.preventDefault();
+
+    if (text) {
+      await this.consoleContext().console.sendKeyboardInput(text);
+    }
+
+    this.keyboardInputText.update(() => "");
+    this.isKeyboardDialogOpen = false;
   }
 
   protected async handleSendPowerRequest(request: ConsolePowerRequest): Promise<void> {

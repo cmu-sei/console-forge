@@ -61,11 +61,6 @@ fieldset legend {
   }
 }
 
-.power-buttons button {
-  display: block;
-  width: 100%;
-}
-
 .settings-toolbar-dock {
   margin-top: 1rem;
 }
@@ -78,5 +73,10 @@ dialog {
 
   .dialog-section:not(:last-of-type) {
     margin-bottom: 1.5rem;
+  }
+
+  .dialog-button-group button {
+    display: block;
+    width: 100%;
   }
 }

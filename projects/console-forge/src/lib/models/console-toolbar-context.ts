@@ -20,6 +20,7 @@ export interface ConsoleToolbarContext {
         recordScreenStart(): void;
         recordScreenStop(): Promise<Blob>;
         sendCtrlAltDel(): Promise<void>;
+        sendKeyboardInput(text: string): Promise<void>;
         sendPowerRequest(request: ConsolePowerRequest): Promise<void>;
         supportedFeatures: Signal<ConsoleSupportedFeatures>;
         toggleFullscreen(): Promise<void>;

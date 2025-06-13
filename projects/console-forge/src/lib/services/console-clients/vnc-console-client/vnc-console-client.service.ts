@@ -95,10 +95,6 @@ export class VncConsoleClientService implements ConsoleClientService {
     return this.disconnect();
   }
 
-  public async copyVmClipboard(): Promise<void> {
-    throw new Error("Unsupported over VNC");
-  }
-
   public async sendClipboardText(text: string) {
     if (!this.noVncClient) {
       throw new Error("VNC client isn't connected; can't send clipboard text.");
@@ -114,6 +110,33 @@ export class VncConsoleClientService implements ConsoleClientService {
     }
 
     this.noVncClient.sendCtrlAltDel();
+  }
+
+  public async sendKeyboardInput(text: string): Promise<void> {
+    if (!this.noVncClient) {
+      throw new Error("VNC client isn't connected; can't send keyboard input.");
+    }
+
+    // split by line and remove empties
+    const lines = text
+      .split(/\r?\n|\r|\n/g)
+      .map(line => line.trim())
+      .filter(line => !!line);
+
+    this.logger.log(LogLevel.INFO, "Sending lines", lines);
+
+    for (let i = 0; i < lines.length; i++) {
+      const lineCharacters = lines[i].split("");
+
+      for (const chr of lineCharacters) {
+        this.noVncClient.sendKey(chr.charCodeAt(0), null);
+      }
+
+      if ((i + 1) < lines.length) {
+        // send "return" between lines
+        this.noVncClient.sendKey(0xFF0D, null);
+      }
+    }
   }
 
   public async sendPowerRequest(request: ConsolePowerRequest): Promise<void> {

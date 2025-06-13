@@ -24,6 +24,19 @@
 
         <div class="buttons-divider"></div>
 
+        <cf-console-toolbar-default-button [disabled]="!consoleContext().state.isConnected()" label="Keyboard"
+            (clicked)="isKeyboardDialogOpen = true">
+            <svg fill="#000000" viewBox="0 0 1920 1920" xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <path
+                        d="M1807.059 1637.706c0 31.059-25.299 56.47-56.47 56.47H169.411c-31.172 0-56.47-25.411-56.47-56.47v-903.53c0-31.058 25.298-56.47 56.47-56.47h1581.176c31.172 0 56.47 25.412 56.47 56.47v903.53Zm-56.47-1072.941h-729.262c14.908-86.965 65.958-113.506 133.384-147.163 89.336-44.611 200.583-100.291 200.583-304.602h-112.941c0 134.513-57.939 163.426-138.24 203.633-80.301 40.094-177.544 90.24-196.518 248.132H169.412C76.009 564.765 0 640.775 0 734.176v903.53c0 93.402 76.01 169.412 169.412 169.412h1581.176c93.403 0 169.412-76.01 169.412-169.412v-903.53c0-93.402-76.01-169.411-169.412-169.411Zm-564.707 677.647H734.118c-31.172 0-56.47 25.299-56.47 56.47v112.942c0 31.171 25.298 56.47 56.47 56.47h451.764c31.172 0 56.47-25.299 56.47-56.47v-112.942c0-31.171-25.298-56.47-56.47-56.47m338.824 0h-112.941c-31.172 0-56.47 25.299-56.47 56.47v112.942c0 31.171 25.298 56.47 56.47 56.47h112.94c31.173 0 56.471-25.299 56.471-56.47v-112.942c0-31.171-25.298-56.47-56.47-56.47m-1016.47 0H395.293c-31.172 0-56.47 25.299-56.47 56.47v112.942c0 31.171 25.298 56.47 56.47 56.47h112.941c31.172 0 56.47-25.299 56.47-56.47v-112.942c0-31.171-25.298-56.47-56.47-56.47m0-338.824h-112.94c-31.173 0-56.471 25.3-56.471 56.47V1073c0 31.172 25.298 56.47 56.47 56.47h112.941c31.172 0 56.47-25.298 56.47-56.47V960.059c0-31.172-25.298-56.47-56.47-56.47m225.883 225.882h112.94c31.173 0 56.471-25.3 56.471-56.471V960.059c0-31.172-25.298-56.47-56.47-56.47h-112.94c-31.172 0-56.47 25.298-56.47 56.47V1073c0 31.172 25.298 56.47 56.47 56.47m451.764-225.882h-112.94c-31.173 0-56.471 25.3-56.471 56.47V1073c0 31.172 25.298 56.47 56.47 56.47h112.941c31.172 0 56.47-25.298 56.47-56.47V960.059c0-31.172-25.298-56.47-56.47-56.47m338.824 0h-112.941c-31.172 0-56.47 25.298-56.47 56.47V1073c0 31.172 25.298 56.47 56.47 56.47h112.94c31.173 0 56.471-25.298 56.471-56.47V960.059c0-31.172-25.298-56.47-56.47-56.47"
+                        fill-rule="evenodd"></path>
+                </g>
+            </svg>
+        </cf-console-toolbar-default-button>
+
         @if(cfConfig.enableClipboard) {
         <cf-console-toolbar-default-button [disabled]="!consoleContext().state.isConnected()" label="Clipboard"
             (clicked)="handleClipboardDialogOpenClose(true)">
@@ -158,22 +171,9 @@
         }
 
         @if (consoleContext().state.isConnected()) {
+        @if (consoleContext().console.supportedFeatures().powerManagement) {
         <div class="buttons-divider"></div>
 
-        <cf-console-toolbar-default-button label="Ctrl+Alt+Del" (clicked)="consoleContext().console.sendCtrlAltDel()"
-            [disabled]="!consoleContext().state.isConnected()">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                <g id="SVGRepo_iconCarrier">
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                        d="M4.5 6L5.25 5.25H18.75L19.5 6V18L18.75 18.75H5.25L4.5 18V6ZM6 6.75V17.25H18V6.75H6ZM10.1894 12L7.71973 9.5303L8.78039 8.46964L12.3107 12L8.78039 15.5303L7.71973 14.4696L10.1894 12ZM12 15.75H15.75V14.25H12V15.75Z"
-                        fill="#080341"></path>
-                </g>
-            </svg>
-        </cf-console-toolbar-default-button>
-
-        @if (consoleContext().console.supportedFeatures().powerManagement) {
         <cf-console-toolbar-default-button label="Power" (clicked)="isPowerDialogOpen = true">
             <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -199,8 +199,9 @@
             </p>
         </header>
 
+        @if (consoleContext().console.supportedFeatures().clipboardRemoteWrite) {
         <div class="dialog-section">
-            <h2>Send Text to Console</h2>
+            <h2>Send Text to Console Clipboard</h2>
             <form (submit)="handleSendClipboardText($event, clipboardText.value)">
                 <fieldset role="group">
                     <input type="text" class="clipboard-text" aria-label="Clipboard text"
@@ -210,11 +211,12 @@
                 </fieldset>
             </form>
         </div>
+        }
 
         @if(!consoleContext().userSettings.settings().console.allowCopyToLocalClipboard ||
         !consoleContext().console.supportedFeatures().clipboardAutomaticLocalCopy) {
         <div class="dialog-section">
-            <h2>Console Clipboard</h2>
+            <h2>Console Clipboard Content</h2>
             <form (submit)="handleClipboardCopyLastText(consoleLastClipboardText.value)">
                 <fieldset role="group">
                     <input type="text" class="clipboard-text" aria-label="Clipboard text" disabled
@@ -225,6 +227,40 @@
             </form>
         </div>
         }
+    </article>
+</dialog>
+
+<dialog [open]="isKeyboardDialogOpen">
+    <article>
+        <header>
+            <button aria-label="Close" rel="prev" (click)="isKeyboardDialogOpen = false"></button>
+            <p>
+                <strong>Send Keystrokes</strong>
+            </p>
+        </header>
+
+        <div class="dialog-section">
+            <h2>Send Keystrokes to Console</h2>
+            <form (submit)="handleSendKeyboardInput($event, keyboardInputText())">
+                <fieldset role="group">
+                    <input type="text" class="clipboard-text" aria-label="Clipboard text"
+                        placeholder="Enter text to send as keyboard input to the console" autofocus
+                        [(ngModel)]="keyboardInputText">
+                    <button type="submit"
+                        [disabled]="!keyboardInputText() || !consoleContext().state.isConnected">Send</button>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="dialog-section">
+            <h2>Special Key Combinations</h2>
+
+            <div class="dialog-button-group">
+                <button type="button" aria-label="Send Ctrl+Alt+Delete" (click)="handlSendKeyboardCtrlAltDel()">
+                    Ctrl + Alt + Delete
+                </button>
+            </div>
+        </div>
     </article>
 </dialog>
 
@@ -270,7 +306,7 @@
             </p>
         </header>
 
-        <div class="power-buttons">
+        <div class="dialog-button-group">
             <button type="button" (click)="handleSendPowerRequest('reboot')">Request Reboot</button>
             <button type="button" (click)="handleSendPowerRequest('shutdown')">Request Shutdown</button>
             <hr />

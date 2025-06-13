@@ -59,7 +59,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     }
   });
 
-  connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures> {
+  public connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures> {
     if (!options.hostElement) {
       throw new Error("A host element is required to connect to a VMWare WMKS console.");
     }
@@ -125,7 +125,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     });
   }
 
-  disconnect(): Promise<void> {
+  public disconnect(): Promise<void> {
     if (this.wmksClient) {
       this.wmksClient.disconnect();
       this.wmksClient = undefined;
@@ -134,35 +134,11 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return Promise.resolve();
   }
 
-  public async copyVmClipboard(): Promise<void> {
-    if (!this.wmksClient || this.wmksClient.getConnectionState() !== "connected") {
-      throw new Error("WMKS not connected; can't copy clipboard content");
-    }
-
-    // The "got clipboard data" event only fires when the VM canvas loses focus for some godforsaken reason,
-    // so you have to manually blur it to get the event to fire
-    // https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-sdks-tools/8-0/html-console-sdk-programming-guide/handling-events-with-the-html-console/copy-from-remote-desktop.html
-    // this.wmksClient.grab();
-    // this.wmksClient.ungrab();
-  }
-
   async sendClipboardText(text: string): Promise<void> {
-    if (!this.wmksClient) {
-      throw new Error("Can't resolve WMKS client; can't send clipboard text.");
-    }
-
-    const lines = text.trim().split("\n");
-    if (lines.length === 1) {
-      this.wmksClient.sendInputString(lines[0])
-    } else {
-      for (const line of text.split("\n")) {
-        this.wmksClient.sendInputString(`${line}\n`);
-        await new Promise(r => setTimeout(r, 40));
-      }
-    }
+    throw new Error(`Can't send clipboard text to VMWare-based consoles. (text: ${text})`);
   }
 
-  sendCtrlAltDelete(): Promise<void> {
+  public sendCtrlAltDelete(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
         if (!this.wmksClient) {
@@ -178,17 +154,33 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     });
   }
 
-  sendPowerRequest(request: ConsolePowerRequest): Promise<void> {
+  public async sendKeyboardInput(text: string): Promise<void> {
+    if (!this.wmksClient) {
+      throw new Error("Can't resolve WMKS client; can't send clipboard text.");
+    }
+
+    const lines = text.trim().split("\n");
+    if (lines.length === 1) {
+      this.wmksClient.sendInputString(lines[0])
+    } else {
+      for (const line of text.split("\n")) {
+        this.wmksClient.sendInputString(`${line}\n`);
+        await new Promise(r => setTimeout(r, 40));
+      }
+    }
+  }
+
+  public sendPowerRequest(request: ConsolePowerRequest): Promise<void> {
     return Promise.reject(`Power management request aren't supported for VMWare consoles. (rejected request: "${request}")`);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setIsViewOnly(isViewOnly: boolean): Promise<void> {
+  public setIsViewOnly(isViewOnly: boolean): Promise<void> {
     console.warn("NYI");
     return Promise.resolve();
   }
 
-  setPreserveAspectRatioOnScale(scaleToContainerSize: boolean): Promise<void> {
+  public setPreserveAspectRatioOnScale(scaleToContainerSize: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
         if (!this.wmksClient) {
@@ -204,7 +196,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     });
   }
 
-  dispose(): Promise<void> {
+  public dispose(): Promise<void> {
     if (this.wmksClient) {
       this.wmksClient.destroy();
       this.wmksClient = undefined;
