@@ -6,12 +6,5 @@
     "styleIncludePaths": ["./node_modules"]
   },
   "allowedNonPeerDependencies": ["@picocss/pico"],
-  "assets": [
-    "./LICENSE.md",
-    {
-      "input": "./src/vendor/vmware-wmks",
-      "glob": "**/*",
-      "output": "vendor/vmware-wmks"
-    }
-  ]
+  "assets": ["./LICENSE.md"]
 }
