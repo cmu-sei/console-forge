@@ -33,7 +33,7 @@ ng serve console-forge-docs
 
 Navigate to [http://localhost:4200](http://localhost:4200). If you're running the `X11VNC` container, you should be able to access it via the "With x11VNC (Docker Image)" tab!
 
-![X11VNC + ConsoleForge](https://raw.githubusercontent.com/cmu-sei/console-forge/refs/heads/main/projects/console-forge-docs/public/screenshot.png)
+![X11VNC + ConsoleForge](https://raw.githubusercontent.com/cmu-sei/console-forge/refs/heads/main/projects/console-forge-docs/public/assets/screenshot.png)
 
 # Configuring ConsoleForge in your app
 
