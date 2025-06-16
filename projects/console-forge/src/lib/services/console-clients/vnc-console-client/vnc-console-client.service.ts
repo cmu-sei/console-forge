@@ -57,7 +57,7 @@ export class VncConsoleClientService implements ConsoleClientService {
             // explicitly not supporting these for now
             username: "",
             target: ""
-          }
+          },
         });
 
         client = this.doPreConnectionConfig(client);
@@ -106,7 +106,7 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   public async sendCtrlAltDelete(): Promise<void> {
     if (!this.noVncClient) {
-      throw new Error("VNC client isn't connected; can't send CtrlAltDelete.");
+      throw new Error("VNC client isn't connected; can't send Ctrl+Alt+Delete.");
     }
 
     this.noVncClient.sendCtrlAltDel();

@@ -243,7 +243,7 @@
             <h2>Send Keystrokes to Console</h2>
             <form (submit)="handleSendKeyboardInput($event, keyboardInputText())">
                 <fieldset role="group">
-                    <input type="text" class="clipboard-text" aria-label="Clipboard text"
+                    <input type="text" name="keyboardInputText" class="clipboard-text" aria-label="Clipboard text"
                         placeholder="Enter text to send as keyboard input to the console" autofocus
                         [(ngModel)]="keyboardInputText">
                     <button type="submit"

@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2020",
+    "allowJs": true,
+    "checkJs": true
+  },
+  "exclude": ["node_modules"]
+}

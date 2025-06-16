@@ -15,9 +15,13 @@ cd console-forge
 npm i
 ```
 
-Since ConsoleForge is all about virtual consoles, you're going to need at least one to test drive it. If you don't have easy access to a Proxmox cluster or some other hypervisor host, you can check out [this repo](https://github.com/x11vnc/x11vnc-desktop) to grab yourself a Docker image that hosts a headless VNC server.
+## Starting a compatible console
 
-**NOTE:** If you have Python installed locally and are a VS Code user, you can use the included VS Code Task "Run X11VNC Desktop" to pull and start the container. Easy-peasy!
+Since ConsoleForge is all about virtual consoles, you're going to need at least one to test drive it. Fortunately, this repo includes a script based on the [x11vnc_desktop](https://hub.docker.com/r/x11vnc/docker-desktop) project that does the job very nicely. If you're on a POSIX-compliant shell (i.e. on Windows, you'll need Git Bash or WSL) and are a VS Code user, you can use the included VS Code Task "Run X11VNC Desktop" to pull and start the container. Easy-peasy! See the [x11vnc_desktop](https://hub.docker.com/r/x11vnc/docker-desktop) project if our script doesn't fit your needs.
+
+**NOTE:** If you have access to a Proxmox cluster or some other hypervisor host, you can use also connect to those consoles! Read on to start up our demo/docs app, and use the appropriate page to connect to your consoles.
+
+## Building and debugging
 
 Once you have a compatible console available, you can build the library...
 
@@ -31,7 +35,7 @@ ng build console-forge --watch
 ng serve console-forge-docs
 ```
 
-Navigate to [http://localhost:4200](http://localhost:4200). If you're running the `X11VNC` container, you should be able to access it via the "With x11VNC (Docker Image)" tab!
+Navigate to [http://localhost:4200](http://localhost:4200). If you're running the `X11VNC` container, you should be able to access it via the "With x11VNC (Docker Image)" tab! If you have some other supported console host, you can use the various tabs in our little demo app to connect to your consoles.
 
 ![X11VNC + ConsoleForge](https://raw.githubusercontent.com/cmu-sei/console-forge/refs/heads/main/projects/console-forge-docs/public/assets/screenshot.png)
 

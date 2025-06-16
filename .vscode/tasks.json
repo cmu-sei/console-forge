@@ -1,5 +1,4 @@
 {
-  // For more information, visit: https://go.microsoft.com/fwlink/?LinkId=733558
   "version": "2.0.0",
   "tasks": [
     {
@@ -42,13 +41,7 @@
       "type": "shell",
       "label": "Run X11VNC Desktop",
       "detail": "Pulls and starts the X11VNC Docker image for debugging. (Once pulled, you can just stop/start it using Docker Desktop if more comfy.)",
-      "command": "python",
-      "args": [
-        "${workspaceFolder}/tools/x11vnc_desktop.py",
-        "--password",
-        "mypw",
-        "-d"
-      ],
+      "command": "./tools/run-x11vnc.sh",
       "problemMatcher": []
     }
   ]
