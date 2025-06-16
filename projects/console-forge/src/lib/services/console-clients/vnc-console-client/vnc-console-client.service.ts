@@ -28,7 +28,8 @@ export class VncConsoleClientService implements ConsoleClientService {
     clipboardAutomaticLocalCopy: true,
     clipboardRemoteWrite: true,
     onScreenKeyboard: false,
-    powerManagement: false
+    powerManagement: false,
+    viewOnlyMode: true
   });
   public readonly supportedFeatures = this._supportedFeatures.asReadonly();
 
@@ -72,6 +73,7 @@ export class VncConsoleClientService implements ConsoleClientService {
             clipboardRemoteWrite: true,
             onScreenKeyboard: false,
             powerManagement: this.noVncClient.capabilities.power,
+            viewOnlyMode: true
           };
 
           this._supportedFeatures.update(() => supportedFeatures);

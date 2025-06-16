@@ -41,15 +41,6 @@ cf-console-toolbar {
   &.recording {
     outline: 4px solid #ee402e;
   }
-
-  // VMWare adds the "wmks" class to the console host
-  &.wmks {
-    display: flex;
-    justify-content: center;
-
-    // it seems incapable of making reasonable guesses about how to size itself unless we tell it, so:
-    aspect-ratio: 16 / 9;
-  }
 }
 
 /* conditionally used based on the toolbarPosition input to the component */
@@ -70,9 +61,20 @@ cf-console-toolbar {
   order: 1;
 }
 
-/* DEALING WITH WMKS INSANITY */
-::ng-deep {
-  .view-only canvas {
-    pointer-events: none !important;
+/* WMKS is its own whole vibe */
+/* note that it appends the `wmks` class to our .console-host element, which is how we're selecting it */
+.wmks {
+  display: flex;
+  justify-content: center;
+
+  // it seems incapable of making reasonable guesses about how to size itself unless we tell it, so:
+  aspect-ratio: 16 / 9;
+
+  /* WMKS doesn't natively support a readonly mode, so when .view-only is live, we have to do a bunch of manual read-only hacking */
+  &.view-only {
+    ::ng-deep canvas {
+      cursor: not-allowed;
+      pointer-events: none !important;
+    }
   }
 }

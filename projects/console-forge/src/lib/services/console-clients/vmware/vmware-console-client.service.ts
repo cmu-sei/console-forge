@@ -41,7 +41,8 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     clipboardAutomaticLocalCopy: false,
     clipboardRemoteWrite: false,
     onScreenKeyboard: true,
-    powerManagement: false
+    powerManagement: false,
+    viewOnlyMode: false
   });
   public readonly supportedFeatures = this._supportedFeatures.asReadonly();
 
@@ -89,7 +90,8 @@ export class VmWareConsoleClientService implements ConsoleClientService {
               clipboardAutomaticLocalCopy: false,
               clipboardRemoteWrite: false,
               onScreenKeyboard: true,
-              powerManagement: false
+              powerManagement: false,
+              viewOnlyMode: false
             });
           }
         })
@@ -174,9 +176,8 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return Promise.reject(`Power management request aren't supported for VMWare consoles. (rejected request: "${request}")`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public setIsViewOnly(isViewOnly: boolean): Promise<void> {
-    console.warn("NYI");
+    this.logger.log(LogLevel.INFO, "A 'view-only' request was issued, but this isn't directly supported at the protocol level for VMWare. The ConsoleComponent will do its best to make the console canvas view-only. Request:", isViewOnly);
     return Promise.resolve();
   }
 

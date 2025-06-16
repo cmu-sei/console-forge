@@ -113,9 +113,10 @@ export class ConsoleComponent implements OnDestroy {
       // can be consumed by other components (e.g. the ConsoleToolbarComponent and its implementations)
       if (this.document && this.consoleClient() && this.consoleClient()!.connectionStatus() === "connected") {
         const canvas = this.resolveConsoleCanvas();
-
         if (canvas) {
           this.canvasService.setCanvas(canvas);
+        } else {
+          this.canvasService.clearCanvas();
         }
       }
     })
@@ -123,7 +124,15 @@ export class ConsoleComponent implements OnDestroy {
     // input changes
     effect(() => {
       if (this.consoleClient() && this.consoleClient()!.connectionStatus() === "connected") {
-        this.consoleClient()!.setIsViewOnly(this.isViewOnly())
+        this.consoleClient()!.setIsViewOnly(this.isViewOnly());
+
+        // if view only mode is on, we need to flip the canvas's tab index
+        if (!this.consoleClient()?.supportedFeatures().viewOnlyMode) {
+          const canvas = this.canvasService.canvas();
+          if (canvas) {
+            canvas.tabIndex = this.isViewOnly() ? -1 : 0;
+          }
+        }
       }
     });
 

@@ -35,4 +35,10 @@ export interface ConsoleSupportedFeatures {
      * of the machine, so we usually have to rely on the protocol-specific service to tell us whether the feature is enabled (see our VNC client, wrapping noVnc, for an example)
      */
     powerManagement: boolean;
+
+    /**
+     * Whether the remote console protocol/library supports a "view/read"-only canvas. If it doesn't, we have to do some CSS/JS hacking in the console component, so 
+     * we prefer the client lib/protocol's implementation if we can get it.
+     */
+    viewOnlyMode: boolean;
 }
