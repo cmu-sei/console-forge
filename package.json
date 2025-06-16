@@ -9,6 +9,9 @@
     "test": "ng test",
     "lint": "npx eslint --flag unstable_config_lookup_from_file ."
   },
+  "engines": {
+    "npm": ">=8.11.0"
+  },
   "private": true,
   "dependencies": {
     "@angular/cdk": "^19.2.18",
