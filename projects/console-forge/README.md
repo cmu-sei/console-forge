@@ -122,20 +122,15 @@ If it does, things are a little become slightly complex.
 
 ### Including the HTML Console SDK's assets
 
-We use a lightly modified version of the [VMWare HTML Console SDK](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-sdks-tools/8-0/html-console-sdk-programming-guide.html) to deliver VMWare console support. For convenience, we include that SDK in the library. To include it in your Angular app's scripts, you'll need to update the `"styles"` and `"scripts"` sections of your `angular.json` file to include it. It'll look something like this:
+To use ConsoleForge to connect to VMWare consoles, you'll need a copy of the [VMWare HTML Console SDK](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-sdks-tools/8-0/html-console-sdk-programming-guide.html). For licensing reasons, we don't include this SDK with ConsoleForge. To include it in your Angular app's scripts, you'll need to update the `"styles"` and `"scripts"` sections of your `angular.json` file. Depending where you commit it to your project, it'll look something like this:
 
 ```json
 //snip
-"styles": ["dist/console-forge/vendor/vmware-wmks/css/main-ui.css"],
+"styles": ["path/to/vmware-wmks/css/main-ui.css"],
 // snip
-"scripts": ["node_modules/console-forge/vendor/vmware-wmks/js/wmks.min.js"]
+"scripts": ["path/to/vmware-wmks/js/wmks.min.js"]
 // snip
 ```
-
-We make the following adjustments due to our use case:
-
-- We include only the `main-ui.css` stylesheet in the library
-- We don't include images referenced by this CSS for reasons of distribution complexity
 
 ### jQuery
 
