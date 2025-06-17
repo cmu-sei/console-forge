@@ -119,7 +119,7 @@ export class ConsoleComponent implements OnDestroy {
           this.canvasService.clearCanvas();
         }
       }
-    })
+    });
 
     // input changes
     effect(() => {
