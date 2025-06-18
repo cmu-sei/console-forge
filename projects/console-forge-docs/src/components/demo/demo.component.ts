@@ -31,10 +31,7 @@ export class DemoComponent {
   protected configForm = new FormGroup({
     autoFocusOnConnect: new FormControl(false),
     isViewOnly: new FormControl(false),
-    password: new FormControl("mypw"),
-    ticket: new FormControl(""),
-    url: new FormControl("http://localhost:5950"),
-    vmId: new FormControl("")
+    url: new FormControl("")
   });
 
   protected networkConfig = model<ConsoleComponentNetworkConfig>({
@@ -45,20 +42,19 @@ export class DemoComponent {
   protected isViewOnly = model(false);
 
   protected async configFormSubmit() {
-    let url = this.configForm.value.url || "";
-
-    if (this.configForm.value.ticket) {
-      url = `wss://foundry.nivix/api2/json/nodes/foundry/qemu/${this.configForm.value.vmId}/vncwebsocket?port=5900&vncticket=${encodeURIComponent(this.configForm.value.ticket)}`;
+    if (!this.configForm.value.url) {
+      throw new Error("Can't without a URL");
     }
+
+    const url = new URL(this.configForm.value.url);
 
     this.cfConfig = {
       autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
       consoleClientType: "vnc",
       credentials: {
-        accessTicket: this.configForm.value.ticket || undefined,
-        password: this.configForm.value.password || undefined,
+        accessTicket: url.searchParams.get("vncticket") || undefined
       },
-      url: url
+      url: url.toString()
     };
 
     if (this.cfConsole()) {
