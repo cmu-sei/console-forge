@@ -1,7 +1,7 @@
 <h2>Using ConsoleForge with VNC</h2>
 
 @if(cfConfig) {
-<cf-console [config]="cfConfig" [networkConfig]="networkConfig()"
+<cf-console [config]="cfConfig" [autoConnect]="false" [networkConfig]="networkConfig()"
     (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)" (consoleRecorded)="handleConsoleRecorded($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
@@ -28,5 +28,8 @@
         <mat-checkbox formControlName="autoFocusOnConnect">Autofocus On Connect</mat-checkbox>
     </div>
 
-    <button mat-flat-button type="submit" [disabled]="!configForm.valid">Connect</button>
+    <button mat-flat-button type="submit" [disabled]="!configForm.valid">Set Config</button>
 </form>
+
+<button mat-flat-button type="button" class="my-2" [disabled]="!cfConfig"
+    (click)="handleConnectClick()">Connect</button>

@@ -43,7 +43,7 @@ export class DemoComponent {
 
   protected async configFormSubmit() {
     if (!this.configForm.value.url) {
-      throw new Error("Can't without a URL");
+      throw new Error("Can't connect without a URL");
     }
 
     const url = new URL(this.configForm.value.url);
@@ -52,13 +52,18 @@ export class DemoComponent {
       autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
       consoleClientType: "vnc",
       credentials: {
-        accessTicket: url.searchParams.get("vncticket") || undefined
+        accessTicket: decodeURIComponent(url.searchParams.get("vncticket") || "")
       },
       url: url.toString()
     };
+  }
 
-    if (this.cfConsole()) {
+  protected async handleConnectClick() {
+    if (this.cfConsole() && this.cfConfig) {
+      console.log("DEMO COMPONENT INSTIGATING CONNECTION", this.cfConfig);
       await this.cfConsole()!.connect(this.cfConfig);
+    } else {
+      console.log("Can't connect - can't resolve console/config");
     }
   }
 

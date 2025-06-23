@@ -22,8 +22,9 @@
 
         <cf-console-status [status]="consoleClient()?.connectionStatus()"></cf-console-status>
 
-        <div #consoleHost [id]="consoleHostElementId" class="console-host" [class.recording]="isRecording()"
-            [class.view-only]="isViewOnly()">
+        <div #consoleHost [id]="consoleHostElementId"
+            [class]="'console-host console-client-type-' + consoleClient()?.clientType"
+            [class.recording]="isRecording()" [class.view-only]="isViewOnly()">
         </div>
     </div>
 </div>

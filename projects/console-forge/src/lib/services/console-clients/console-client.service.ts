@@ -8,8 +8,10 @@ import { ConsoleConnectionOptions } from "../../models/console-connection-option
 import { ConsoleConnectionStatus } from "../../models/console-connection-status";
 import { ConsolePowerRequest } from "../../models/console-power-request";
 import { ConsoleSupportedFeatures } from "../../models/console-supported-features";
+import { ConsoleClientType } from "../../models/console-client-type";
 
 export interface ConsoleClientService {
+  readonly clientType: ConsoleClientType;
   readonly connectionStatus: Signal<ConsoleConnectionStatus>;
   readonly consoleClipboardUpdated: Signal<string>;
   readonly supportedFeatures: Signal<ConsoleSupportedFeatures>;

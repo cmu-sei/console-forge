@@ -37,6 +37,7 @@ cf-console-toolbar {
   width: 100%;
   height: 100%;
   margin: 0 auto;
+  overflow: hidden;
 
   &.recording {
     outline: 4px solid #ee402e;

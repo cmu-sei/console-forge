@@ -4,8 +4,9 @@
 //  ===END LICENSE===
 
 import { inject, Injectable, signal } from '@angular/core';
-import NoVncClient from '@novnc/novnc/core/rfb';
+import NoVncClient, { NoVncOptions } from '@novnc/novnc/core/rfb';
 import { ConsoleForgeConfig } from '../../../config/console-forge-config';
+import { ConsoleClientType } from '../../../models/console-client-type';
 import { ConsoleConnectionOptions } from '../../../models/console-connection-options';
 import { ConsoleConnectionStatus } from '../../../models/console-connection-status';
 import { ConsolePowerRequest } from '../../../models/console-power-request';
@@ -18,6 +19,7 @@ import { ClipboardService } from '../../clipboard/clipboard.service';
 
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {
+  public readonly clientType: ConsoleClientType = "vnc";
   private readonly _consoleClipboardUpdated = signal<string>("");
   public readonly consoleClipboardUpdated = this._consoleClipboardUpdated.asReadonly();
 
@@ -45,6 +47,7 @@ export class VncConsoleClientService implements ConsoleClientService {
   public async connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures> {
     if (this.noVncClient) {
       this.noVncClient.disconnect();
+      this.noVncClient = undefined;
     }
 
     return new Promise((resolve, reject) => {
@@ -52,19 +55,25 @@ export class VncConsoleClientService implements ConsoleClientService {
         this._connectionStatus.update(() => "connecting");
         this.logger.log(LogLevel.DEBUG, "Connecting to", url);
 
-        let client = new NoVncClient(options.hostElement, url, {
+        const noVncCredentials: NoVncOptions = {
           credentials: {
             password: options?.credentials?.accessTicket || options?.credentials?.password || "",
             // explicitly not supporting these for now
             username: "",
             target: ""
           },
-        });
+        };
+        this.logger.log(LogLevel.DEBUG, "NoVNC credentials:", noVncCredentials);
 
+        this.logger.log(LogLevel.DEBUG, "Connecting...");
+        let client = new NoVncClient(options.hostElement, url, noVncCredentials);
         client = this.doPreConnectionConfig(client);
         client.addEventListener("connect", () => {
+          this.logger.log(LogLevel.DEBUG, "Connected. Performing post-connection configuration...");
+
           // do other post-connection config
           this.noVncClient = this.doPostConnectionConfig(client, options);
+          this.logger.log(LogLevel.DEBUG, "Post-connection config done. Resolving supported features...");
 
           // the vnc client knows its capabilities post-connection
           // so send this back along with the things we know we can't support
@@ -78,11 +87,14 @@ export class VncConsoleClientService implements ConsoleClientService {
 
           this._supportedFeatures.update(() => supportedFeatures);
           this.noVncClient = client;
+
+          this.logger.log(LogLevel.DEBUG, "Supported features resolved. Connection complete!");
           resolve(supportedFeatures);
         });
       }
       catch (err) {
         this._connectionStatus.update(() => "disconnected");
+        this.logger.log(LogLevel.ERROR, "Connection error", err);
         reject(err);
       }
     });

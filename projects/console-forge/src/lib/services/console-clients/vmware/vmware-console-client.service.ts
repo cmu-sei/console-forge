@@ -20,6 +20,7 @@ import { WINDOW } from '../../../injection/window.injection-token';
 import { ClipboardService } from '../../clipboard/clipboard.service';
 import { ConsoleForgeConfig } from '../../../config/console-forge-config';
 import { UserSettingsService } from '../../user-settings.service';
+import { ConsoleClientType } from '../../../models/console-client-type';
 
 @Injectable({ providedIn: 'root' })
 export class VmWareConsoleClientService implements ConsoleClientService {
@@ -31,6 +32,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   private readonly window = inject(WINDOW);
   private wmksClient?: WmksClient;
 
+  public readonly clientType: ConsoleClientType = "vmware";
   private readonly _connectionStatus = signal<ConsoleConnectionStatus>("disconnected")
   public readonly connectionStatus = this._connectionStatus.asReadonly();
 
