@@ -16,7 +16,7 @@ export interface ConsoleClientService {
   readonly consoleClipboardUpdated: Signal<string>;
   readonly supportedFeatures: Signal<ConsoleSupportedFeatures>;
 
-  connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures>;
+  connect(url: string, options: ConsoleConnectionOptions): Promise<void>;
   disconnect(): Promise<void>;
   sendClipboardText(text: string): Promise<void>;
   sendCtrlAltDelete(): Promise<void>;

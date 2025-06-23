@@ -62,7 +62,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     }
   });
 
-  public connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures> {
+  public connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
     if (!options.hostElement) {
       throw new Error("A host element is required to connect to a VMWare WMKS console.");
     }
@@ -87,14 +87,15 @@ export class VmWareConsoleClientService implements ConsoleClientService {
           if (data.state === WmksConnectionState.CONNECTED) {
             this.logger.log(LogLevel.DEBUG, "WMKS confirms connection", this.wmksClient);
             this.doPostConnectionConfig(options.hostElement);
-            this._connectionStatus.update(() => "connected");
-            resolve({
+            this._supportedFeatures.update(() => ({
               clipboardAutomaticLocalCopy: false,
               clipboardRemoteWrite: false,
               onScreenKeyboard: true,
               powerManagement: false,
               viewOnlyMode: false
-            });
+            }))
+            this._connectionStatus.update(() => "connected");
+            resolve();
           }
         })
         .register(WmksEvents.COPY, (ev, data) => {

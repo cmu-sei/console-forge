@@ -44,7 +44,7 @@ export class VncConsoleClientService implements ConsoleClientService {
   // the actual client from @novnc/novnc
   private noVncClient?: NoVncClient;
 
-  public async connect(url: string, options: ConsoleConnectionOptions): Promise<ConsoleSupportedFeatures> {
+  public async connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
     if (this.noVncClient) {
       this.noVncClient.disconnect();
       this.noVncClient = undefined;
@@ -89,7 +89,7 @@ export class VncConsoleClientService implements ConsoleClientService {
           this.noVncClient = client;
 
           this.logger.log(LogLevel.DEBUG, "Supported features resolved. Connection complete!");
-          resolve(supportedFeatures);
+          resolve();
         });
       }
       catch (err) {
