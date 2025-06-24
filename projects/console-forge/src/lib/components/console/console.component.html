@@ -3,6 +3,8 @@
 <!-- Released under an MIT (SEI)-style license. See the LICENSE.md file for license information. -->
 <!-- ===END LICENSE=== -->
 
+<cf-console-status [status]="consoleClient()?.connectionStatus()"></cf-console-status>
+
 <div #componentContainer class="console-component flex"
     [class.flex-column]="userSettings().toolbar.dockTo === 'top' || userSettings().toolbar.dockTo === 'bottom'">
 
@@ -19,8 +21,6 @@
 
     <div class="console-host-container"
         [class.flex-order-0]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'">
-
-        <cf-console-status [status]="consoleClient()?.connectionStatus()"></cf-console-status>
 
         <div #consoleHost [id]="consoleHostElementId"
             [class]="'console-host console-client-type-' + consoleClient()?.clientType"

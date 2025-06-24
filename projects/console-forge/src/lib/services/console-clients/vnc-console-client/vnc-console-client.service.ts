@@ -3,6 +3,7 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
+import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, signal } from '@angular/core';
 import NoVncClient, { NoVncOptions } from '@novnc/novnc/core/rfb';
 import { ConsoleForgeConfig } from '../../../config/console-forge-config';
@@ -38,6 +39,7 @@ export class VncConsoleClientService implements ConsoleClientService {
   // injected services
   private readonly cfConfig = inject(ConsoleForgeConfig);
   private readonly clipboardService = inject(ClipboardService);
+  private readonly document = inject(DOCUMENT);
   private readonly logger = inject(LoggerService);
   private readonly userSettings = inject(UserSettingsService);
 
@@ -54,6 +56,8 @@ export class VncConsoleClientService implements ConsoleClientService {
       try {
         this._connectionStatus.update(() => "connecting");
         this.logger.log(LogLevel.DEBUG, "Connecting to", url);
+        this.logger.log(LogLevel.DEBUG, "Connection options", options);
+        let connectionPromiseReturned = false;
 
         const noVncCredentials: NoVncOptions = {
           credentials: {
@@ -63,12 +67,31 @@ export class VncConsoleClientService implements ConsoleClientService {
             target: ""
           },
         };
-        this.logger.log(LogLevel.DEBUG, "NoVNC credentials:", noVncCredentials);
 
-        this.logger.log(LogLevel.DEBUG, "Connecting...");
+        this.logger.log(LogLevel.DEBUG, "Connecting...", noVncCredentials);
         let client = new NoVncClient(options.hostElement, url, noVncCredentials);
+
+        this.logger.log(LogLevel.DEBUG, "Client instantiated. Configuring...");
         client = this.doPreConnectionConfig(client);
+        this.logger.log(LogLevel.DEBUG, "Pre-connection config done.");
+
+        client.addEventListener("disconnect", ev => {
+          if (connectionPromiseReturned) {
+            return;
+          }
+
+          connectionPromiseReturned = true;
+          this.logger.log(LogLevel.ERROR, "Connection error", ev);
+          this._connectionStatus.update(() => "disconnected");
+          reject("Connection failed");
+        });
+
         client.addEventListener("connect", () => {
+          if (connectionPromiseReturned) {
+            return;
+          }
+
+          connectionPromiseReturned = true;
           this.logger.log(LogLevel.DEBUG, "Connected. Performing post-connection configuration...");
 
           // do other post-connection config
