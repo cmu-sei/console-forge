@@ -46,6 +46,7 @@ export class ConsoleComponent implements OnDestroy {
   isViewOnly = input(false);
   networkConfig = input<ConsoleComponentNetworkConfig>();
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
+  toolbarDisabled = input<boolean>(false);
 
   consoleClipboardUpdated = output<string>();
   consoleRecorded = output<Blob>();
@@ -77,6 +78,12 @@ export class ConsoleComponent implements OnDestroy {
   protected readonly consoleClient = signal<ConsoleClientService | undefined>(undefined);
   protected readonly consoleHostElementId = `cf-console-${this.uuids.get()}`;
   protected readonly isRecording = inject(CanvasRecorderService).isRecording;
+  protected readonly toolbarEnabled = computed(() => {
+    // toolbar is enabled if it hasn't been disabled locally or globally:
+    return !(this.toolbarDisabled() || this.consoleForgeConfig.toolbar.disabled) &&
+      // AND if a toolbar component has been specified either here or globally
+      (this.toolbarComponent() || this.consoleForgeConfig.toolbar.component);
+  });
   protected readonly userSettings = this.userSettingsService.settings;
 
   constructor() {

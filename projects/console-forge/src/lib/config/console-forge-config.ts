@@ -18,12 +18,15 @@ export abstract class ConsoleForgeConfig {
         mimeType?: string;
     };
     abstract consoleBackgroundStyle?: string;
-    abstract consoleToolbarComponent: Type<ConsoleToolbarComponentBase>;
     abstract defaultConsoleClientType?: ConsoleClientType;
     abstract enableClipboard: boolean;
     abstract enableConsoleRecord: boolean;
     abstract logThreshold: LogLevel;
     abstract showBrowserNotificationsOnConsoleEvents: boolean;
+    abstract toolbar: {
+        component: Type<ConsoleToolbarComponentBase>;
+        disabled: boolean;
+    }
 }
 
 export const defaultCfConfig: ConsoleForgeConfig = {
@@ -35,9 +38,12 @@ export const defaultCfConfig: ConsoleForgeConfig = {
         mimeType: "video/webm"
     },
     consoleBackgroundStyle: "rgb(40, 40, 40)",
-    consoleToolbarComponent: ConsoleToolbarDefaultComponent,
     enableClipboard: true,
     enableConsoleRecord: true,
     logThreshold: LogLevel.WARNING,
     showBrowserNotificationsOnConsoleEvents: true,
+    toolbar: {
+        component: ConsoleToolbarDefaultComponent,
+        disabled: false
+    }
 }

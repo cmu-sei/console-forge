@@ -225,7 +225,7 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
     client.background = options.backgroundStyle || "";
-    client.resizeSession = true;
+    client.resizeSession = this.userSettings.settings().console.preserveAspectRatioOnScale;
 
     // try focus if requested
     if (options.autoFocusOnConnect) {

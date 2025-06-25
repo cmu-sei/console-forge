@@ -1,0 +1,10 @@
+.flex {
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+
+  cf-console-tile {
+    flex: 1 1 30%;
+  }
+}

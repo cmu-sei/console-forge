@@ -54,7 +54,7 @@ export class ConsoleToolbarComponent {
   // component state
   private readonly activeConsoleRecording = signal<CanvasRecording | undefined>(undefined);
   protected readonly toolbarComponentContext: ConsoleToolbarContext;
-  protected readonly toolbarComponent = computed(() => this.customToolbarComponent() || this.config.consoleToolbarComponent);
+  protected readonly toolbarComponent = computed(() => this.customToolbarComponent() || this.config.toolbar.component);
 
   constructor() {
     this.toolbarComponentContext = {

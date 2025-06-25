@@ -8,6 +8,7 @@
     [class.console-client-type-vmware]="consoleClient()?.clientType == 'vmware'"
     [class.flex-column]="userSettings().toolbar.dockTo === 'top' || userSettings().toolbar.dockTo === 'bottom'">
 
+    @if (toolbarEnabled()) {
     <cf-console-toolbar
         [class.flex-order-1]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'"
         [consoleClient]="consoleClient()!" [consoleNetworkConfig]="networkConfig()" [isViewOnly]="isViewOnly()"
@@ -18,6 +19,7 @@
         (networkDisconnectRequested)="networkDisconnectRequested.emit()"
         (screenshotCopied)="handleScreenshotCopied($event)"
         (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
+    }
 
     <div class="console-host-container"
         [class.flex-order-0]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'">

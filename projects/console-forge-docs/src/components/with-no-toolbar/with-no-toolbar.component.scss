@@ -1,0 +1,9 @@
+.flex {
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 100%;
+
+  cf-console {
+    flex: 1 1 0;
+  }
+}
