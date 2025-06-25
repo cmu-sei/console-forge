@@ -52,6 +52,9 @@ function applyLicense(filePath, headerLines) {
   writeFileSync(filePath, newContent, "utf8");
 }
 
+/**
+ * @param {string} content
+ */
 function stripOldLicense(content) {
   const regex = /[\s\S]*?===BEGIN LICENSE===([\s\S]*?)===END LICENSE===\n?/g;
   return content.replace(regex, "").trimStart();
