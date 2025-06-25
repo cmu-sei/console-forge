@@ -12,6 +12,7 @@ import { LoggerService } from "../services/logger.service";
 import { UserSettingsService } from "../services/user-settings.service";
 import { UuidService } from "../services/uuid.service";
 import { deepMerge, DeepPartial } from "../services/object.helpers";
+import { BlobDownloaderService } from "../services/blob-downloader.service";
 
 export function provideConsoleForge(config?: DeepPartial<ConsoleForgeConfig>): EnvironmentProviders {
     // merge provided with defaults
@@ -19,6 +20,7 @@ export function provideConsoleForge(config?: DeepPartial<ConsoleForgeConfig>): E
 
     // provide to the env
     return makeEnvironmentProviders([
+        { provide: BlobDownloaderService },
         { provide: ClipboardService },
         { provide: ConsoleClientFactoryService },
         { provide: FullScreenService },

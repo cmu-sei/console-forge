@@ -85,7 +85,7 @@ export class ConsoleComponent implements OnDestroy {
 
     // when config is provided and autoconnect is on, attempt to automatically connect
     effect(() => {
-      if (this.autoConnect() && this.config()) {
+      if (this.autoConnect() && this.config() && !this.consoleClient()) {
         this.connect(this.config());
       }
     });
@@ -203,19 +203,16 @@ export class ConsoleComponent implements OnDestroy {
     if (!clientType) {
       throw new Error("Couldn't resolve the console client type. Did you specify a default using provideConsoleForgeConfig or pass a console type to this component?");
     }
+
     const client = this.consoleClientFactory.get(clientType);
+    this.consoleClient.update(() => client);
 
     // connect
-    await client.connect(config.url, {
+    this.consoleClient()!.connect(config.url, {
       autoFocusOnConnect: config.autoFocusOnConnect,
       credentials: config.credentials,
       hostElement: this.consoleHostElement().nativeElement,
     });
-
-    // the order here is important - we only update all the things that care about our console client once we're connected,
-    // otherwise things like trying to set the "view only" property before connection will function strangely.
-    // need to look into ways to validate this via testing
-    this.consoleClient.update(() => client);
   }
 
   public async disconnect() {

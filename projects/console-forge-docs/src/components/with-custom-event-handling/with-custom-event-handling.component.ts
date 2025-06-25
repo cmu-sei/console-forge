@@ -2,7 +2,6 @@ import { Component, computed, inject, model, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, getTextFromClipboardItem } from 'console-forge';
-import { BlobDownloaderService } from '../../services/blob-downloader.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,7 +22,6 @@ import { MatInputModule } from '@angular/material/input';
   styleUrl: './with-custom-event-handling.component.scss'
 })
 export class WithCustomEventHandlingComponent {
-  private readonly blobDownloader = inject(BlobDownloaderService);
   private readonly snackbarService = inject(MatSnackBar);
 
   protected cfConfig?: ConsoleComponentConfig;
@@ -62,10 +60,6 @@ export class WithCustomEventHandlingComponent {
 
   protected handleConsoleClipboardUpdated(text: string) {
     this.showToast(`Sent to console clipboard: ${text}`, "Hype 🔥");
-  }
-
-  protected handleConsoleRecorded(blob: Blob) {
-    this.blobDownloader.download(blob, "your-screen-recording.webm");
   }
 
   protected async handleDisconnect() {

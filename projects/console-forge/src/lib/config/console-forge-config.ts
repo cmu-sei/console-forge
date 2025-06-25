@@ -11,6 +11,7 @@ import { ConsoleToolbarDefaultComponent } from "../components/console-toolbar-de
 
 export abstract class ConsoleForgeConfig {
     abstract canvasRecording: {
+        autoDownloadCompletedRecordings: boolean;
         chunkLength?: number;
         frameRate?: number;
         maxDuration?: number;
@@ -27,6 +28,7 @@ export abstract class ConsoleForgeConfig {
 
 export const defaultCfConfig: ConsoleForgeConfig = {
     canvasRecording: {
+        autoDownloadCompletedRecordings: true,
         chunkLength: 1000,
         frameRate: 25,
         maxDuration: 10000,

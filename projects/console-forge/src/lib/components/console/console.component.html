@@ -3,14 +3,14 @@
 <!-- Released under an MIT (SEI)-style license. See the LICENSE.md file for license information. -->
 <!-- ===END LICENSE=== -->
 
-<cf-console-status [status]="consoleClient()?.connectionStatus()"></cf-console-status>
-
 <div #componentContainer class="console-component flex"
+    [class.console-client-type-vnc]="consoleClient()?.clientType == 'vnc'"
+    [class.console-client-type-vmware]="consoleClient()?.clientType == 'vmware'"
     [class.flex-column]="userSettings().toolbar.dockTo === 'top' || userSettings().toolbar.dockTo === 'bottom'">
 
     <cf-console-toolbar
         [class.flex-order-1]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'"
-        [consoleClient]="consoleClient()!" [consoleNetworkConfig]="networkConfig()"
+        [consoleClient]="consoleClient()!" [consoleNetworkConfig]="networkConfig()" [isViewOnly]="isViewOnly()"
         (canvasRecordingFinished)="consoleRecorded.emit($event)"
         (canvasRecordingStarted)="handleConsoleRecordingStarted()" [customToolbarComponent]="toolbarComponent()"
         (ctrlAltDelSent)="handleCtrlAltDelSent()" (networkConnectionRequested)="networkConnectionRequested.emit($event)"
@@ -21,10 +21,10 @@
 
     <div class="console-host-container"
         [class.flex-order-0]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'">
+        <cf-console-status [status]="consoleClient()?.connectionStatus()"></cf-console-status>
 
-        <div #consoleHost [id]="consoleHostElementId"
-            [class]="'console-host console-client-type-' + consoleClient()?.clientType"
-            [class.recording]="isRecording()" [class.view-only]="isViewOnly()">
+        <div #consoleHost [id]="consoleHostElementId" class="console-host" [class.recording]="isRecording()"
+            [class.view-only]="isViewOnly()">
         </div>
     </div>
 </div>

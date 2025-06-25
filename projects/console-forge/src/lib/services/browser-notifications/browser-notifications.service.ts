@@ -31,6 +31,7 @@ export class BrowserNotificationsService {
       tag: args.tag,
     });
 
+    this.logger.log(LogLevel.DEBUG, "Send browser notification", notification);
     if (args.href?.url) {
       notification.onclick = (ev) => {
         ev.preventDefault();

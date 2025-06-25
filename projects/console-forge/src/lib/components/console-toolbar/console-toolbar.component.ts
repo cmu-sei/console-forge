@@ -19,6 +19,7 @@ import { ConsolePowerRequest } from '../../models/console-power-request';
 import { ConsoleComponentNetworkConfig } from '../../models/console-component-network-config';
 import { UserSettingsService } from '../../services/user-settings.service';
 import { CanvasService } from '../../services/canvas.service';
+import { BlobDownloaderService } from '../../services/blob-downloader.service';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -30,6 +31,7 @@ export class ConsoleToolbarComponent {
   consoleClient = input.required<ConsoleClientService>();
   consoleNetworkConfig = input<ConsoleComponentNetworkConfig>();
   customToolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
+  isViewOnly = input.required<boolean>();
 
   canvasRecordingStarted = output<void>();
   canvasRecordingFinished = output<Blob>();
@@ -41,6 +43,7 @@ export class ConsoleToolbarComponent {
   screenshotCopied = output<Blob>();
   toggleFullscreen = output<void>();
 
+  private readonly blobDownloader = inject(BlobDownloaderService);
   private readonly canvas = inject(CanvasService);
   private readonly canvasRecorder = inject(CanvasRecorderService);
   private readonly clipboardService = inject(ClipboardService);
@@ -78,7 +81,8 @@ export class ConsoleToolbarComponent {
         activeConsoleRecording: computed(() => this.activeConsoleRecording()),
         isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
         isFullscreenAvailable: inject(FullScreenService).isAvailable,
-        isRecordingAvailable: computed(() => !!this.canvas.canvas())
+        isRecordingAvailable: computed(() => !!this.canvas.canvas()),
+        isViewOnly: this.isViewOnly
       },
       userSettings: this.userSettings
     };
@@ -137,6 +141,12 @@ export class ConsoleToolbarComponent {
     this.logger.log(LogLevel.DEBUG, "Recording stopped.");
     const recording = await this.activeConsoleRecording()!.stop();
     this.activeConsoleRecording.update(() => undefined);
+
+    // if configured, automatically offer a download
+    if (recording && this.config.canvasRecording.autoDownloadCompletedRecordings) {
+      this.blobDownloader.download(recording, "your-console-recording.webm");
+    }
+
     this.canvasRecordingFinished.emit(recording);
     this.logger.log(LogLevel.DEBUG, "Recording emitted.");
     return recording;

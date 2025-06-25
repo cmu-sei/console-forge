@@ -3,7 +3,6 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, signal } from '@angular/core';
 import NoVncClient, { NoVncOptions } from '@novnc/novnc/core/rfb';
 import { ConsoleForgeConfig } from '../../../config/console-forge-config';
@@ -39,7 +38,6 @@ export class VncConsoleClientService implements ConsoleClientService {
   // injected services
   private readonly cfConfig = inject(ConsoleForgeConfig);
   private readonly clipboardService = inject(ClipboardService);
-  private readonly document = inject(DOCUMENT);
   private readonly logger = inject(LoggerService);
   private readonly userSettings = inject(UserSettingsService);
 
@@ -48,79 +46,59 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   public async connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
     if (this.noVncClient) {
-      this.noVncClient.disconnect();
       this.noVncClient = undefined;
     }
 
-    return new Promise((resolve, reject) => {
-      try {
-        this._connectionStatus.update(() => "connecting");
-        this.logger.log(LogLevel.DEBUG, "Connecting to", url);
-        this.logger.log(LogLevel.DEBUG, "Connection options", options);
-        let connectionPromiseReturned = false;
+    try {
+      this._connectionStatus.update(() => "connecting");
+      this.logger.log(LogLevel.DEBUG, "Connecting to", url);
+      this.logger.log(LogLevel.DEBUG, "Connection options", options);
 
-        const noVncCredentials: NoVncOptions = {
-          credentials: {
-            password: options?.credentials?.accessTicket || options?.credentials?.password || "",
-            // explicitly not supporting these for now
-            username: "",
-            target: ""
-          },
+      const noVncCredentials: NoVncOptions = {
+        credentials: {
+          password: options?.credentials?.accessTicket || options?.credentials?.password || "",
+          // explicitly not supporting these for now
+          username: "",
+          target: ""
+        },
+      };
+
+      this.logger.log(LogLevel.DEBUG, "Connecting...", noVncCredentials);
+      let client = new NoVncClient(options.hostElement, url, noVncCredentials);
+
+      this.logger.log(LogLevel.DEBUG, "Client instantiated. Configuring...");
+      client = this.doPreConnectionConfig(client);
+      this.logger.log(LogLevel.DEBUG, "Pre-connection config done.");
+
+      client.addEventListener("connect", () => {
+        this._connectionStatus.update(() => "connected");
+        this.logger.log(LogLevel.DEBUG, "Connected. Performing post-connection configuration...");
+
+        // do other post-connection config
+        this.noVncClient = this.doPostConnectionConfig(client, options);
+        this.logger.log(LogLevel.DEBUG, "Post-connection config done. Resolving supported features...");
+
+        // the vnc client knows its capabilities post-connection
+        // so send this back along with the things we know we can't support
+        const supportedFeatures: ConsoleSupportedFeatures = {
+          clipboardAutomaticLocalCopy: true,
+          clipboardRemoteWrite: true,
+          onScreenKeyboard: false,
+          powerManagement: this.noVncClient.capabilities.power,
+          viewOnlyMode: true
         };
 
-        this.logger.log(LogLevel.DEBUG, "Connecting...", noVncCredentials);
-        let client = new NoVncClient(options.hostElement, url, noVncCredentials);
+        this._supportedFeatures.update(() => supportedFeatures);
+        this.noVncClient = client;
 
-        this.logger.log(LogLevel.DEBUG, "Client instantiated. Configuring...");
-        client = this.doPreConnectionConfig(client);
-        this.logger.log(LogLevel.DEBUG, "Pre-connection config done.");
-
-        client.addEventListener("disconnect", ev => {
-          if (connectionPromiseReturned) {
-            return;
-          }
-
-          connectionPromiseReturned = true;
-          this.logger.log(LogLevel.ERROR, "Connection error", ev);
-          this._connectionStatus.update(() => "disconnected");
-          reject("Connection failed");
-        });
-
-        client.addEventListener("connect", () => {
-          if (connectionPromiseReturned) {
-            return;
-          }
-
-          connectionPromiseReturned = true;
-          this.logger.log(LogLevel.DEBUG, "Connected. Performing post-connection configuration...");
-
-          // do other post-connection config
-          this.noVncClient = this.doPostConnectionConfig(client, options);
-          this.logger.log(LogLevel.DEBUG, "Post-connection config done. Resolving supported features...");
-
-          // the vnc client knows its capabilities post-connection
-          // so send this back along with the things we know we can't support
-          const supportedFeatures: ConsoleSupportedFeatures = {
-            clipboardAutomaticLocalCopy: true,
-            clipboardRemoteWrite: true,
-            onScreenKeyboard: false,
-            powerManagement: this.noVncClient.capabilities.power,
-            viewOnlyMode: true
-          };
-
-          this._supportedFeatures.update(() => supportedFeatures);
-          this.noVncClient = client;
-
-          this.logger.log(LogLevel.DEBUG, "Supported features resolved. Connection complete!");
-          resolve();
-        });
-      }
-      catch (err) {
-        this._connectionStatus.update(() => "disconnected");
-        this.logger.log(LogLevel.ERROR, "Connection error", err);
-        reject(err);
-      }
-    });
+        this.logger.log(LogLevel.DEBUG, "Supported features resolved. Connection complete!");
+      });
+    }
+    catch (err) {
+      this._connectionStatus.update(() => "disconnected");
+      this.logger.log(LogLevel.ERROR, "Connection error", err);
+      throw err;
+    }
   }
 
   public async disconnect(): Promise<void> {
@@ -216,7 +194,10 @@ export class VncConsoleClientService implements ConsoleClientService {
   }
 
   private doPreConnectionConfig(client: NoVncClient): NoVncClient {
-    client.addEventListener("connect", () => this._connectionStatus.update(() => "connected"));
+    client.addEventListener("connect", () => {
+      this.logger.log(LogLevel.INFO, "Connected!");
+      this._connectionStatus.update(() => "connected");
+    });
     client.addEventListener("disconnect", ev => this.handleDisconnect(ev.detail.clean));
     client.addEventListener("clipboard", ev => {
       // emit the event
@@ -255,6 +236,7 @@ export class VncConsoleClientService implements ConsoleClientService {
   }
 
   private handleDisconnect(isManualDisconnect: boolean) {
+    this.logger.log(LogLevel.INFO, "Disconnected. Manual?", isManualDisconnect);
     this._connectionStatus.update(() => "disconnected");
 
     if (!isManualDisconnect) {
@@ -262,7 +244,6 @@ export class VncConsoleClientService implements ConsoleClientService {
     }
 
     if (this.noVncClient) {
-      this.noVncClient.disconnect();
       this.noVncClient = undefined;
     }
   }

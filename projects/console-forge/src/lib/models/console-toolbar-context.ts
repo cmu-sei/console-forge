@@ -35,6 +35,7 @@ export interface ConsoleToolbarContext {
         isConnected: Signal<boolean>;
         isFullscreenAvailable: Signal<boolean>;
         isRecordingAvailable: Signal<boolean>;
+        isViewOnly: Signal<boolean>;
     };
     userSettings: UserSettingsService;
 }

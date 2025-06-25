@@ -5,35 +5,30 @@
 
 .console-component {
   max-width: 100%;
-
-  &:not(:fullscreen) {
-    // we have to take a hammer to the canvas when VMWare's "WMKS" gets involved, because it does crazy things.
-    // we need these hacks when we're _not_ in full screen mode so that it doesn't break the layout, but when it's
-    // fullscreen, we need to turn them off so that the local mouse aligns with the remote one. It's a whole thing.
-    ::ng-deep {
-      canvas {
-        aspect-ratio: 16 / 9 !important;
-        max-height: 100% !important;
-        max-width: 100% !important;
-        position: unset !important;
-      }
-    }
-  }
+  max-height: 100%;
+  height: 100%;
+  width: 100%;
 }
 
 cf-console-toolbar {
   display: block;
-  // if all goes according to plan, the z-index shouldn't matter, since the toolbar should never be over anything else in the layout.
-  // this said, VMWare's canvas does _bonkers_ stuff, so setting this as a safety valve.
-  z-index: 5;
+}
+
+:fullscreen {
+  cf-console-toolbar {
+    z-index: 5;
+  }
 }
 
 .console-host-container {
   flex-grow: 1;
-  max-width: 100%;
+  align-items: center;
+  justify-content: center;
 }
 
 .console-host {
+  max-width: 100%;
+  max-height: 100%;
   width: 100%;
   height: 100%;
   margin: 0 auto;
@@ -63,19 +58,34 @@ cf-console-toolbar {
 }
 
 /* WMKS is its own whole vibe */
-/* note that it appends the `wmks` class to our .console-host element, which is how we're selecting it */
-.wmks {
-  display: flex;
-  justify-content: center;
+.console-component.console-client-type-vmware {
+  &:not(:fullscreen) {
+    // we have to take a hammer to the canvas when VMWare's "WMKS" gets involved, because it does crazy things.
+    // we need these hacks when we're _not_ in full screen mode so that it doesn't break the layout, but when it's
+    // fullscreen, we need to turn them off so that the local mouse aligns with the remote one. It's a whole thing.
+    ::ng-deep {
+      canvas {
+        aspect-ratio: 16 / 9 !important;
+        max-height: 100% !important;
+        max-width: 100% !important;
+        position: unset !important;
+      }
+    }
+  }
 
-  // it seems incapable of making reasonable guesses about how to size itself unless we tell it, so:
-  aspect-ratio: 16 / 9;
+  .console-host {
+    display: flex;
+    justify-content: center;
 
-  /* WMKS doesn't natively support a readonly mode, so when .view-only is live, we have to do a bunch of manual read-only hacking */
-  &.view-only {
-    ::ng-deep canvas {
-      cursor: not-allowed;
-      pointer-events: none !important;
+    // it seems incapable of making reasonable guesses about how to size itself unless we tell it, so:
+    aspect-ratio: 16 / 9;
+
+    /* WMKS doesn't natively support a readonly mode, so when .view-only is live, we have to do a bunch of manual read-only hacking */
+    &.view-only {
+      ::ng-deep canvas {
+        cursor: not-allowed;
+        pointer-events: none !important;
+      }
     }
   }
 }

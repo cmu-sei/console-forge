@@ -2,15 +2,9 @@
 
 @if (cfConfig) {
 <cf-console [autoConnect]="false" [config]="cfConfig" (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
-    (consoleRecorded)="handleConsoleRecorded($event)" (localClipboardUpdated)="handleLocalClipboardUpdated($event)"
-    (ctrlAltDelSent)="handleCtrlAltDelSent()" (screenshotCopied)="handleScreenshotCopied($event)"
-    [isViewOnly]="isViewOnly()"></cf-console>
+    (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
+    (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
 }
-
-<div>
-    <strong>Console Status: </strong>
-    <span>{{ cfConsole()?.status() || "disconnected" }} </span>
-</div>
 
 @if (isConnected()) {
 <div class="post-connection-controls flex my-2 gap-2">

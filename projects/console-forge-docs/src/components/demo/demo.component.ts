@@ -6,7 +6,6 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, getTextFromClipboardItem } from 'console-forge';
-import { BlobDownloaderService } from '../../services/blob-downloader.service';
 
 @Component({
   selector: 'app-demo',
@@ -23,7 +22,6 @@ import { BlobDownloaderService } from '../../services/blob-downloader.service';
   styleUrl: './demo.component.scss'
 })
 export class DemoComponent {
-  private readonly blobDownloader = inject(BlobDownloaderService);
   private readonly snackbarService = inject(MatSnackBar);
 
   protected cfConfig?: ConsoleComponentConfig;
@@ -69,10 +67,6 @@ export class DemoComponent {
 
   protected handleConsoleClipboardUpdated(text: string) {
     this.showToast(`Sent to console clipboard: ${text}`, "Hype 🔥");
-  }
-
-  protected handleConsoleRecorded(blob: Blob) {
-    this.blobDownloader.download(blob, "your-screen-recording.webm");
   }
 
   protected async handleDisconnect() {

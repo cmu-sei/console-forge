@@ -5,40 +5,59 @@ import { VmwareDemoComponent } from '../components/vmware-demo/vmware-demo.compo
 import { WithCustomToolbarComponent } from '../components/with-custom-toolbar/with-custom-toolbar.component';
 import { WithX11vncComponent } from '../components/with-x11vnc/with-x11vnc.component';
 import { WithCustomEventHandlingComponent } from '../components/with-custom-event-handling/with-custom-event-handling.component';
+import { WithFullPageComponent } from '../components/with-full-page/with-full-page.component';
+import { LayoutWithNavComponent } from '../layouts/layout-with-nav/layout-with-nav.component';
 
 export const routes: Routes = [
     {
-        path: "getting-started",
-        component: GettingStartedComponent
-    },
-    {
-        path: "with-custom-toolbar",
-        title: "With a custom toolbar",
-        component: WithCustomToolbarComponent
-    },
-    {
-        path: "with-x11-vnc",
-        title: "With x11VNC (Docker)",
-        component: WithX11vncComponent
-    },
-    {
-        path: "with-vnc",
-        title: "With VNC",
-        component: DemoComponent
-    },
-    {
-        path: "with-vmware",
-        title: "With VMWare WMKS",
-        component: VmwareDemoComponent
-    },
-    {
-        path: "with-custom-event-handling",
-        title: "With Custom Event Handling",
-        component: WithCustomEventHandlingComponent
+        path: "full-page",
+        children: [
+            {
+                path: "",
+                pathMatch: "full",
+                title: "Full-Page Console",
+                component: WithFullPageComponent
+            }
+        ]
     },
     {
         path: "",
-        pathMatch: "full",
-        redirectTo: "getting-started"
+        component: LayoutWithNavComponent,
+        children: [
+            {
+                path: "getting-started",
+                component: GettingStartedComponent
+            },
+            {
+                path: "with-custom-toolbar",
+                title: "With a custom toolbar",
+                component: WithCustomToolbarComponent
+            },
+            {
+                path: "with-x11-vnc",
+                title: "With x11VNC (Docker)",
+                component: WithX11vncComponent
+            },
+            {
+                path: "with-vnc",
+                title: "With VNC",
+                component: DemoComponent
+            },
+            {
+                path: "with-vmware",
+                title: "With VMWare WMKS",
+                component: VmwareDemoComponent
+            },
+            {
+                path: "with-custom-event-handling",
+                title: "With Custom Event Handling",
+                component: WithCustomEventHandlingComponent
+            },
+            {
+                path: "",
+                pathMatch: "full",
+                redirectTo: "getting-started"
+            }
+        ]
     }
 ];
