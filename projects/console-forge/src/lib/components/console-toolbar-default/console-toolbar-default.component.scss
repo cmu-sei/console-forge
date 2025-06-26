@@ -10,7 +10,7 @@
   background-color: var(--pico-background-color);
   height: 100%;
   width: 100%;
-  border-right: solid var(--pico-secondary) 1px;
+  max-width: 100%;
 }
 
 fieldset legend {
