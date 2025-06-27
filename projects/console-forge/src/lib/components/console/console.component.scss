@@ -16,6 +16,10 @@ cf-console-toolbar {
   max-width: 100%;
 }
 
+cf-console-status {
+  width: 100%;
+}
+
 :fullscreen {
   cf-console-toolbar {
     z-index: 5;
@@ -24,9 +28,9 @@ cf-console-toolbar {
 
 .console-host-container {
   display: flex;
+  flex-direction: column;
   flex-grow: 1;
   align-items: center;
-  justify-content: center;
 }
 
 .console-host {
