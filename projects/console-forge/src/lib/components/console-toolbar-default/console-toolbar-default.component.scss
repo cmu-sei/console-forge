@@ -3,8 +3,6 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-@use "@picocss/pico/scss";
-
 :host {
   display: block;
   background-color: var(--pico-background-color);

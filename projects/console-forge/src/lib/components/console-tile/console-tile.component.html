@@ -1,6 +1,6 @@
 <div class="console-tile-component">
     <cf-console-status [status]="consoleClient?.connectionStatus()"></cf-console-status>
 
-    <div #consoleHost class="console-host">
+    <div #consoleHost [id]="consoleHostElementId" class="console-host">
     </div>
 </div>

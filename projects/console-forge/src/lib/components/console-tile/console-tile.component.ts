@@ -4,6 +4,7 @@ import { ConsoleComponentConfig } from '../../models/console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
+import { UuidService } from '../../services/uuid.service';
 
 @Component({
   selector: 'cf-console-tile',
@@ -20,8 +21,13 @@ export class ConsoleTileComponent {
   private readonly consoleClientFactory = inject(ConsoleClientFactoryService);
   private readonly consoleClientType = computed(() => this.config()?.consoleClientType || this.cfConfig.defaultConsoleClientType);
   private readonly consoleHostElement = viewChild<ElementRef<HTMLElement>>("consoleHost");
+  private readonly uuids = inject(UuidService);
 
   protected consoleClient?: ConsoleClientService;
+
+  // even though nothing here explicitly references this, every console host element needs an ID
+  // because the vmware client relies on the ID, not the element reference, to create its canvas
+  protected consoleHostElementId = "console-host-tile-" + this.uuids.get();
 
   constructor() {
     effect(() => {

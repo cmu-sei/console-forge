@@ -93,6 +93,7 @@ export class ConsoleComponent implements OnDestroy {
     // when config is provided and autoconnect is on, attempt to automatically connect
     effect(() => {
       if (this.autoConnect() && this.config() && !this.consoleClient()) {
+        this.logger.log(LogLevel.DEBUG, "Autoconnect firing", this.config());
         this.connect(this.config());
       }
     });
