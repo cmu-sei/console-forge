@@ -3,14 +3,28 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { Component, input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, input, ViewEncapsulation } from '@angular/core';
 import { ConsoleConnectionStatus } from '../../models/console-connection-status';
+import { PicoCssService } from '../../services/pico-css.service';
 
 @Component({
   selector: 'cf-console-status',
   templateUrl: './console-status.component.html',
-  styleUrl: './console-status.component.scss'
+  styleUrl: './console-status.component.scss',
+  encapsulation: ViewEncapsulation.ShadowDom
 })
-export class ConsoleStatusComponent {
+export class ConsoleStatusComponent implements AfterViewInit {
   status = input<ConsoleConnectionStatus | undefined>("disconnected");
+
+  private readonly picoCssService = inject(PicoCssService);
+  private readonly hostElement = inject(ElementRef<HTMLElement>);
+
+  async ngAfterViewInit(): Promise<void> {
+    // apply pico to the progress bar
+    const sheet = await this.picoCssService.loadStyleSheet();
+
+    if (this.hostElement.nativeElement.shadowRoot) {
+      this.hostElement.nativeElement.shadowRoot.adoptedStyleSheets = [sheet];
+    }
+  }
 }

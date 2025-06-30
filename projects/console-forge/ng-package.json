@@ -6,5 +6,8 @@
     "styleIncludePaths": ["./node_modules"]
   },
   "allowedNonPeerDependencies": ["@picocss/pico"],
-  "assets": ["./LICENSE.md"]
+  "assets": [
+    "./LICENSE.md",
+    { "input": "./src/assets", "output": "assets", "glob": "**/*" }
+  ]
 }

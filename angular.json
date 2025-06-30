@@ -62,6 +62,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/console-forge-docs/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "dist/console-forge/assets",
+                "output": "assets/"
               }
             ],
             "styles": [
@@ -122,6 +127,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/console-forge-docs/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "dist/console-forge/assets",
+                "output": "assets/"
               }
             ],
             "styles": [

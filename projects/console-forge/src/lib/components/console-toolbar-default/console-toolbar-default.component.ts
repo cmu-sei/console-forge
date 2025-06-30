@@ -3,7 +3,7 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { Component, ElementRef, inject, input, model, viewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, input, model, viewChild, ViewEncapsulation } from '@angular/core';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
@@ -12,6 +12,7 @@ import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { ConsolePowerRequest } from '../../models/console-power-request';
 import { ClipboardService } from '../../services/clipboard/clipboard.service';
 import { FormsModule } from '@angular/forms';
+import { PicoCssService } from '../../services/pico-css.service';
 
 @Component({
   selector: 'cf-console-toolbar-default',
@@ -22,13 +23,9 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   templateUrl: './console-toolbar-default.component.html',
   styleUrl: './console-toolbar-default.component.scss',
-  // using ViewEncapsulation.ShadowDom lets us apply styling from this component to child components.
-  // Critically, we do this do allow PicoCSS to apply to this element's children, but nothing else on the page
-  // (because PicoCSS is really aggressive about styling whatever it can on the page). This also stops
-  // us from loading PicoCSS if the default toolbar is replaced.
   encapsulation: ViewEncapsulation.ShadowDom
 })
-export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBase {
+export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToolbarComponentBase {
   consoleContext = input.required<ConsoleToolbarContext>();
 
   // component state
@@ -44,6 +41,17 @@ export class ConsoleToolbarDefaultComponent implements ConsoleToolbarComponentBa
   protected readonly cfConfig = inject(ConsoleForgeConfig);
   private readonly clipboardService = inject(ClipboardService);
   protected readonly clipboardTextInput = viewChild<ElementRef>("clipboardText");
+  private readonly picoCssService = inject(PicoCssService);
+  private readonly hostElement = inject(ElementRef<HTMLElement>);
+
+  async ngAfterViewInit(): Promise<void> {
+    // apply pico to this component
+    const sheet = await this.picoCssService.loadStyleSheet();
+
+    if (this.hostElement.nativeElement.shadowRoot) {
+      this.hostElement.nativeElement.shadowRoot.adoptedStyleSheets = [sheet];
+    }
+  }
 
   protected handleChangeToolbarPosition(position: ConsoleToolbarPosition) {
     this.consoleContext().userSettings.patch({ toolbar: { dockTo: position } });
