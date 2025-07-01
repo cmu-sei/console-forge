@@ -4,7 +4,7 @@
 //  ===END LICENSE===
 
 import { DOCUMENT } from '@angular/common';
-import { Component, computed, effect, ElementRef, inject, input, OnDestroy, output, signal, Type, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, OnDestroy, output, signal, Type, untracked, viewChild } from '@angular/core';
 import { ConsoleComponentConfig } from '../../models/console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
@@ -24,6 +24,7 @@ import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-rec
 import { ClipboardService } from '../../services/clipboard/clipboard.service';
 import { ConsoleComponentNetworkConfig } from '../../models/console-component-network-config';
 import { CanvasService } from '../../services/canvas.service';
+import { ConsoleConnectionStatus } from '../../models/console-connection-status';
 
 @Component({
   selector: 'cf-console',
@@ -48,6 +49,7 @@ export class ConsoleComponent implements OnDestroy {
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
   toolbarDisabled = input<boolean>(false);
 
+  connectionStatusChanged = output<ConsoleConnectionStatus | undefined>();
   consoleClipboardUpdated = output<string>();
   consoleRecorded = output<Blob>();
   ctrlAltDelSent = output<void>();
@@ -55,8 +57,8 @@ export class ConsoleComponent implements OnDestroy {
   networkConnectionRequested = output<string>();
   networkDisconnectRequested = output<void>();
   powerRequestSent = output<ConsolePowerRequest>();
+  reconnectRequest = output<ConsoleComponentConfig>();
   screenshotCopied = output<Blob>();
-  status = computed(() => this.consoleClient()?.connectionStatus() || "disconnected");
 
   // services
   private readonly browserNotifications = inject(BrowserNotificationsService);
@@ -144,6 +146,11 @@ export class ConsoleComponent implements OnDestroy {
       }
     });
 
+    // output emitters
+    effect(() => {
+      this.connectionStatusChanged.emit(this.consoleClient()?.connectionStatus());
+    });
+
     // settings changes
     effect(() => {
       const currentSettings = this.userSettingsService.settings();
@@ -189,14 +196,15 @@ export class ConsoleComponent implements OnDestroy {
 
   // automatically invoked if autoConnect is on, but can also be manually invoked outside the component
   // if retrieved as a ViewChild or whatever
+  // NOTE: we should really clean up this function and ensure that all signals it needs are passed to it as parameters. it's a little opaque,
+  // but invoking this inside an effect above will cause it to happen whenever _any_ of its read effects change, and it reads a lot of them.
   public async connect(config: ConsoleComponentConfig) {
     this.logger.log(LogLevel.DEBUG, "Connecting with config", config);
 
-    // weirdly, even reading this status here causes an infinite loop or something. i think i got too silly with effects.
-    // if (this.consoleClient()?.connectionStatus() !== "disconnected") {
-    //   await this.consoleClient()?.disconnect();
-    // }
-    await this.consoleClient()?.disconnect();
+    const currentConnectionStatus = untracked(() => this.consoleClient()?.connectionStatus());
+    if (currentConnectionStatus !== undefined && currentConnectionStatus !== "disconnected") {
+      await this.consoleClient()?.disconnect();
+    }
 
     if (!config.url) {
       throw new Error("No url provided for console connection.");

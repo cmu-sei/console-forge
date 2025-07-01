@@ -5,7 +5,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, getTextFromClipboardItem } from 'console-forge';
 
 @Component({
   selector: 'app-demo',
@@ -36,7 +36,7 @@ export class DemoComponent {
     available: ["GreenNet", "PurpleNet"],
     current: "GreenNet"
   });
-  protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
+  protected isConnected = model(false);
   protected isViewOnly = model(false);
 
   protected async configFormSubmit() {
@@ -63,6 +63,10 @@ export class DemoComponent {
     } else {
       console.log("Can't connect - can't resolve console/config");
     }
+  }
+
+  protected handleConnectionStatusChanged(status?: ConsoleConnectionStatus) {
+    this.isConnected.update(() => status === "connected");
   }
 
   protected handleConsoleClipboardUpdated(text: string) {

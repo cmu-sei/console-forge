@@ -18,6 +18,7 @@
 
 @if(cfConfig) {
 <cf-console [autoConnect]="false" [config]="cfConfig" [networkConfig]="networkConfig()"
+    (connectionStatusChanged)="handleConnectionStatusChanged($event)"
     (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (networkConnectionRequested)="handleNetworkConnectionRequest($event)"

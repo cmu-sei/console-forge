@@ -4,8 +4,9 @@
 //  ===END LICENSE===
 
 .disconnected-banner {
-  background-color: #d93526;
-  color: var(--pico-color);
+  background-color: var(--pico-form-element-invalid-active-border-color);
+  color: var(--pico-primary-inverse);
+  cursor: pointer;
   font-weight: bold;
   padding: 4px 0;
   text-align: center;

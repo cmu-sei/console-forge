@@ -1,11 +1,11 @@
-import { Component, computed, inject, model, viewChild } from '@angular/core';
+import { Component, computed, inject, model, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, getTextFromClipboardItem } from 'console-forge';
 
 @Component({
   selector: 'app-with-x11vnc',
@@ -45,7 +45,7 @@ export class WithX11vncComponent {
     available: ["GreenNet", "PurpleNet"],
     current: "GreenNet"
   });
-  protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
+  protected isConnected = signal<boolean>(false);
   protected isViewOnly = model(false);
 
   protected async configFormSubmit() {
@@ -63,6 +63,10 @@ export class WithX11vncComponent {
     if (this.cfConsole()) {
       await this.cfConsole()!.connect(this.cfConfig);
     }
+  }
+
+  protected handleConnectionStatusChanged(status?: ConsoleConnectionStatus) {
+    this.isConnected.update(() => status === "connected");
   }
 
   protected handleConsoleClipboardUpdated(text: string) {

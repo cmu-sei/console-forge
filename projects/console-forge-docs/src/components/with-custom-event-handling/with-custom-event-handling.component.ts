@@ -1,7 +1,7 @@
 import { Component, computed, inject, model, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, getTextFromClipboardItem } from 'console-forge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,7 +38,7 @@ export class WithCustomEventHandlingComponent {
     available: ["GreenNet", "PurpleNet"],
     current: "GreenNet"
   });
-  protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
+  protected isConnected = model(false);
   protected isViewOnly = model(false);
 
   protected async configFormSubmit() {
@@ -56,6 +56,10 @@ export class WithCustomEventHandlingComponent {
     if (this.cfConsole()) {
       await this.cfConsole()!.connect(this.cfConfig);
     }
+  }
+
+  protected handleConnectionStatusChanged(status?: ConsoleConnectionStatus) {
+    this.isConnected.update(() => status === "connected");
   }
 
   protected handleConsoleClipboardUpdated(text: string) {

@@ -20,6 +20,13 @@ export interface ConsoleComponentConfig {
     consoleClientType?: ConsoleClientType;
 
     /**
+     * An optional identifier for this console. ConsoleForge doesn't use this value internally at all, but some of its events
+     * (e.g. reconnect requests) will return this configuration to you. You may want to set this identifier to something that allows
+     * you to uniquely identify the console so you can handle its events as desired.
+     */
+    consoleId?: string;
+
+    /**
      * An optional username, password, or sessionId to use to authenticate to the console. Configuration here is specific
      * to the protocol being used and the configuration of the target virtual console. See ConsoleForge's documentation
      * for details.

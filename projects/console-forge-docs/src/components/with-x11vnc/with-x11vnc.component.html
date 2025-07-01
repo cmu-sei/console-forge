@@ -13,7 +13,8 @@
 </p>
 
 @if(cfConfig) {
-<cf-console [config]="cfConfig" [networkConfig]="networkConfig()" [isViewOnly]="isViewOnly()"></cf-console>
+<cf-console [config]="cfConfig" [networkConfig]="networkConfig()" [isViewOnly]="isViewOnly()"
+    (connectionStatusChanged)="handleConnectionStatusChanged($event)"></cf-console>
 }
 
 @if (isConnected()) {

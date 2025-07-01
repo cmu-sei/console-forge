@@ -3,7 +3,7 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { AfterViewInit, Component, ElementRef, inject, input, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, input, output, ViewEncapsulation } from '@angular/core';
 import { ConsoleConnectionStatus } from '../../models/console-connection-status';
 import { PicoCssService } from '../../services/pico-css.service';
 
@@ -15,6 +15,7 @@ import { PicoCssService } from '../../services/pico-css.service';
 })
 export class ConsoleStatusComponent implements AfterViewInit {
   status = input<ConsoleConnectionStatus | undefined>("disconnected");
+  reconnectRequest = output<void>();
 
   private readonly picoCssService = inject(PicoCssService);
   private readonly hostElement = inject(ElementRef<HTMLElement>);

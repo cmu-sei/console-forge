@@ -1,4 +1,4 @@
-import { Component, computed, effect, ElementRef, inject, input, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, output, viewChild } from '@angular/core';
 import { ConsoleStatusComponent } from '../console-status/console-status.component';
 import { ConsoleComponentConfig } from '../../models/console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
@@ -16,6 +16,7 @@ import { UuidService } from '../../services/uuid.service';
 })
 export class ConsoleTileComponent {
   public config = input<ConsoleComponentConfig>();
+  public reconnectRequest = output<ConsoleComponentConfig | undefined>();
 
   private readonly cfConfig = inject(ConsoleForgeConfig);
   private readonly consoleClientFactory = inject(ConsoleClientFactoryService);

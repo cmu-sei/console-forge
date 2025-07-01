@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, model, viewChild } from '@angular/core';
+import { Component, computed, inject, model, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { ConsoleClientType, ConsoleComponent, ConsoleComponentConfig, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleClientType, ConsoleComponent, ConsoleComponentConfig, ConsoleConnectionStatus, getTextFromClipboardItem } from 'console-forge';
 
 @Component({
   selector: 'app-vmware-demo',
@@ -34,8 +34,12 @@ export class VmwareDemoComponent {
     consoleClientType: new FormControl<ConsoleClientType>("vmware"),
     url: new FormControl("wss://esxi-dev.cmrtest.org:443/ticket/4b352b9e1703a405a74a14f65a51cec4")
   });
-  protected isConnected = computed(() => this.cfConsole()?.status() === "connected");
+  protected isConnected = signal(false);
   protected isViewOnly = model(false);
+
+  protected handleConnectionStatusChanged(status?: ConsoleConnectionStatus) {
+    this.isConnected.update(() => status === "connected");
+  }
 
   protected handleConsoleClipboardUpdated(text: string) {
     this.showToast(`Sent to console clipboard: ${text}`, "Hype 🔥");
