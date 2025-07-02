@@ -54,6 +54,7 @@ export class ConsoleToolbarComponent {
 
   // component state
   private readonly activeConsoleRecording = signal<CanvasRecording | undefined>(undefined);
+  private readonly isManualConsoleReconnectAvailable = computed(() => !this.config.disabledFeatures.manualConsoleReconnect && this.consoleClient()?.connectionStatus() !== "connecting");
   protected readonly toolbarComponentContext: ConsoleToolbarContext;
   protected readonly toolbarComponent = computed(() => this.customToolbarComponent() || this.config.toolbar.component);
 
@@ -83,7 +84,7 @@ export class ConsoleToolbarComponent {
         activeConsoleRecording: computed(() => this.activeConsoleRecording()),
         isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
         isFullscreenAvailable: inject(FullScreenService).isAvailable,
-        isManualReconnectAvailable: computed(() => !this.config.disabledFeatures.manualConsoleReconnect && this.consoleClient()?.connectionStatus() !== "connecting"),
+        isManualReconnectAvailable: this.isManualConsoleReconnectAvailable,
         isRecordingAvailable: computed(() => !!this.canvas.canvas()),
         isViewOnly: this.isViewOnly
       },
@@ -127,6 +128,11 @@ export class ConsoleToolbarComponent {
 
   protected handleReconnectRequestSent(): Promise<void> {
     this.logger.log(LogLevel.DEBUG, "Manual reconnect request from toolbar");
+
+    if (!this.isManualConsoleReconnectAvailable()) {
+      return Promise.reject("Manual console reconnection is unavailable.");
+    }
+
     this.reconnectRequestSent.emit();
     return Promise.resolve();
   }
