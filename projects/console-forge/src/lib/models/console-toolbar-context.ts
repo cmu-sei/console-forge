@@ -22,6 +22,7 @@ export interface ConsoleToolbarContext {
         sendCtrlAltDel(): Promise<void>;
         sendKeyboardInput(text: string): Promise<void>;
         sendPowerRequest(request: ConsolePowerRequest): Promise<void>;
+        sendReconnectRequest(): Promise<void>;
         supportedFeatures: Signal<ConsoleSupportedFeatures>;
         toggleFullscreen(): Promise<void>;
     };
@@ -34,6 +35,7 @@ export interface ConsoleToolbarContext {
         activeConsoleRecording: Signal<CanvasRecording | undefined>;
         isConnected: Signal<boolean>;
         isFullscreenAvailable: Signal<boolean>;
+        isManualReconnectAvailable: Signal<boolean>;
         isRecordingAvailable: Signal<boolean>;
         isViewOnly: Signal<boolean>;
     };

@@ -20,7 +20,7 @@ export class CanvasRecorderService {
   public readonly isRecording = this._isRecording.asReadonly();
 
   public startRecord(canvas: HTMLCanvasElement): CanvasRecording {
-    if (!this.cfConfig.enableConsoleRecord) {
+    if (this.cfConfig.disabledFeatures.consoleScreenRecord) {
       throw new Error("Console recording has been disabled in ConsoleForge.");
     }
 

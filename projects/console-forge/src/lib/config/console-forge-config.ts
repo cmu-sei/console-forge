@@ -11,7 +11,7 @@ import { ConsoleToolbarDefaultComponent } from "../components/console-toolbar-de
 
 export abstract class ConsoleForgeConfig {
     abstract canvasRecording: {
-        autoDownloadCompletedRecordings: boolean;
+        autoDownloadCompletedRecordings?: boolean;
         chunkLength?: number;
         frameRate?: number;
         maxDuration?: number;
@@ -19,8 +19,11 @@ export abstract class ConsoleForgeConfig {
     };
     abstract consoleBackgroundStyle?: string;
     abstract defaultConsoleClientType?: ConsoleClientType;
-    abstract enableClipboard: boolean;
-    abstract enableConsoleRecord: boolean;
+    abstract disabledFeatures: {
+        clipboard?: boolean;
+        consoleScreenRecord?: boolean;
+        manualConsoleReconnect?: boolean;
+    };
     abstract logThreshold: LogLevel;
     abstract showBrowserNotificationsOnConsoleEvents: boolean;
     abstract toolbar: {
@@ -38,8 +41,11 @@ export const defaultCfConfig: ConsoleForgeConfig = {
         mimeType: "video/webm"
     },
     consoleBackgroundStyle: "rgb(40, 40, 40)",
-    enableClipboard: true,
-    enableConsoleRecord: true,
+    disabledFeatures: {
+        clipboard: false,
+        consoleScreenRecord: false,
+        manualConsoleReconnect: false,
+    },
     logThreshold: LogLevel.WARNING,
     showBrowserNotificationsOnConsoleEvents: true,
     toolbar: {

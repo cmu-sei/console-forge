@@ -5,6 +5,7 @@
 
 :host {
   background-color: transparent;
+  display: block;
 }
 
 @keyframes glow-button-color {
@@ -58,8 +59,8 @@
 }
 
 .svg-container {
-  height: 56px;
-  width: 56px;
+  height: var(--svg-icon-height);
+  width: var(--svg-icon-width);
 }
 
 .button-label {
@@ -74,6 +75,8 @@
 
 ::ng-deep {
   svg {
+    height: 56px;
+    width: 56px;
     padding: 16px;
   }
 

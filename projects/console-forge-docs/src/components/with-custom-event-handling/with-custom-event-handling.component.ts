@@ -90,6 +90,10 @@ export class WithCustomEventHandlingComponent {
     this.showToast("This console wants to disconnect from all networks.", "Gosh, fine.");
   }
 
+  protected handleReconnectRequest() {
+    this.showToast("This console user is asking to refresh/reconnect the console", "Let's do it");
+  }
+
   protected handleScreenshotCopied(blob: Blob) {
     this.showToast("Copied a screenshot from the console!", "Nice!");
   }

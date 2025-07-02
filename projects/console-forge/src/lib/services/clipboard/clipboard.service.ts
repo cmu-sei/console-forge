@@ -36,7 +36,7 @@ export class ClipboardService {
   }
 
   private getClipboard(): Clipboard | undefined {
-    if (!this.cfConfig.enableClipboard) {
+    if (this.cfConfig.disabledFeatures.clipboard) {
       throw new Error("ConsoleForge's clipboard access has been disabled.");
     }
 

@@ -188,6 +188,10 @@ export class ConsoleComponent implements OnDestroy {
     }
   }
 
+  protected handleReconnectRequest() {
+    this.reconnectRequest.emit(this.config());
+  }
+
   protected async handleScreenshotCopied(screenshotData: Blob): Promise<Blob> {
     this.screenshotCopied.emit(screenshotData);
     await this.browserNotifications.send({ title: "Screenshot copied", body: "A screenshot of this console has been copied to your clipboard." })

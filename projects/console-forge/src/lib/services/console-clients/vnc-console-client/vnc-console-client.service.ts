@@ -204,7 +204,7 @@ export class VncConsoleClientService implements ConsoleClientService {
       this._consoleClipboardUpdated.update(() => ev.detail.text);
 
       // if enabled at the app level and permitted by the user, automatically copy text to local clipboard
-      if (!this.cfConfig.enableClipboard) {
+      if (this.cfConfig.disabledFeatures.clipboard) {
         this.logger.log(LogLevel.INFO, "The remote console tried to copy text to the local clipboard, but local clipboard access is disabled in ConsoleForge's configuration.");
         return;
       }

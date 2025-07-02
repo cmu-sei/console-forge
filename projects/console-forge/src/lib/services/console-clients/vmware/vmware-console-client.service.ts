@@ -105,7 +105,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
           this._consoleClipboardUpdated.update(() => data);
 
           // if enabled in config and permitted by the user, copy text to local clipboard
-          if (this.cfConfig.enableClipboard && this.userSettings.settings().console.allowCopyToLocalClipboard) {
+          if (!this.cfConfig.disabledFeatures.clipboard && this.userSettings.settings().console.allowCopyToLocalClipboard) {
             this.clipboardService.copyText(data);
           }
         })

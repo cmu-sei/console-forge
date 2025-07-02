@@ -40,6 +40,7 @@ export class ConsoleToolbarComponent {
   networkConnectionRequested = output<string>();
   networkDisconnectRequested = output<void>();
   powerRequestSent = output<ConsolePowerRequest>();
+  reconnectRequestSent = output<void>();
   screenshotCopied = output<Blob>();
   toggleFullscreen = output<void>();
 
@@ -69,6 +70,7 @@ export class ConsoleToolbarComponent {
         sendCtrlAltDel: this.handleSendCtrlAltDelete.bind(this),
         sendKeyboardInput: this.handleKeyboardInputSend.bind(this),
         sendPowerRequest: this.handleSendPowerRequest.bind(this),
+        sendReconnectRequest: this.handleReconnectRequestSent.bind(this),
         supportedFeatures: computed(() => this.consoleClient()?.supportedFeatures() || {}),
         toggleFullscreen: this.handleFullscreen.bind(this)
       },
@@ -81,6 +83,7 @@ export class ConsoleToolbarComponent {
         activeConsoleRecording: computed(() => this.activeConsoleRecording()),
         isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
         isFullscreenAvailable: inject(FullScreenService).isAvailable,
+        isManualReconnectAvailable: computed(() => !this.config.disabledFeatures.manualConsoleReconnect && this.consoleClient()?.connectionStatus() !== "connecting"),
         isRecordingAvailable: computed(() => !!this.canvas.canvas()),
         isViewOnly: this.isViewOnly
       },
@@ -120,6 +123,12 @@ export class ConsoleToolbarComponent {
     }
 
     this.networkConnectionRequested.emit(networkName);
+  }
+
+  protected handleReconnectRequestSent(): Promise<void> {
+    this.logger.log(LogLevel.DEBUG, "Manual reconnect request from toolbar");
+    this.reconnectRequestSent.emit();
+    return Promise.resolve();
   }
 
   protected handleRecordScreenStart(): void {
