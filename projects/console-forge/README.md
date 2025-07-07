@@ -69,7 +69,28 @@ export const appConfig: ApplicationConfig = {
 
 See [the config definition](https://github.com/cmu-sei/console-forge/blob/main/projects/console-forge/src/lib/config/console-forge-config.ts) in the library for available options and defaults.
 
-# Customizing the toolbar
+# The Toolbar
+
+ConsoleForge's `ConsoleComponent` includes a default toolbar that exposes a console's various functions to the end user (e.g. taking screenshots, going fullscreen, using the console clipboard, and so on). You can either use this default toolbar, or replace it with your own custom component.
+
+## Setting up the default toolbar
+
+To minimize impact on client applications using ConsoleForge, its default toolbar uses [PicoCSS](https://picocss.com/), a lightweight CSS framework. To avoid contaminating the global DOM with PicoCSS, ConsoleForge expects to find and download its assets from your app's `assets` directory. To make this happen, add this to your `angular.json` to make the included assets available in your app's `assets` directory:
+
+```json
+"assets": [
+  // any other assets you might have
+  {
+    "glob": "**/*",
+    "input": "node_modules/@cmusei/console-forge/assets",
+    "output": "assets/"
+  }
+]
+```
+
+**NOTE:** We know this is an installation pain point and are considering alternative ways to make this happen so that modifying your angular.json isn't necessary.
+
+## Creating a custom toolbar
 
 ConsoleForge provides a capable toolbar out of the box, but as the only visible element of the library, we felt it important to support customization so that ConsoleForge can happily live within the design language of any app.
 
