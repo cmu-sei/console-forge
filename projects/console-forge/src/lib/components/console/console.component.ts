@@ -78,6 +78,7 @@ export class ConsoleComponent implements OnDestroy {
 
   // other component state
   protected readonly consoleClient = signal<ConsoleClientService | undefined>(undefined);
+  protected readonly consoleHostBackgroundStyle = this.consoleForgeConfig.consoleBackgroundStyle;
   protected readonly consoleHostElementId = `cf-console-${this.uuids.get()}`;
   protected readonly isRecording = inject(CanvasRecorderService).isRecording;
   protected readonly toolbarEnabled = computed(() => {
@@ -94,9 +95,10 @@ export class ConsoleComponent implements OnDestroy {
 
     // when config is provided and autoconnect is on, attempt to automatically connect
     effect(() => {
-      if (this.autoConnect() && this.config() && !this.consoleClient()) {
-        this.logger.log(LogLevel.DEBUG, "Autoconnect firing", this.config());
-        this.connect(this.config());
+      const currentConfig = this.config();
+      if (this.autoConnect() && currentConfig) {
+        this.logger.log(LogLevel.DEBUG, "Autoconnect firing", currentConfig);
+        this.connect(currentConfig);
       }
     });
 
@@ -207,7 +209,11 @@ export class ConsoleComponent implements OnDestroy {
 
     const currentConnectionStatus = untracked(() => this.consoleClient()?.connectionStatus());
     if (currentConnectionStatus !== undefined && currentConnectionStatus !== "disconnected") {
-      await this.consoleClient()?.disconnect();
+      const currentConsoleClient = untracked(() => this.consoleClient());
+
+      if (currentConsoleClient) {
+        await currentConsoleClient.disconnect();
+      }
     }
 
     if (!config.url) {

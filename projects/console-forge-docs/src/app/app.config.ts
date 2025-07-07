@@ -13,7 +13,8 @@ export const appConfig: ApplicationConfig = {
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideConsoleForge({
       canvasRecording: {
-        frameRate: 30
+        frameRate: 30,
+        maxDuration: 10000
       },
       logThreshold: LogLevel.DEBUG
     })

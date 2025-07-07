@@ -11,8 +11,6 @@ export class CanvasRecording {
     private readonly recorder: MediaRecorder;
     private readonly window: Window;
 
-    private autostopTimeoutRef?: number;
-
     // Stopping is a bit tricky.
     //
     // The MediaRecorder doesn't guarantee the validity of the emitted blob until `onstop` is fired. This means that when someone
@@ -50,8 +48,6 @@ export class CanvasRecording {
             }
         }
         this.recorder.start(settings.chunkLength);
-
-        this.autostopTimeoutRef = window.setTimeout(() => this.stop(), settings.maxDuration);
     }
 
     public stop(): Promise<Blob> {
@@ -59,12 +55,6 @@ export class CanvasRecording {
             // if defined, stop's already been called, so we 
             // want to give back the same promise
             return this.stopPromise;
-        }
-
-        // clear the autotimeout if it's been set for this
-        if (this.autostopTimeoutRef) {
-            this.window.clearTimeout(this.autostopTimeoutRef);
-            this.autostopTimeoutRef = undefined;
         }
 
         // record the stop promise we're about to send back, so we can return it to

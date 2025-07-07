@@ -21,7 +21,7 @@
         (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
     }
 
-    <div class="console-host-container"
+    <div class="console-host-container" [style.background]="consoleHostBackgroundStyle"
         [class.flex-order-0]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'">
         <cf-console-status [status]="consoleClient()?.connectionStatus()"
             (reconnectRequest)="reconnectRequest.emit(this.config())"></cf-console-status>

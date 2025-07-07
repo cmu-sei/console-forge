@@ -20,6 +20,7 @@ import { ConsoleComponentNetworkConfig } from '../../models/console-component-ne
 import { UserSettingsService } from '../../services/user-settings.service';
 import { CanvasService } from '../../services/canvas.service';
 import { BlobDownloaderService } from '../../services/blob-downloader.service';
+import { WINDOW } from '../../injection/window.injection-token';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -51,9 +52,10 @@ export class ConsoleToolbarComponent {
   private readonly config = inject(ConsoleForgeConfig);
   private readonly logger = inject(LoggerService);
   private readonly userSettings = inject(UserSettingsService);
+  private readonly window = inject(WINDOW);
 
   // component state
-  private readonly activeConsoleRecording = signal<CanvasRecording | undefined>(undefined);
+  private readonly activeConsoleRecording = signal<{ recording: CanvasRecording, timeoutRef?: number } | undefined>(undefined);
   private readonly isManualConsoleReconnectAvailable = computed(() => !this.config.disabledFeatures.manualConsoleReconnect && this.consoleClient()?.connectionStatus() !== "connecting");
   protected readonly toolbarComponentContext: ConsoleToolbarContext;
   protected readonly toolbarComponent = computed(() => this.customToolbarComponent() || this.config.toolbar.component);
@@ -81,7 +83,7 @@ export class ConsoleToolbarComponent {
         disconnectRequested: () => this.networkDisconnectRequested.emit(),
       },
       state: {
-        activeConsoleRecording: computed(() => this.activeConsoleRecording()),
+        activeConsoleRecording: computed(() => this.activeConsoleRecording()?.recording),
         isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
         isFullscreenAvailable: inject(FullScreenService).isAvailable,
         isManualReconnectAvailable: this.isManualConsoleReconnectAvailable,
@@ -144,7 +146,17 @@ export class ConsoleToolbarComponent {
 
     this.logger.log(LogLevel.DEBUG, "Recording canvas", this.canvas.canvas());
     const recordingInstance = this.canvasRecorder.startRecord(this.canvas.canvas()!);
-    this.activeConsoleRecording.update(() => recordingInstance);
+
+    // set a timeout listener if a max duration is configured in the lib
+    let timeoutRef: number | undefined = undefined;
+    if (this.config.canvasRecording?.maxDuration) {
+      timeoutRef = this.window.setTimeout(() => this.handleRecordScreenStop(), this.config.canvasRecording.maxDuration);
+    }
+
+    this.activeConsoleRecording.update(() => ({
+      recording: recordingInstance,
+      timeoutRef: timeoutRef
+    }));
     this.canvasRecordingStarted.emit();
   }
 
@@ -154,7 +166,7 @@ export class ConsoleToolbarComponent {
     }
 
     this.logger.log(LogLevel.DEBUG, "Recording stopped.");
-    const recording = await this.activeConsoleRecording()!.stop();
+    const recording = await this.activeConsoleRecording()!.recording.stop();
     this.activeConsoleRecording.update(() => undefined);
 
     // if configured, automatically offer a download
