@@ -4,7 +4,7 @@
 <!-- ===END LICENSE=== -->
 
 @if (consoleContext()) {
-<div class="toolbar-container"
+<div class="toolbar-container" cfApplyToolbarTheme
     [class.horizontal]="consoleContext().userSettings.settings().toolbar.dockTo == 'top' || consoleContext().userSettings.settings().toolbar.dockTo == 'bottom' ">
     <div class="button-container">
         <cf-console-toolbar-default-button label="Settings" (clicked)="handleSettingsDialogOpenClose(true)">
@@ -201,174 +201,188 @@
             }
         </cf-console-toolbar-default-button>
     </div>
-</div>
-}
 
-<dialog [open]="isClipboardDialogOpen">
-    <article>
-        <header>
-            <button aria-label="Close" rel="prev" (click)="handleClipboardDialogOpenClose(false)"></button>
-            <p>
-                <strong>Clipboard</strong>
-            </p>
-        </header>
+    <dialog [open]="isClipboardDialogOpen">
+        <article>
+            <header>
+                <button aria-label="Close" rel="prev" (click)="handleClipboardDialogOpenClose(false)"></button>
+                <p>
+                    <strong>Clipboard</strong>
+                </p>
+            </header>
 
-        @if (consoleContext().console.supportedFeatures().clipboardRemoteWrite) {
-        <div class="dialog-section">
-            <h2>Send Text to Console Clipboard</h2>
-            <form (submit)="handleSendClipboardText($event, clipboardText.value)">
-                <fieldset role="group">
-                    <input type="text" class="clipboard-text" aria-label="Clipboard text"
-                        placeholder="Enter text to send to the console's clipboard" #clipboardText autofocus>
-                    <button type="submit"
-                        [disabled]="!clipboardText.value || !consoleContext().state.isConnected">Send</button>
-                </fieldset>
-            </form>
-        </div>
-        }
-
-        @if(!consoleContext().userSettings.settings().console.allowCopyToLocalClipboard ||
-        !consoleContext().console.supportedFeatures().clipboardAutomaticLocalCopy) {
-        <div class="dialog-section">
-            <h2>Console Clipboard Content</h2>
-            <form (submit)="handleClipboardCopyLastText(consoleLastClipboardText.value)">
-                <fieldset role="group">
-                    <input type="text" class="clipboard-text" aria-label="Clipboard text" disabled
-                        [value]="consoleContext().clipboard.consoleClipboardText()"
-                        placeholder="The console's clipboard content will appear here" #consoleLastClipboardText>
-                    <button type="submit" [disabled]="!consoleLastClipboardText.value">Copy</button>
-                </fieldset>
-            </form>
-        </div>
-        }
-    </article>
-</dialog>
-
-<dialog [open]="isKeyboardDialogOpen">
-    <article>
-        <header>
-            <button aria-label="Close" rel="prev" (click)="isKeyboardDialogOpen = false"></button>
-            <p>
-                <strong>Send Keystrokes</strong>
-            </p>
-        </header>
-
-        <div class="dialog-section">
-            <h2>Send Keystrokes to Console</h2>
-            <form (submit)="handleSendKeyboardInput($event, keyboardInputText())">
-                <fieldset role="group">
-                    <input type="text" name="keyboardInputText" class="clipboard-text" aria-label="Clipboard text"
-                        placeholder="Enter text to send as keyboard input to the console" autofocus
-                        [(ngModel)]="keyboardInputText">
-                    <button type="submit"
-                        [disabled]="!keyboardInputText() || !consoleContext().state.isConnected">Send</button>
-                </fieldset>
-            </form>
-        </div>
-
-        <div class="dialog-section">
-            <h2>Special Key Combinations</h2>
-
-            <div class="dialog-button-group">
-                <button type="button" aria-label="Send Ctrl+Alt+Delete" (click)="handlSendKeyboardCtrlAltDel()">
-                    Ctrl + Alt + Delete
-                </button>
+            @if (consoleContext().console.supportedFeatures().clipboardRemoteWrite) {
+            <div class="dialog-section">
+                <h2>Send Text to Console Clipboard</h2>
+                <form (submit)="handleSendClipboardText($event, clipboardText.value)">
+                    <fieldset role="group">
+                        <input type="text" class="clipboard-text" aria-label="Clipboard text"
+                            placeholder="Enter text to send to the console's clipboard" #clipboardText autofocus>
+                        <button type="submit"
+                            [disabled]="!clipboardText.value || !consoleContext().state.isConnected">Send</button>
+                    </fieldset>
+                </form>
             </div>
-        </div>
-    </article>
-</dialog>
+            }
 
-<dialog [open]="isNetworkDialogOpen">
-    <article>
-        <header>
-            <button aria-label="Close" rel="prev" (click)="handleNetworkDialogOpenClose(false)"></button>
-            <p>
-                <strong>Networks</strong>
-            </p>
-        </header>
+            @if(!consoleContext().userSettings.settings().console.allowCopyToLocalClipboard ||
+            !consoleContext().console.supportedFeatures().clipboardAutomaticLocalCopy) {
+            <div class="dialog-section">
+                <h2>Console Clipboard Content</h2>
+                <form (submit)="handleClipboardCopyLastText(consoleLastClipboardText.value)">
+                    <fieldset role="group">
+                        <input type="text" class="clipboard-text" aria-label="Clipboard text" disabled
+                            [value]="consoleContext().clipboard.consoleClipboardText()"
+                            placeholder="The console's clipboard content will appear here" #consoleLastClipboardText>
+                        <button type="submit" [disabled]="!consoleLastClipboardText.value">Copy</button>
+                    </fieldset>
+                </form>
+            </div>
+            }
+        </article>
+    </dialog>
 
-        <form>
-            <fieldset role="group">
-                <select #availableNetworksSelect name="current-network" aria-label="Select a network to connect to"
-                    required>
-                    <option selected value="">
-                        [Disconnect from network]
-                    </option>
+    <dialog [open]="isKeyboardDialogOpen">
+        <article>
+            <header>
+                <button aria-label="Close" rel="prev" (click)="isKeyboardDialogOpen = false"></button>
+                <p>
+                    <strong>Send Keystrokes</strong>
+                </p>
+            </header>
 
-                    @for(network of consoleContext().networks.config()?.available; track network) {
-                    <option [value]="network" [selected]="network === consoleContext().networks.config()?.current">
-                        {{ network }}
-                    </option>
-                    }
-                </select>
+            <div class="dialog-section">
+                <h2>Send Keystrokes to Console</h2>
+                <form (submit)="handleSendKeyboardInput($event, keyboardInputText())">
+                    <fieldset role="group">
+                        <input type="text" name="keyboardInputText" class="clipboard-text" aria-label="Clipboard text"
+                            placeholder="Enter text to send as keyboard input to the console" autofocus
+                            [(ngModel)]="keyboardInputText">
+                        <button type="submit"
+                            [disabled]="!keyboardInputText() || !consoleContext().state.isConnected">Send</button>
+                    </fieldset>
+                </form>
+            </div>
 
-                <button type="button" (click)="handleNetworkChangeRequested(availableNetworksSelect.value)">
-                    {{ availableNetworksSelect.value ? "Connect" : "Disconnect" }}
-                </button>
-            </fieldset>
-        </form>
-    </article>
-</dialog>
+            <div class="dialog-section">
+                <h2>Special Key Combinations</h2>
 
-<dialog [open]="isPowerDialogOpen">
-    <article>
-        <header>
-            <button aria-label="Close" rel="prev" (click)="isPowerDialogOpen = false"></button>
-            <p>
-                <strong>Power</strong>
-            </p>
-        </header>
-
-        <div class="dialog-button-group">
-            <button type="button" (click)="handleSendPowerRequest('reboot')">Request Reboot</button>
-            <button type="button" (click)="handleSendPowerRequest('shutdown')">Request Shutdown</button>
-            <hr />
-            <button class="secondary" type="button" (click)="handleSendPowerRequest('rebootHard')">
-                Request Hard Reboot
-            </button>
-        </div>
-    </article>
-</dialog>
-
-<dialog [open]="isSettingsDialogOpen">
-    <article>
-        <header>
-            <button aria-label="Close" rel="prev" (click)="handleSettingsDialogOpenClose(false)"></button>
-            <p>
-                <strong>Settings</strong>
-            </p>
-        </header>
-
-        <div class="settings-form">
-            <h4>Behavior</h4>
-            <fieldset>
-                <label>
-                    <input #inputAllowLocalClipboardWrite type="checkbox" name="allowLocalClipboardWrite"
-                        [checked]="consoleContext().userSettings.settings().console.allowCopyToLocalClipboard"
-                        (change)="handleSettingsAllowLocalClipboardWrite(inputAllowLocalClipboardWrite.checked)" />
-                    Allow the remote machine to copy text to my local clipboard
-                </label>
-                <label>
-                    <input #inputScaleToContainerSize type="checkbox" name="scaleToContainerSize"
-                        [checked]="consoleContext().userSettings.settings().console.preserveAspectRatioOnScale"
-                        (change)="handleSettingsPreserveAspectRatioChange(inputScaleToContainerSize.checked)" />
-                    Preserve console aspect ratio when scaling size
-                </label>
-            </fieldset>
-
-            <div class="settings-toolbar-dock">
-                <h4>Toolbar Position</h4>
-                <div role="group">
-                    <button (click)="handleChangeToolbarPosition('left')"
-                        [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'left'">Left</button>
-                    <button (click)="handleChangeToolbarPosition('right')"
-                        [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'right'">Right</button>
-                    <button (click)="handleChangeToolbarPosition('top')"
-                        [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'top'">Top</button>
-                    <button (click)="handleChangeToolbarPosition('bottom')"
-                        [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'bottom'">Bottom</button>
+                <div class="dialog-button-group">
+                    <button type="button" aria-label="Send Ctrl+Alt+Delete" (click)="handlSendKeyboardCtrlAltDel()">
+                        Ctrl + Alt + Delete
+                    </button>
                 </div>
             </div>
-        </div>
-    </article>
-</dialog>
+        </article>
+    </dialog>
+
+    <dialog [open]="isNetworkDialogOpen">
+        <article>
+            <header>
+                <button aria-label="Close" rel="prev" (click)="handleNetworkDialogOpenClose(false)"></button>
+                <p>
+                    <strong>Networks</strong>
+                </p>
+            </header>
+
+            <form>
+                <fieldset role="group">
+                    <select #availableNetworksSelect name="current-network" aria-label="Select a network to connect to"
+                        required>
+                        <option selected value="">
+                            [Disconnect from network]
+                        </option>
+
+                        @for(network of consoleContext().networks.config()?.available; track network) {
+                        <option [value]="network" [selected]="network === consoleContext().networks.config()?.current">
+                            {{ network }}
+                        </option>
+                        }
+                    </select>
+
+                    <button type="button" (click)="handleNetworkChangeRequested(availableNetworksSelect.value)">
+                        {{ availableNetworksSelect.value ? "Connect" : "Disconnect" }}
+                    </button>
+                </fieldset>
+            </form>
+        </article>
+    </dialog>
+
+    <dialog [open]="isPowerDialogOpen">
+        <article>
+            <header>
+                <button aria-label="Close" rel="prev" (click)="isPowerDialogOpen = false"></button>
+                <p>
+                    <strong>Power</strong>
+                </p>
+            </header>
+
+            <div class="dialog-button-group">
+                <button type="button" (click)="handleSendPowerRequest('reboot')">Request Reboot</button>
+                <button type="button" (click)="handleSendPowerRequest('shutdown')">Request Shutdown</button>
+                <hr />
+                <button class="secondary" type="button" (click)="handleSendPowerRequest('rebootHard')">
+                    Request Hard Reboot
+                </button>
+            </div>
+        </article>
+    </dialog>
+
+    <dialog [open]="isSettingsDialogOpen">
+        <article>
+            <header>
+                <button aria-label="Close" rel="prev" (click)="handleSettingsDialogOpenClose(false)"></button>
+                <p>
+                    <strong>Settings</strong>
+                </p>
+            </header>
+
+            <div class="settings-form">
+                <h4>Behavior</h4>
+                <fieldset>
+                    <label>
+                        <input #inputAllowLocalClipboardWrite type="checkbox" name="allowLocalClipboardWrite"
+                            [checked]="consoleContext().userSettings.settings().console.allowCopyToLocalClipboard"
+                            (change)="handleSettingsAllowLocalClipboardWrite(inputAllowLocalClipboardWrite.checked)" />
+                        Allow the remote machine to copy text to my local clipboard
+                    </label>
+                    <label>
+                        <input #inputScaleToContainerSize type="checkbox" name="scaleToContainerSize"
+                            [checked]="consoleContext().userSettings.settings().console.preserveAspectRatioOnScale"
+                            (change)="handleSettingsPreserveAspectRatioChange(inputScaleToContainerSize.checked)" />
+                        Preserve console aspect ratio when scaling size
+                    </label>
+                </fieldset>
+
+                <div class="settings-toolbar-dock">
+                    <h4>Toolbar Position</h4>
+                    <div role="group">
+                        <button (click)="handleChangeToolbarPosition('left')"
+                            [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'left'">Left</button>
+                        <button (click)="handleChangeToolbarPosition('right')"
+                            [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'right'">Right</button>
+                        <button (click)="handleChangeToolbarPosition('top')"
+                            [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'top'">Top</button>
+                        <button (click)="handleChangeToolbarPosition('bottom')"
+                            [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'bottom'">Bottom</button>
+                    </div>
+                </div>
+
+                <div class="settings-theme">
+                    <h4>Theme</h4>
+                    <div role="group">
+                        <button (click)="handleToolbarThemeChange('light')"
+                            [disabled]="consoleContext().userSettings.settings().toolbar.preferTheme === 'light'">Light</button>
+                        <button (click)="handleToolbarThemeChange('dark')"
+                            [disabled]="consoleContext().userSettings.settings().toolbar.preferTheme === 'dark'">Dark</button>
+                        <button (click)="handleToolbarThemeChange(undefined)"
+                            [disabled]="consoleContext().userSettings.settings().toolbar.preferTheme === undefined">
+                            My Default
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </dialog>
+</div>
+}

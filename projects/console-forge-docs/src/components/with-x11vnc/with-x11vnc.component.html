@@ -14,7 +14,8 @@
 
 @if(cfConfig) {
 <cf-console [config]="cfConfig" [networkConfig]="networkConfig()" [isViewOnly]="isViewOnly()"
-    (connectionStatusChanged)="handleConnectionStatusChanged($event)"></cf-console>
+    (connectionStatusChanged)="handleConnectionStatusChanged($event)"
+    (reconnectRequest)="handleReconnectRequest()"></cf-console>
 }
 
 @if (isConnected()) {

@@ -8,16 +8,19 @@ import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
-import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { ConsolePowerRequest } from '../../models/console-power-request';
+import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
+import { ConsoleToolbarTheme } from '../../models/console-toolbar-theme';
 import { ClipboardService } from '../../services/clipboard/clipboard.service';
 import { FormsModule } from '@angular/forms';
 import { PicoCssService } from '../../services/pico-css.service';
+import { ApplyToolbarThemeDirective } from '../../directives/apply-toolbar-theme.directive';
 
 @Component({
   selector: 'cf-console-toolbar-default',
   imports: [
     FormsModule,
+    ApplyToolbarThemeDirective,
     ConsoleToolbarDefaultButtonComponent
   ],
   standalone: true,
@@ -133,5 +136,9 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
 
   protected handleSettingsPreserveAspectRatioChange(preserveAspectRatioOnScale: boolean) {
     this.consoleContext().userSettings.patch({ console: { preserveAspectRatioOnScale } });
+  }
+
+  protected handleToolbarThemeChange(theme?: ConsoleToolbarTheme) {
+    this.consoleContext().userSettings.patch({ toolbar: { preferTheme: theme } });
   }
 }

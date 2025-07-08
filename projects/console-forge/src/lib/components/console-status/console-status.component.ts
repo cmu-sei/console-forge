@@ -6,11 +6,13 @@
 import { AfterViewInit, Component, ElementRef, inject, input, output, ViewEncapsulation } from '@angular/core';
 import { ConsoleConnectionStatus } from '../../models/console-connection-status';
 import { PicoCssService } from '../../services/pico-css.service';
+import { ApplyToolbarThemeDirective } from '../../directives/apply-toolbar-theme.directive';
 
 @Component({
   selector: 'cf-console-status',
   templateUrl: './console-status.component.html',
   styleUrl: './console-status.component.scss',
+  imports: [ApplyToolbarThemeDirective],
   encapsulation: ViewEncapsulation.ShadowDom
 })
 export class ConsoleStatusComponent implements AfterViewInit {

@@ -4,6 +4,7 @@
 //  ===END LICENSE===
 
 import { ConsoleToolbarPosition } from "./console-toolbar-position"
+import { ConsoleToolbarTheme } from "./console-toolbar-theme";
 
 export interface ConsoleUserSettings {
     console: {
@@ -12,5 +13,6 @@ export interface ConsoleUserSettings {
     }
     toolbar: {
         dockTo: ConsoleToolbarPosition;
+        preferTheme: ConsoleToolbarTheme;
     }
 }

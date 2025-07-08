@@ -12,10 +12,10 @@ import { ConsoleConnectionStatus } from '../../../models/console-connection-stat
 import { ConsolePowerRequest } from '../../../models/console-power-request';
 import { ConsoleSupportedFeatures } from '../../../models/console-supported-features';
 import { LogLevel } from '../../../models/log-level';
+import { ClipboardService } from '../../clipboard/clipboard.service';
 import { ConsoleClientService } from '../../../services/console-clients/console-client.service';
 import { LoggerService } from '../../../services/logger.service';
 import { UserSettingsService } from '../../user-settings.service';
-import { ClipboardService } from '../../clipboard/clipboard.service';
 
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {

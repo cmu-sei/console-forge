@@ -1,11 +1,11 @@
-import { Component, computed, inject, model, signal, viewChild } from '@angular/core';
+import { Component, inject, model, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus } from 'console-forge';
 
 @Component({
   selector: 'app-with-x11vnc',
@@ -59,49 +59,17 @@ export class WithX11vncComponent {
       },
       url: url
     };
-
-    if (this.cfConsole()) {
-      await this.cfConsole()!.connect(this.cfConfig);
-    }
   }
 
   protected handleConnectionStatusChanged(status?: ConsoleConnectionStatus) {
     this.isConnected.update(() => status === "connected");
   }
 
-  protected handleConsoleClipboardUpdated(text: string) {
-    this.showToast(`Sent to console clipboard: ${text}`, "Hype 🔥");
-  }
-
   protected async handleDisconnect() {
     await this.cfConsole()?.disconnect();
   }
 
-  protected handleCtrlAltDelSent() {
-    this.showToast("Ctrl+Alt+Del sent!", "Sweet!");
-  }
-
-  protected async handleLocalClipboardUpdated(clipboardItem: ClipboardItem) {
-    const text = await getTextFromClipboardItem(clipboardItem);
-
-    if (text) {
-      this.showToast(`Copied to local clipboard: ${text}`, "Yeahhh");
-    }
-  }
-
-  protected handleNetworkConnectionRequest(networkName: string) {
-    this.showToast(`This console wants to change to the ${networkName} network.`, "We better do that");
-  }
-
-  protected handleNetworkDisconnectRequest() {
-    this.showToast("This console wants to disconnect from all networks.", "Gosh, fine.");
-  }
-
-  protected handleScreenshotCopied(blob: Blob) {
-    this.showToast("Copied a screenshot from the console!", "Nice!");
-  }
-
-  private showToast(message: string, action: string) {
-    this.snackbarService.open(message, action, { duration: 3000, horizontalPosition: "end", verticalPosition: "top" });
+  protected handleReconnectRequest() {
+    this.configFormSubmit();
   }
 }

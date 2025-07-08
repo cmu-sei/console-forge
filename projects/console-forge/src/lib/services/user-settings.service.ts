@@ -18,7 +18,8 @@ export class UserSettingsService {
       preserveAspectRatioOnScale: true
     },
     toolbar: {
-      dockTo: "left"
+      dockTo: "left",
+      preferTheme: undefined
     }
   });
   public readonly settings = this._settings.asReadonly();
