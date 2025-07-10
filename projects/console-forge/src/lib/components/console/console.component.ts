@@ -91,15 +91,13 @@ export class ConsoleComponent implements OnDestroy {
   protected readonly userSettings = this.userSettingsService.settings;
 
   constructor() {
-    // we need this component to emit from outputs or call the client when signals change, so an effect
-    // is the recommended solution: https://github.com/angular/angular/issues/57208
-
     // when config is provided and autoconnect is on, attempt to automatically connect
     effect(() => {
       const autoConnect = untracked(() => this.autoConnect());
       const currentConfig = this.config();
+
       if (autoConnect && currentConfig) {
-        this.logger.log(LogLevel.DEBUG, "Autoconnect firing", currentConfig);
+        this.logger.log(LogLevel.DEBUG, "Autoconnecting...", currentConfig);
         this.connect(currentConfig);
       }
     });
@@ -110,6 +108,7 @@ export class ConsoleComponent implements OnDestroy {
         this.consoleClipboardUpdated.emit(this.consoleClient()!.consoleClipboardUpdated());
       }
     });
+
     effect(() => {
       const clipboardItem = this.clipboardService.localClipboardContentWritten();
 
@@ -122,10 +121,11 @@ export class ConsoleComponent implements OnDestroy {
         })
       }
     });
+
     effect(() => {
       // all supported console clients inject a canvas into the doc. We provide it to the canvas service so it
       // can be consumed by other components (e.g. the ConsoleToolbarComponent and its implementations)
-      if (this.document && this.consoleClientConnectionStatus() === "connected") {
+      if (this.consoleClientConnectionStatus() === "connected") {
         const canvas = this.resolveConsoleCanvas();
         if (canvas) {
           this.canvasService.setCanvas(canvas);
@@ -136,16 +136,16 @@ export class ConsoleComponent implements OnDestroy {
     });
 
     // fullscreen events (VNC requires reconnect after fullscreen goes negative because of mouse pointer problems)
-    effect(() => {
-      const currentConfig = untracked(() => this.config());
-      const isConnected = untracked(() => this.consoleClientConnectionStatus() === "connected");
-      const isFullscreen = this.fullscreen.isActive();
+    // effect(() => {
+    //   const currentConfig = untracked(() => this.config());
+    //   const isConnected = untracked(() => this.consoleClientConnectionStatus() === "connected");
+    //   const isFullscreen = this.fullscreen.isActive();
 
-      if (isConnected && !isFullscreen) {
-        console.log("FULLSCREEN STUFF");
-        this.reconnectRequest.emit(currentConfig);
-      }
-    });
+    //   if (isConnected && !isFullscreen) {
+    //     console.log("FULLSCREEN STUFF");
+    //     this.reconnectRequest.emit(currentConfig);
+    //   }
+    // });
 
     // input changes
     effect(() => {

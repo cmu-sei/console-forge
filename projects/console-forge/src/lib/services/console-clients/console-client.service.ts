@@ -18,7 +18,6 @@ export interface ConsoleClientService {
 
   connect(url: string, options: ConsoleConnectionOptions): Promise<void>;
   disconnect(): Promise<void>;
-  handlePostFullscreenChange(): void;
   sendClipboardText(text: string): Promise<void>;
   sendCtrlAltDelete(): Promise<void>;
   sendKeyboardInput(text: string): Promise<void>;

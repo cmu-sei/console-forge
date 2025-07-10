@@ -37,6 +37,12 @@ export interface ConsoleSupportedFeatures {
     powerManagement: boolean;
 
     /**
+     * NoVNC seems to have a quirk that causes it to lose proper mouse tracking after leaving fullscreen. We're working around this by requesting a reconnection of the console
+     * upon exiting. VMWare doesn't seem to need this.
+     */
+    requireReconnectOnExitingFullscreen?: boolean;
+
+    /**
      * Whether the remote console protocol/library supports a "view/read"-only canvas. If it doesn't, we have to do some CSS/JS hacking in the console component, so 
      * we prefer the client lib/protocol's implementation if we can get it.
      */

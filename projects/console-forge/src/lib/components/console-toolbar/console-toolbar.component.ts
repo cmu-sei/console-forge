@@ -4,7 +4,7 @@
 //  ===END LICENSE===
 
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, output, signal, Type } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, Type, untracked } from '@angular/core';
 import { ClipboardService } from '../../services/clipboard/clipboard.service';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { FullScreenService } from '../../services/full-screen.service';
@@ -50,12 +50,14 @@ export class ConsoleToolbarComponent {
   private readonly canvasRecorder = inject(CanvasRecorderService);
   private readonly clipboardService = inject(ClipboardService);
   private readonly config = inject(ConsoleForgeConfig);
+  private readonly fullscreen = inject(FullScreenService);
   private readonly logger = inject(LoggerService);
   private readonly userSettings = inject(UserSettingsService);
   private readonly window = inject(WINDOW);
 
   // component state
   private readonly activeConsoleRecording = signal<{ recording: CanvasRecording, timeoutRef?: number } | undefined>(undefined);
+  private readonly isConnected = computed(() => this.consoleClient()?.connectionStatus() === "connected");
   private readonly isManualConsoleReconnectAvailable = computed(() => !this.config.disabledFeatures.manualConsoleReconnect && this.consoleClient()?.connectionStatus() !== "connecting");
   protected readonly toolbarComponentContext: ConsoleToolbarContext;
   protected readonly toolbarComponent = computed(() => this.customToolbarComponent() || this.config.toolbar.component);
@@ -84,7 +86,7 @@ export class ConsoleToolbarComponent {
       },
       state: {
         activeConsoleRecording: computed(() => this.activeConsoleRecording()?.recording),
-        isConnected: computed(() => this.consoleClient() && this.consoleClient().connectionStatus() === "connected"),
+        isConnected: this.isConnected,
         isFullscreenAvailable: inject(FullScreenService).isAvailable,
         isManualReconnectAvailable: this.isManualConsoleReconnectAvailable,
         isRecordingAvailable: computed(() => !!this.canvas.canvas()),
@@ -92,6 +94,20 @@ export class ConsoleToolbarComponent {
       },
       userSettings: this.userSettings
     };
+
+    effect(() => {
+      const untrackedContext = untracked(() => ({
+        isConnected: this.isConnected(),
+        requireReconnectOnFullscreenExit: this.toolbarComponentContext.console.supportedFeatures().requireReconnectOnExitingFullscreen || false,
+      }));
+
+      const isFullscreenActive = this.fullscreen.isActive();
+      if (untrackedContext.isConnected && untrackedContext.requireReconnectOnFullscreenExit && !isFullscreenActive) {
+        this.toolbarComponentContext.console.sendReconnectRequest();
+      }
+
+      // 
+    });
   }
 
   protected async handleCopyScreenshot() {
@@ -111,11 +127,6 @@ export class ConsoleToolbarComponent {
 
   protected handleFullscreen(): Promise<void> {
     this.toggleFullscreen.emit();
-
-    if (this.consoleClient()) {
-      this.consoleClient().handlePostFullscreenChange();
-    }
-
     return Promise.resolve();
   }
 

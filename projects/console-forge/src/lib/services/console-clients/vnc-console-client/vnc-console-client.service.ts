@@ -31,6 +31,7 @@ export class VncConsoleClientService implements ConsoleClientService {
     clipboardRemoteWrite: true,
     onScreenKeyboard: false,
     powerManagement: false,
+    requireReconnectOnExitingFullscreen: true,
     viewOnlyMode: true
   });
   public readonly supportedFeatures = this._supportedFeatures.asReadonly();
@@ -92,6 +93,7 @@ export class VncConsoleClientService implements ConsoleClientService {
           clipboardRemoteWrite: true,
           onScreenKeyboard: false,
           powerManagement: this.noVncClient.capabilities.power,
+          requireReconnectOnExitingFullscreen: true,
           viewOnlyMode: true
         };
 
@@ -120,17 +122,6 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   public async dispose(): Promise<void> {
     return await this.disconnect();
-  }
-
-  public handlePostFullscreenChange(): void {
-    // setTimeout(() => {
-    //   this.noVncClient?.blur();
-
-    //   setTimeout(() => {
-    //     this.noVncClient?.focus({});
-    //     this.logger.log(LogLevel.DEBUG, "Blurred/focused the console after fullscreen change");
-    //   }, 500);
-    // }, 500);
   }
 
   public async sendClipboardText(text: string) {
