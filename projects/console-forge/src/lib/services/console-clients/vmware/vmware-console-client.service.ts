@@ -139,6 +139,9 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return Promise.resolve();
   }
 
+  public handlePostFullscreenChange(): void {
+  }
+
   async sendClipboardText(text: string): Promise<void> {
     throw new Error(`Can't send clipboard text to VMWare-based consoles. (text: ${text})`);
   }

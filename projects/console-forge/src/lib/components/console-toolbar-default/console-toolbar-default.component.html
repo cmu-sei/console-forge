@@ -288,19 +288,19 @@
             <form>
                 <fieldset role="group">
                     <select #availableNetworksSelect name="current-network" aria-label="Select a network to connect to"
-                        required>
+                        [(ngModel)]="selectedNetworkForChange" required>
                         <option selected value="">
                             [Disconnect from network]
                         </option>
 
                         @for(network of consoleContext().networks.config()?.available; track network) {
-                        <option [value]="network" [selected]="network === consoleContext().networks.config()?.current">
+                        <option [value]="network">
                             {{ network }}
                         </option>
                         }
                     </select>
 
-                    <button type="button" (click)="handleNetworkChangeRequested(availableNetworksSelect.value)">
+                    <button type="button" (click)="handleNetworkChangeRequested(selectedNetworkForChange())">
                         {{ availableNetworksSelect.value ? "Connect" : "Disconnect" }}
                     </button>
                 </fieldset>
@@ -361,10 +361,11 @@
                             [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'left'">Left</button>
                         <button (click)="handleChangeToolbarPosition('right')"
                             [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'right'">Right</button>
-                        <button (click)="handleChangeToolbarPosition('top')"
+                        <!-- see https://github.com/cmu-sei/console-forge/issues/12 -->
+                        <!-- <button (click)="handleChangeToolbarPosition('top')"
                             [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'top'">Top</button>
                         <button (click)="handleChangeToolbarPosition('bottom')"
-                            [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'bottom'">Bottom</button>
+                            [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'bottom'">Bottom</button> -->
                     </div>
                 </div>
 

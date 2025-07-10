@@ -24,7 +24,7 @@ import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig
 export class WithX11vncComponent {
   private readonly snackbarService = inject(MatSnackBar);
 
-  protected cfConfig: ConsoleComponentConfig = {
+  protected cfConfig?: ConsoleComponentConfig = {
     autoFocusOnConnect: true,
     consoleClientType: "vnc",
     credentials: {
@@ -66,7 +66,7 @@ export class WithX11vncComponent {
   }
 
   protected async handleDisconnect() {
-    await this.cfConsole()?.disconnect();
+    this.cfConfig = undefined;
   }
 
   protected handleReconnectRequest() {

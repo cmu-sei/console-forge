@@ -111,6 +111,11 @@ export class ConsoleToolbarComponent {
 
   protected handleFullscreen(): Promise<void> {
     this.toggleFullscreen.emit();
+
+    if (this.consoleClient()) {
+      this.consoleClient().handlePostFullscreenChange();
+    }
+
     return Promise.resolve();
   }
 

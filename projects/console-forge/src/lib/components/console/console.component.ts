@@ -78,6 +78,7 @@ export class ConsoleComponent implements OnDestroy {
 
   // other component state
   protected readonly consoleClient = signal<ConsoleClientService | undefined>(undefined);
+  protected readonly consoleClientConnectionStatus = computed(() => this.consoleClient()?.connectionStatus());
   protected readonly consoleHostBackgroundStyle = this.consoleForgeConfig.consoleBackgroundStyle;
   protected readonly consoleHostElementId = `cf-console-${this.uuids.get()}`;
   protected readonly isRecording = inject(CanvasRecorderService).isRecording;
@@ -95,8 +96,9 @@ export class ConsoleComponent implements OnDestroy {
 
     // when config is provided and autoconnect is on, attempt to automatically connect
     effect(() => {
+      const autoConnect = untracked(() => this.autoConnect());
       const currentConfig = this.config();
-      if (this.autoConnect() && currentConfig) {
+      if (autoConnect && currentConfig) {
         this.logger.log(LogLevel.DEBUG, "Autoconnect firing", currentConfig);
         this.connect(currentConfig);
       }
@@ -123,7 +125,7 @@ export class ConsoleComponent implements OnDestroy {
     effect(() => {
       // all supported console clients inject a canvas into the doc. We provide it to the canvas service so it
       // can be consumed by other components (e.g. the ConsoleToolbarComponent and its implementations)
-      if (this.document && this.consoleClient() && this.consoleClient()!.connectionStatus() === "connected") {
+      if (this.document && this.consoleClientConnectionStatus() === "connected") {
         const canvas = this.resolveConsoleCanvas();
         if (canvas) {
           this.canvasService.setCanvas(canvas);
@@ -133,30 +135,49 @@ export class ConsoleComponent implements OnDestroy {
       }
     });
 
+    // fullscreen events (VNC requires reconnect after fullscreen goes negative because of mouse pointer problems)
+    effect(() => {
+      const currentConfig = untracked(() => this.config());
+      const isConnected = untracked(() => this.consoleClientConnectionStatus() === "connected");
+      const isFullscreen = this.fullscreen.isActive();
+
+      if (isConnected && !isFullscreen) {
+        console.log("FULLSCREEN STUFF");
+        this.reconnectRequest.emit(currentConfig);
+      }
+    });
+
     // input changes
     effect(() => {
-      if (this.consoleClient() && this.consoleClient()!.connectionStatus() === "connected") {
-        this.consoleClient()!.setIsViewOnly(this.isViewOnly());
+      // read values - this effect WILL happen when these values change
+      const canvas = this.canvasService.canvas();
+      const isViewOnly = this.isViewOnly();
 
-        // if view only mode is on, we need to flip the canvas's tab index
-        if (!this.consoleClient()?.supportedFeatures().viewOnlyMode) {
-          const canvas = this.canvasService.canvas();
-          if (canvas) {
-            canvas.tabIndex = this.isViewOnly() ? -1 : 0;
-          }
+      // this effect needs this information, but we don't want it to fire when these change
+      const untrackedContext = untracked(() => ({
+        consoleClient: this.consoleClient(),
+        connectionStatus: this.consoleClientConnectionStatus(),
+        supportsViewOnly: this.consoleClient()?.supportedFeatures()?.viewOnlyMode
+      }));
+
+      if (untrackedContext.consoleClient && untrackedContext.connectionStatus === "connected") {
+        untrackedContext.consoleClient.setIsViewOnly(this.isViewOnly());
+
+        if (!untrackedContext.supportsViewOnly && canvas) {
+          // we need to manage the canvas' tabIndex because the current console client doesn't support
+          // a view-only mode inherently
+          canvas.tabIndex = isViewOnly ? -1 : 0;
         }
       }
     });
 
     // output emitters
-    effect(() => {
-      this.connectionStatusChanged.emit(this.consoleClient()?.connectionStatus());
-    });
+    effect(() => this.connectionStatusChanged.emit(this.consoleClientConnectionStatus()));
 
     // settings changes
     effect(() => {
       const currentSettings = this.userSettingsService.settings();
-      if (this.consoleClient() && this.consoleClient()?.connectionStatus() === "connected") {
+      if (this.consoleClient() && this.consoleClientConnectionStatus() === "connected") {
         this.consoleClient()!.setPreserveAspectRatioOnScale(currentSettings.console.preserveAspectRatioOnScale);
       }
     });
@@ -207,7 +228,7 @@ export class ConsoleComponent implements OnDestroy {
   public async connect(config: ConsoleComponentConfig) {
     this.logger.log(LogLevel.DEBUG, "Connecting with config", config);
 
-    const currentConnectionStatus = untracked(() => this.consoleClient()?.connectionStatus());
+    const currentConnectionStatus = untracked(() => this.consoleClientConnectionStatus());
     if (currentConnectionStatus !== undefined && currentConnectionStatus !== "disconnected") {
       const currentConsoleClient = untracked(() => this.consoleClient());
 

@@ -46,13 +46,20 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   public async connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
     if (this.noVncClient) {
+      try {
+        this.noVncClient.disconnect();
+        this.logger.log(LogLevel.DEBUG, "Disconnected from existing VNC session.");
+      }
+      catch (err) {
+        this.logger.log(LogLevel.DEBUG, "Warning: couldn't disconnect from existing VNC session on attempted connection.", err);
+      }
+
       this.noVncClient = undefined;
     }
 
     try {
       this._connectionStatus.update(() => "connecting");
-      this.logger.log(LogLevel.DEBUG, "Connecting to", url);
-      this.logger.log(LogLevel.DEBUG, "Connection options", options);
+      this.logger.log(LogLevel.DEBUG, "Connecting to", url, options);
 
       const noVncCredentials: NoVncOptions = {
         credentials: {
@@ -102,12 +109,28 @@ export class VncConsoleClientService implements ConsoleClientService {
   }
 
   public async disconnect(): Promise<void> {
+    if (!this.noVncClient) {
+      this.logger.log(LogLevel.WARNING, "Manual disconnection requested, but no VNC client.");
+      return;
+    }
+
     this.logger.log(LogLevel.DEBUG, "Manual disconnection requested");
-    return this.handleDisconnect(true);
+    this.noVncClient.disconnect();
   }
 
-  public dispose(): Promise<void> {
-    return this.disconnect();
+  public async dispose(): Promise<void> {
+    return await this.disconnect();
+  }
+
+  public handlePostFullscreenChange(): void {
+    // setTimeout(() => {
+    //   this.noVncClient?.blur();
+
+    //   setTimeout(() => {
+    //     this.noVncClient?.focus({});
+    //     this.logger.log(LogLevel.DEBUG, "Blurred/focused the console after fullscreen change");
+    //   }, 500);
+    // }, 500);
   }
 
   public async sendClipboardText(text: string) {
@@ -195,8 +218,8 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private doPreConnectionConfig(client: NoVncClient): NoVncClient {
     client.addEventListener("connect", () => {
-      this.logger.log(LogLevel.INFO, "Connected!");
       this._connectionStatus.update(() => "connected");
+      this.logger.log(LogLevel.INFO, "Connected!");
     });
     client.addEventListener("disconnect", ev => this.handleDisconnect(ev.detail.clean));
     client.addEventListener("clipboard", ev => {
@@ -225,7 +248,10 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
     client.background = options.backgroundStyle || "";
-    client.resizeSession = this.userSettings.settings().console.preserveAspectRatioOnScale;
+
+    // dictates whether the remote machine will be sent a request to change its resolution when the client size changes.
+    // for now, assume we always want this.
+    client.resizeSession = true;
 
     // try focus if requested
     if (options.autoFocusOnConnect) {

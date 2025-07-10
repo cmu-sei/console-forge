@@ -13,9 +13,13 @@ export class FullScreenService {
   private readonly _isAvailable = signal(this.doc.fullscreenEnabled);
   public readonly isAvailable = this._isAvailable.asReadonly();
 
+  private readonly _isActive = signal(false);
+  public readonly isActive = this._isActive.asReadonly();
+
   constructor() {
     this.doc.addEventListener("fullscreenchange", () => {
       this._isAvailable.update(() => this.doc.fullscreenEnabled && !this.doc.fullscreenElement);
+      this._isActive.update(() => !!this.doc.fullscreenElement);
     });
     this.doc.addEventListener("fullscreenerror", () => {
       this._isAvailable.update(() => this.doc.fullscreenEnabled && !this.doc.fullscreenElement);

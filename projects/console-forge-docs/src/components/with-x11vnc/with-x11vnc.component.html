@@ -12,6 +12,14 @@
     ConsoleForge repo (no Python required)!
 </p>
 
+@if (!isConnected() && cfConfig)
+{
+<div class="warn">
+    This demo requires that you run the VS Code task <strong>"Run X11VNC Desktop"</strong> (or manually run
+    x11VNC on port 5950 with the password "mypw").
+</div>
+}
+
 @if(cfConfig) {
 <cf-console [config]="cfConfig" [networkConfig]="networkConfig()" [isViewOnly]="isViewOnly()"
     (connectionStatusChanged)="handleConnectionStatusChanged($event)"

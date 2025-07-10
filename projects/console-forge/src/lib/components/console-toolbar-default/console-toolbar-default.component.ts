@@ -3,7 +3,7 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { AfterViewInit, Component, ElementRef, inject, input, model, viewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, effect, ElementRef, inject, input, model, viewChild, ViewEncapsulation } from '@angular/core';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
@@ -38,7 +38,8 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
   protected isPowerDialogOpen = false;
   protected isSettingsDialogOpen = false;
 
-  protected keyboardInputText = model<string>("");
+  protected readonly keyboardInputText = model<string>("");
+  protected readonly selectedNetworkForChange = model<string>();
 
   // services and viewkids
   protected readonly cfConfig = inject(ConsoleForgeConfig);
@@ -46,6 +47,18 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
   protected readonly clipboardTextInput = viewChild<ElementRef>("clipboardText");
   private readonly picoCssService = inject(PicoCssService);
   private readonly hostElement = inject(ElementRef<HTMLElement>);
+
+  // trying this out. when the network configuration (which is passed into the library by the end dev)
+  // changes, we need to update the model that holds the current network, so let's make a computed
+  // signal that represents that change so we can be sure our effect only happens when we want it to
+  private readonly currentNetwork = (() => this.consoleContext()?.networks?.config()?.current || "");
+
+  constructor() {
+    // when the network config is changed, select the current network if exists
+    effect(() => {
+      this.selectedNetworkForChange.update(() => this.currentNetwork());
+    });
+  }
 
   async ngAfterViewInit(): Promise<void> {
     // apply pico to this component
@@ -74,6 +87,7 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
   }
 
   protected handleNetworkChangeRequested(networkName?: string) {
+    console.log("changed", networkName);
     if (!networkName) {
       this.consoleContext().networks.disconnectRequested();
     } else {

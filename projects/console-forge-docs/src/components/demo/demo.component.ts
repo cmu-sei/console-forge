@@ -58,7 +58,6 @@ export class DemoComponent {
 
   protected async handleConnectClick() {
     if (this.cfConsole() && this.cfConfig) {
-      console.log("DEMO COMPONENT INSTIGATING CONNECTION", this.cfConfig);
       await this.cfConsole()!.connect(this.cfConfig);
     } else {
       console.log("Can't connect - can't resolve console/config");
