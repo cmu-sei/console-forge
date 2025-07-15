@@ -4,7 +4,7 @@
 //  ===END LICENSE===
 
 import { DOCUMENT } from '@angular/common';
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import { debounceTime, Subject } from 'rxjs';
 import { ConsoleClientService } from '../console-client.service';
@@ -21,6 +21,7 @@ import { ClipboardService } from '../../clipboard/clipboard.service';
 import { ConsoleForgeConfig } from '../../../config/console-forge-config';
 import { UserSettingsService } from '../../user-settings.service';
 import { ConsoleClientType } from '../../../models/console-client-type';
+import { ConsoleUserSettings } from '../../../models/console-user-settings';
 
 @Injectable({ providedIn: 'root' })
 export class VmWareConsoleClientService implements ConsoleClientService {
@@ -62,6 +63,19 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     }
   });
 
+  constructor() {
+    // listen for user settings changes so we can update the console
+    effect(() => {
+      const settings = this.userSettings.settings();
+
+      if (!this.wmksClient) {
+        return;
+      }
+
+      this.updateFromUserSettings(settings);
+    });
+  }
+
   public connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
     if (!options.hostElement) {
       throw new Error("A host element is required to connect to a VMWare WMKS console.");
@@ -70,7 +84,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return new Promise((resolve, reject) => {
       this.wmksClient = createWmksClient(options.hostElement.id, {
         changeResolution: true,
-        rescale: true,
+        rescale: false,
         useNativePixels: true,
         useVNCHandshake: false,
         position: WmksPosition.CENTER
@@ -179,12 +193,26 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return Promise.reject(`Power management request aren't supported for VMWare consoles. (rejected request: "${request}")`);
   }
 
+  public setAttemptRemoteSessionResize(attempt: boolean): Promise<void> {
+    if (!this.wmksClient) {
+      return Promise.reject("VMWare client isn't connected; can't set properties.");
+    }
+
+    try {
+      this.wmksClient!.setOption("changeResolution", attempt);
+      return Promise.resolve();
+    }
+    catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
   public setIsViewOnly(isViewOnly: boolean): Promise<void> {
     this.logger.log(LogLevel.INFO, "A 'view-only' request was issued, but this isn't directly supported at the protocol level for VMWare. The ConsoleComponent will do its best to make the console canvas view-only. Request:", isViewOnly);
     return Promise.resolve();
   }
 
-  public setPreserveAspectRatioOnScale(scaleToContainerSize: boolean): Promise<void> {
+  public setScaleToCanvasHostSize(scaleToContainerSize: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
         if (!this.wmksClient) {
@@ -247,5 +275,15 @@ export class VmWareConsoleClientService implements ConsoleClientService {
 
   private handleWindowSizeChange() {
     this._needsCanvasSizeUpdate.next();
+  }
+
+  private updateFromUserSettings(settings: ConsoleUserSettings) {
+    if (!this.wmksClient) {
+      return;
+    }
+
+    this.setAttemptRemoteSessionResize(settings.console.attemptRemoteSessionResize);
+    this.setScaleToCanvasHostSize(settings.console.scaleToCanvasHostSize);
+    this.wmksClient.updateScreen();
   }
 }

@@ -4,6 +4,7 @@
 //  ===END LICENSE===
 
 import { AfterViewInit, Component, effect, ElementRef, inject, input, model, viewChild, ViewEncapsulation } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
@@ -12,9 +13,9 @@ import { ConsolePowerRequest } from '../../models/console-power-request';
 import { ConsoleToolbarPosition } from '../../models/console-toolbar-position';
 import { ConsoleToolbarTheme } from '../../models/console-toolbar-theme';
 import { ClipboardService } from '../../services/clipboard/clipboard.service';
-import { FormsModule } from '@angular/forms';
 import { PicoCssService } from '../../services/pico-css.service';
 import { ApplyToolbarThemeDirective } from '../../directives/apply-toolbar-theme.directive';
+import { ConsoleNetworkConnectionRequest } from '../../models/console-network-connection-request';
 
 @Component({
   selector: 'cf-console-toolbar-default',
@@ -39,7 +40,7 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
   protected isSettingsDialogOpen = false;
 
   protected readonly keyboardInputText = model<string>("");
-  protected readonly selectedNetworkForChange = model<string>();
+  // protected readonly selected = model<string>();
 
   // services and viewkids
   protected readonly cfConfig = inject(ConsoleForgeConfig);
@@ -51,13 +52,13 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
   // trying this out. when the network configuration (which is passed into the library by the end dev)
   // changes, we need to update the model that holds the current network, so let's make a computed
   // signal that represents that change so we can be sure our effect only happens when we want it to
-  private readonly currentNetwork = (() => this.consoleContext()?.networks?.config()?.current || "");
+  // private readonly currentNetwork = (() => this.consoleContext()?.networks?.config()?.current || "");
 
   constructor() {
     // when the network config is changed, select the current network if exists
-    effect(() => {
-      this.selectedNetworkForChange.update(() => this.currentNetwork());
-    });
+    // effect(() => {
+    //   this.selectedNetworkForChange.update(() => this.currentNetwork());
+    // });
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -86,13 +87,17 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
     this.clipboardService.copyText(text);
   }
 
-  protected handleNetworkChangeRequested(networkName?: string) {
-    console.log("changed", networkName);
-    if (!networkName) {
-      this.consoleContext().networks.disconnectRequested();
+  protected handleNetworkChangeRequested(request: ConsoleNetworkConnectionRequest) {
+    if (!request.network) {
+      this.consoleContext().networks.disconnectRequested({ nic: request.nic });
     } else {
-      this.consoleContext().networks.connectionRequested(networkName);
+      this.consoleContext().networks.connectionRequested(request);
     }
+    this.isNetworkDialogOpen = false;
+  }
+
+  protected handleNetworkDisconnectAllRequested() {
+    this.consoleContext().networks.disconnectRequested({});
     this.isNetworkDialogOpen = false;
   }
 
@@ -148,8 +153,12 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
     this.consoleContext().userSettings.patch({ console: { allowCopyToLocalClipboard: allow } });
   }
 
-  protected handleSettingsPreserveAspectRatioChange(preserveAspectRatioOnScale: boolean) {
-    this.consoleContext().userSettings.patch({ console: { preserveAspectRatioOnScale } });
+  protected handleSettingsAttemptRemoteSessionResize(attempt: boolean) {
+    this.consoleContext().userSettings.patch({ console: { attemptRemoteSessionResize: attempt } });
+  }
+
+  protected handleSettingsScaleToContainerHostSize(scaleToCanvasHostSize: boolean) {
+    this.consoleContext().userSettings.patch({ console: { scaleToCanvasHostSize } });
   }
 
   protected handleToolbarThemeChange(theme?: ConsoleToolbarTheme) {

@@ -8,6 +8,8 @@ import { CanvasRecording } from "../services/canvas-recorder/canvas-recording";
 import { ConsolePowerRequest } from "./console-power-request";
 import { ConsoleSupportedFeatures } from "./console-supported-features";
 import { ConsoleComponentNetworkConfig } from "./console-component-network-config";
+import { ConsoleNetworkConnectionRequest } from "./console-network-connection-request";
+import { ConsoleNetworkDisconnectionRequest } from "./console-network-disconnection-request";
 import { UserSettingsService } from "../services/user-settings.service";
 
 export interface ConsoleToolbarContext {
@@ -28,8 +30,8 @@ export interface ConsoleToolbarContext {
     };
     networks: {
         config: Signal<ConsoleComponentNetworkConfig | undefined>;
-        connectionRequested(networkName: string): void;
-        disconnectRequested(): void;
+        connectionRequested(request: ConsoleNetworkConnectionRequest): void;
+        disconnectRequested(request: ConsoleNetworkDisconnectionRequest): void;
     };
     state: {
         activeConsoleRecording: Signal<CanvasRecording | undefined>;

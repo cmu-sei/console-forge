@@ -5,7 +5,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, ConsoleNetworkConnectionRequest, ConsoleNetworkDisconnectionRequest, getTextFromClipboardItem } from 'console-forge';
 
 @Component({
   selector: 'app-demo',
@@ -33,8 +33,9 @@ export class DemoComponent {
   });
 
   protected networkConfig = model<ConsoleComponentNetworkConfig>({
-    available: ["GreenNet", "PurpleNet"],
-    current: "GreenNet"
+    networks: ["GreenNet", "PurpleNet"],
+    nics: ["network-interface-1"],
+    currentConnections: { "network-interface-1": "GreenNet" }
   });
   protected isConnected = model(false);
   protected isViewOnly = model(false);
@@ -88,12 +89,16 @@ export class DemoComponent {
     }
   }
 
-  protected handleNetworkConnectionRequest(networkName: string) {
-    this.showToast(`This console wants to change to the ${networkName} network.`, "We better do that");
+  protected handleNetworkConnectionRequest(request: ConsoleNetworkConnectionRequest) {
+    this.showToast(`This console wants to change NIC ${request.nic} to the ${request.network} network.`, "We better do that");
   }
 
-  protected handleNetworkDisconnectRequest() {
-    this.showToast("This console wants to disconnect from all networks.", "Gosh, fine.");
+  protected handleNetworkDisconnectRequest(request?: ConsoleNetworkDisconnectionRequest) {
+    if (request?.nic) {
+      this.showToast(`This console wants to disconnect NIC ${request.nic}.`, "On it");
+    } else {
+      this.showToast("This console wants to disconnect all NICS.", "Gosh, fine.");
+    }
   }
 
   protected handleScreenshotCopied(blob: Blob) {

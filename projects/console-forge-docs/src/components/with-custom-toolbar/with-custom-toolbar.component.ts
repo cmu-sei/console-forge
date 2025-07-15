@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConsoleComponent, ConsoleComponentConfig, ConsoleToolbarComponentBase, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleNetworkConnectionRequest, ConsoleNetworkDisconnectionRequest, ConsoleToolbarComponentBase, getTextFromClipboardItem } from 'console-forge';
 import { CustomConsoleToolbarComponent } from '../custom-console-toolbar/custom-console-toolbar.component';
 
 @Component({
@@ -66,12 +66,16 @@ export class WithCustomToolbarComponent {
     }
   }
 
-  protected handleNetworkConnectionRequest(networkName: string) {
-    this.showToast(`This console wants to change to the ${networkName} network.`, "We better do that");
+  protected handleNetworkConnectionRequest(request: ConsoleNetworkConnectionRequest) {
+    this.showToast(`This console wants to change NIC ${request.nic} to the ${request.network} network.`, "We better do that");
   }
 
-  protected handleNetworkDisconnectRequest() {
-    this.showToast("This console wants to disconnect from all networks.", "Gosh, fine.");
+  protected handleNetworkDisconnectRequest(request?: ConsoleNetworkDisconnectionRequest) {
+    if (request?.nic) {
+      this.showToast(`This console wants to disconnect NIC ${request.nic}.`, "On it");
+    } else {
+      this.showToast("This console wants to disconnect all NICS.", "Gosh, fine.");
+    }
   }
 
   protected handleScreenshotCopied(blob: Blob) {

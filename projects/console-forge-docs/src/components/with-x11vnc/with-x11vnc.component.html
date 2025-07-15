@@ -23,6 +23,8 @@
 @if(cfConfig) {
 <cf-console [config]="cfConfig" [networkConfig]="networkConfig()" [isViewOnly]="isViewOnly()"
     (connectionStatusChanged)="handleConnectionStatusChanged($event)"
+    (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
+    (networkDisconnectRequested)="handleNetworkDisconnectionRequest($event)"
     (reconnectRequest)="handleReconnectRequest()"></cf-console>
 }
 

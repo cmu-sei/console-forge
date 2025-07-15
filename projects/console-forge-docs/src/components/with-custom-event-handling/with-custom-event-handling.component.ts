@@ -1,7 +1,7 @@
 import { Component, computed, inject, model, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, ConsoleNetworkConnectionRequest, ConsoleNetworkDisconnectionRequest, getTextFromClipboardItem } from 'console-forge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,8 +35,9 @@ export class WithCustomEventHandlingComponent {
 
   // make some imaginary networks, just to show off the network switching UI
   protected networkConfig = model<ConsoleComponentNetworkConfig>({
-    available: ["GreenNet", "PurpleNet"],
-    current: "GreenNet"
+    networks: ["GreenNet", "PurpleNet"],
+    nics: ["network-interface-1"],
+    currentConnections: { "network-interface-1": "GreenNet" }
   });
   protected isConnected = model(false);
   protected isViewOnly = model(false);
@@ -82,12 +83,16 @@ export class WithCustomEventHandlingComponent {
     }
   }
 
-  protected handleNetworkConnectionRequest(networkName: string) {
-    this.showToast(`This console wants to change to the ${networkName} network.`, "We better do that");
+  protected handleNetworkConnectionRequest(request: ConsoleNetworkConnectionRequest) {
+    this.showToast(`This console wants to change NIC ${request.nic} to the ${request.network} network.`, "We better do that");
   }
 
-  protected handleNetworkDisconnectRequest() {
-    this.showToast("This console wants to disconnect from all networks.", "Gosh, fine.");
+  protected handleNetworkDisconnectRequest(request?: ConsoleNetworkDisconnectionRequest) {
+    if (request?.nic) {
+      this.showToast(`This console wants to disconnect NIC ${request.nic}.`, "On it");
+    } else {
+      this.showToast("This console wants to disconnect all NICS.", "Gosh, fine.");
+    }
   }
 
   protected handleReconnectRequest() {

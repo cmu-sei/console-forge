@@ -21,8 +21,9 @@ export interface ConsoleClientService {
   sendClipboardText(text: string): Promise<void>;
   sendCtrlAltDelete(): Promise<void>;
   sendKeyboardInput(text: string): Promise<void>;
-  sendPowerRequest(request: ConsolePowerRequest): Promise<void>
-  setPreserveAspectRatioOnScale(preserve: boolean): Promise<void>;
+  sendPowerRequest(request: ConsolePowerRequest): Promise<void>;
+  setAttemptRemoteSessionResize(attempt: boolean): Promise<void>
+  setScaleToCanvasHostSize(preserve: boolean): Promise<void>;
   setIsViewOnly(isViewOnly: boolean): Promise<void>;
 
   /**

@@ -3,7 +3,7 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import NoVncClient, { NoVncOptions } from '@novnc/novnc/core/rfb';
 import { ConsoleForgeConfig } from '../../../config/console-forge-config';
 import { ConsoleClientType } from '../../../models/console-client-type';
@@ -16,6 +16,7 @@ import { ClipboardService } from '../../clipboard/clipboard.service';
 import { ConsoleClientService } from '../../../services/console-clients/console-client.service';
 import { LoggerService } from '../../../services/logger.service';
 import { UserSettingsService } from '../../user-settings.service';
+import { ConsoleUserSettings } from '../../../models/console-user-settings';
 
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {
@@ -44,6 +45,19 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   // the actual client from @novnc/novnc
   private noVncClient?: NoVncClient;
+
+  constructor() {
+    // listen for user settings changes so we can update the console
+    effect(() => {
+      const settings = this.userSettings.settings();
+
+      if (!this.noVncClient) {
+        return;
+      }
+
+      this.updateFromUserSettings(settings);
+    });
+  }
 
   public async connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
     if (this.noVncClient) {
@@ -192,15 +206,30 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   public async setIsViewOnly(isViewOnly: boolean): Promise<void> {
     if (!this.noVncClient) {
-      throw new Error("VNC client isn't connected; can't set properties");
+      throw new Error("VNC client isn't connected; can't set properties.");
     }
 
     this.noVncClient.viewOnly = isViewOnly;
   }
 
-  public async setPreserveAspectRatioOnScale(preserve: boolean): Promise<void> {
+  public setAttemptRemoteSessionResize(attempt: boolean): Promise<void> {
     if (!this.noVncClient) {
-      throw new Error("VNC client isn't connected; can't set properties");
+      throw new Error("VNC client isn't connected, can't set properties.");
+    }
+
+    try {
+      this.logger.log(LogLevel.DEBUG, "Set remote session resize to", attempt);
+      this.noVncClient.resizeSession = attempt;
+      return Promise.resolve();
+    }
+    catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
+  public async setScaleToCanvasHostSize(preserve: boolean): Promise<void> {
+    if (!this.noVncClient) {
+      throw new Error("VNC client isn't connected; can't set properties.");
     }
 
     this.logger.log(LogLevel.DEBUG, "Set preserve aspect ratio to", preserve);
@@ -240,9 +269,8 @@ export class VncConsoleClientService implements ConsoleClientService {
   private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
     client.background = options.backgroundStyle || "";
 
-    // dictates whether the remote machine will be sent a request to change its resolution when the client size changes.
-    // for now, assume we always want this.
-    client.resizeSession = true;
+    // ensure we're matching current user settings
+    this.updateFromUserSettings(this.userSettings.settings());
 
     // try focus if requested
     if (options.autoFocusOnConnect) {
@@ -263,5 +291,10 @@ export class VncConsoleClientService implements ConsoleClientService {
     if (this.noVncClient) {
       this.noVncClient = undefined;
     }
+  }
+
+  private updateFromUserSettings(settings: ConsoleUserSettings) {
+    this.setAttemptRemoteSessionResize(settings.console.attemptRemoteSessionResize);
+    this.setScaleToCanvasHostSize(settings.console.scaleToCanvasHostSize);
   }
 }

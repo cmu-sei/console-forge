@@ -8,19 +8,21 @@ import { Component, computed, effect, inject, input, output, signal, Type, untra
 import { ClipboardService } from '../../services/clipboard/clipboard.service';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { FullScreenService } from '../../services/full-screen.service';
+import { ConsoleComponentNetworkConfig } from '../../models/console-component-network-config';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleToolbarComponentBase } from '../../models/console-toolbar-component-base';
+import { ConsoleNetworkConnectionRequest } from '../../models/console-network-connection-request';
+import { ConsoleNetworkDisconnectionRequest } from '../../models/console-network-disconnection-request';
+import { LogLevel } from '../../models/log-level';
+import { WINDOW } from '../../injection/window.injection-token';
 import { CanvasRecorderService } from '../../services/canvas-recorder/canvas-recorder.service';
 import { LoggerService } from '../../services/logger.service';
-import { LogLevel } from '../../models/log-level';
 import { CanvasRecording } from '../../services/canvas-recorder/canvas-recording';
 import { ConsolePowerRequest } from '../../models/console-power-request';
-import { ConsoleComponentNetworkConfig } from '../../models/console-component-network-config';
 import { UserSettingsService } from '../../services/user-settings.service';
 import { CanvasService } from '../../services/canvas.service';
 import { BlobDownloaderService } from '../../services/blob-downloader.service';
-import { WINDOW } from '../../injection/window.injection-token';
 
 @Component({
   selector: 'cf-console-toolbar',
@@ -38,8 +40,8 @@ export class ConsoleToolbarComponent {
   canvasRecordingFinished = output<Blob>();
   ctrlAltDelSent = output<void>();
   keyboardInputSent = output<string>();
-  networkConnectionRequested = output<string>();
-  networkDisconnectRequested = output<void>();
+  networkConnectionRequested = output<ConsoleNetworkConnectionRequest>();
+  networkDisconnectRequested = output<ConsoleNetworkDisconnectionRequest | undefined>();
   powerRequestSent = output<ConsolePowerRequest>();
   reconnectRequestSent = output<void>();
   screenshotCopied = output<Blob>();
@@ -82,7 +84,7 @@ export class ConsoleToolbarComponent {
       networks: {
         config: this.consoleNetworkConfig,
         connectionRequested: this.handleNetworkConnectionRequest.bind(this),
-        disconnectRequested: () => this.networkDisconnectRequested.emit(),
+        disconnectRequested: this.handleNetworkDisconnectionRequest.bind(this),
       },
       state: {
         activeConsoleRecording: computed(() => this.activeConsoleRecording()?.recording),
@@ -95,6 +97,8 @@ export class ConsoleToolbarComponent {
       userSettings: this.userSettings
     };
 
+    // VNC seems to get mouse tracking weirdness in some configurations when exiting fullscreen mode, so work around for now
+    // by requesting a reconnect when exiting FS
     effect(() => {
       const untrackedContext = untracked(() => ({
         isConnected: this.isConnected(),
@@ -105,8 +109,6 @@ export class ConsoleToolbarComponent {
       if (untrackedContext.isConnected && untrackedContext.requireReconnectOnFullscreenExit && !isFullscreenActive) {
         this.toolbarComponentContext.console.sendReconnectRequest();
       }
-
-      // 
     });
   }
 
@@ -135,13 +137,23 @@ export class ConsoleToolbarComponent {
     this.keyboardInputSent.emit(text);
   }
 
-  protected handleNetworkConnectionRequest(networkName: string) {
-    const availableNetworks = this.consoleNetworkConfig()?.available || [];
-    if (availableNetworks.indexOf(networkName) === -1) {
-      throw new Error(`Network ${networkName} is not available to this console.`);
+  protected handleNetworkConnectionRequest(request: ConsoleNetworkConnectionRequest) {
+    const availableNetworks = this.consoleNetworkConfig()?.networks || [];
+    if (availableNetworks.indexOf(request.network) === -1) {
+      throw new Error(`Network "${request.network}" is not available to this console.`);
     }
 
-    this.networkConnectionRequested.emit(networkName);
+    this.networkConnectionRequested.emit(request);
+  }
+
+  protected handleNetworkDisconnectionRequest(request?: ConsoleNetworkDisconnectionRequest) {
+    if (request?.nic && this.consoleNetworkConfig()?.nics) {
+      if (this.consoleNetworkConfig()?.nics.indexOf(request.nic) === -1) {
+        throw new Error(`NIC ${request.nic} is not available to this console.`);
+      }
+    }
+
+    this.networkDisconnectRequested.emit(request);
   }
 
   protected handleReconnectRequestSent(): Promise<void> {

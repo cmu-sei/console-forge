@@ -22,7 +22,7 @@
     (consoleClipboardUpdated)="handleConsoleClipboardUpdated($event)"
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
-    (networkDisconnectRequested)="handleNetworkDisconnectRequest()" (reconnectRequest)="handleReconnectRequest()"
+    (networkDisconnectRequested)="handleNetworkDisconnectRequest($event)" (reconnectRequest)="handleReconnectRequest()"
     (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
 }
 

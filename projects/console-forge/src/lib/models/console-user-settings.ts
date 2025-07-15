@@ -9,7 +9,8 @@ import { ConsoleToolbarTheme } from "./console-toolbar-theme";
 export interface ConsoleUserSettings {
     console: {
         allowCopyToLocalClipboard: boolean;
-        preserveAspectRatioOnScale: boolean;
+        attemptRemoteSessionResize: boolean;
+        scaleToCanvasHostSize: boolean;
     }
     toolbar: {
         dockTo: ConsoleToolbarPosition;

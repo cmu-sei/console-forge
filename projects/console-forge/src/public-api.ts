@@ -20,6 +20,8 @@ export * from "./lib/models/console-connection-options";
 export * from "./lib/models/console-connection-status";
 export * from "./lib/models/console-credentials";
 export * from "./lib/models/console-component-network-config";
+export * from "./lib/models/console-network-connection-request";
+export * from "./lib/models/console-network-disconnection-request";
 export * from "./lib/models/console-power-request";
 export * from "./lib/models/console-supported-features";
 export * from "./lib/models/console-toolbar-position";

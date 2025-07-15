@@ -16,7 +16,7 @@
         (canvasRecordingStarted)="handleConsoleRecordingStarted()" [customToolbarComponent]="toolbarComponent()"
         (ctrlAltDelSent)="handleCtrlAltDelSent()" (networkConnectionRequested)="networkConnectionRequested.emit($event)"
         (powerRequestSent)="powerRequestSent.emit($event)"
-        (networkDisconnectRequested)="networkDisconnectRequested.emit()"
+        (networkDisconnectRequested)="networkDisconnectRequested.emit($event)"
         (reconnectRequestSent)="handleReconnectRequest()" (screenshotCopied)="handleScreenshotCopied($event)"
         (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
     }

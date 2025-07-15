@@ -25,6 +25,8 @@ import { ClipboardService } from '../../services/clipboard/clipboard.service';
 import { ConsoleComponentNetworkConfig } from '../../models/console-component-network-config';
 import { CanvasService } from '../../services/canvas.service';
 import { ConsoleConnectionStatus } from '../../models/console-connection-status';
+import { ConsoleNetworkConnectionRequest } from '../../models/console-network-connection-request';
+import { ConsoleNetworkDisconnectionRequest } from '../../models/console-network-disconnection-request';
 
 @Component({
   selector: 'cf-console',
@@ -54,8 +56,8 @@ export class ConsoleComponent implements OnDestroy {
   consoleRecorded = output<Blob>();
   ctrlAltDelSent = output<void>();
   localClipboardUpdated = output<ClipboardItem>();
-  networkConnectionRequested = output<string>();
-  networkDisconnectRequested = output<void>();
+  networkConnectionRequested = output<ConsoleNetworkConnectionRequest>();
+  networkDisconnectRequested = output<ConsoleNetworkDisconnectionRequest | undefined>();
   powerRequestSent = output<ConsolePowerRequest>();
   reconnectRequest = output<ConsoleComponentConfig>();
   screenshotCopied = output<Blob>();
@@ -135,18 +137,6 @@ export class ConsoleComponent implements OnDestroy {
       }
     });
 
-    // fullscreen events (VNC requires reconnect after fullscreen goes negative because of mouse pointer problems)
-    // effect(() => {
-    //   const currentConfig = untracked(() => this.config());
-    //   const isConnected = untracked(() => this.consoleClientConnectionStatus() === "connected");
-    //   const isFullscreen = this.fullscreen.isActive();
-
-    //   if (isConnected && !isFullscreen) {
-    //     console.log("FULLSCREEN STUFF");
-    //     this.reconnectRequest.emit(currentConfig);
-    //   }
-    // });
-
     // input changes
     effect(() => {
       // read values - this effect WILL happen when these values change
@@ -173,14 +163,6 @@ export class ConsoleComponent implements OnDestroy {
 
     // output emitters
     effect(() => this.connectionStatusChanged.emit(this.consoleClientConnectionStatus()));
-
-    // settings changes
-    effect(() => {
-      const currentSettings = this.userSettingsService.settings();
-      if (this.consoleClient() && this.consoleClientConnectionStatus() === "connected") {
-        this.consoleClient()!.setPreserveAspectRatioOnScale(currentSettings.console.preserveAspectRatioOnScale);
-      }
-    });
   }
 
   public async ngOnDestroy(): Promise<void> {

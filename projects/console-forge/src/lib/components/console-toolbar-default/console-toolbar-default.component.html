@@ -68,9 +68,8 @@
         </cf-console-toolbar-default-button>
         }
 
-        @if (consoleContext().networks.config()?.available?.length) {
-        <cf-console-toolbar-default-button
-            label="Networks ({{ consoleContext().networks.config()?.available?.length }})"
+        @if (consoleContext().networks.config()?.networks?.length) {
+        <cf-console-toolbar-default-button label="Networks ({{ consoleContext().networks.config()?.networks?.length }})"
             (clicked)="handleNetworkDialogOpenClose(true)">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -286,24 +285,36 @@
             </header>
 
             <form>
+                @for (nic of consoleContext().networks.config()?.nics; track nic)
+                {
+                <label for="nic-{{ nic }}-select">{{ nic }}</label>
                 <fieldset role="group">
-                    <select #availableNetworksSelect name="current-network" aria-label="Select a network to connect to"
-                        [(ngModel)]="selectedNetworkForChange" required>
-                        <option selected value="">
-                            [Disconnect from network]
+                    <select #availableNetworksSelect name="nic-{{ nic }}-select"
+                        aria-label="Select a network to connect to">
+                        <option [selected]="!consoleContext().networks.config()?.currentConnections?.[nic]" value="">
+                            [Disconnected]
                         </option>
 
-                        @for(network of consoleContext().networks.config()?.available; track network) {
-                        <option [value]="network">
+                        @for(network of consoleContext().networks.config()?.networks; track network) {
+                        <option [value]="network"
+                            [selected]="consoleContext().networks.config()?.currentConnections?.[nic] === network">
                             {{ network }}
                         </option>
                         }
                     </select>
 
-                    <button type="button" (click)="handleNetworkChangeRequested(selectedNetworkForChange())">
+                    <button type="button"
+                        (click)="handleNetworkChangeRequested({ network: availableNetworksSelect.value, nic: nic })">
                         {{ availableNetworksSelect.value ? "Connect" : "Disconnect" }}
                     </button>
                 </fieldset>
+                }
+                <hr />
+                <div class="dialog-button-group">
+                    <button class="secondary" type="button" (click)="handleNetworkDisconnectAllRequested()">
+                        Disconnect All Network Interfaces
+                    </button>
+                </div>
             </form>
         </article>
     </dialog>
@@ -347,10 +358,16 @@
                         Allow the remote machine to copy text to my local clipboard
                     </label>
                     <label>
+                        <input #inputAttemptRemoteSessionResize type="checkbox" name="attemptRemoteSessionResize"
+                            [checked]="consoleContext().userSettings.settings().console.attemptRemoteSessionResize"
+                            (change)="handleSettingsAttemptRemoteSessionResize(inputAttemptRemoteSessionResize.checked)" />
+                        Attempt to resize the remote session to match local resolution
+                    </label>
+                    <label>
                         <input #inputScaleToContainerSize type="checkbox" name="scaleToContainerSize"
-                            [checked]="consoleContext().userSettings.settings().console.preserveAspectRatioOnScale"
-                            (change)="handleSettingsPreserveAspectRatioChange(inputScaleToContainerSize.checked)" />
-                        Preserve console aspect ratio when scaling size
+                            [checked]="consoleContext().userSettings.settings().console.scaleToCanvasHostSize"
+                            (change)="handleSettingsScaleToContainerHostSize(inputScaleToContainerSize.checked)" />
+                        Scale to maximum available size
                     </label>
                 </fieldset>
 

@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, ConsoleNetworkConnectionRequest, ConsoleNetworkDisconnectionRequest } from 'console-forge';
 
 @Component({
   selector: 'app-with-x11vnc',
@@ -42,8 +42,9 @@ export class WithX11vncComponent {
 
   // make some imaginary networks, just to show off the network switching UI
   protected networkConfig = model<ConsoleComponentNetworkConfig>({
-    available: ["GreenNet", "PurpleNet"],
-    current: "GreenNet"
+    networks: ["GreenNet", "PurpleNet"],
+    nics: ["LAN", "WAN"],
+    currentConnections: { "LAN": "GreenNet" }
   });
   protected isConnected = signal<boolean>(false);
   protected isViewOnly = model(false);
@@ -67,6 +68,27 @@ export class WithX11vncComponent {
 
   protected async handleDisconnect() {
     this.cfConfig = undefined;
+  }
+
+  protected handleNetworkConnectionRequest(request: ConsoleNetworkConnectionRequest) {
+    console.log("connecting", request);
+    this.networkConfig.update(current => {
+      current.currentConnections[request.nic] = request.network;
+      return current;
+    });
+  }
+
+  protected handleNetworkDisconnectionRequest(request?: ConsoleNetworkDisconnectionRequest) {
+    console.log("disconnecting", request);
+    this.networkConfig.update(current => {
+      if (request?.nic) {
+        delete current.currentConnections[request.nic];
+      }
+      else {
+        current.currentConnections = {};
+      }
+      return current;
+    });
   }
 
   protected handleReconnectRequest() {

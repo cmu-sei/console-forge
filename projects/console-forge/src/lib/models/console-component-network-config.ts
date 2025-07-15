@@ -4,6 +4,7 @@
 //  ===END LICENSE===
 
 export interface ConsoleComponentNetworkConfig {
-    available: string[];
-    current?: string;
+    networks: string[];
+    nics: string[];
+    currentConnections: Record<string, string>;
 }
