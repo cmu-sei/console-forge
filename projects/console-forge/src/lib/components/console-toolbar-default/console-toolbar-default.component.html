@@ -291,9 +291,13 @@
                 <fieldset role="group">
                     <select #availableNetworksSelect name="nic-{{ nic }}-select"
                         aria-label="Select a network to connect to">
+
+                        @if (!cfConfig.disabledFeatures.networkDisconnection)
+                        {
                         <option [selected]="!consoleContext().networks.config()?.currentConnections?.[nic]" value="">
                             [Disconnected]
                         </option>
+                        }
 
                         @for(network of consoleContext().networks.config()?.networks; track network) {
                         <option [value]="network"
@@ -309,12 +313,16 @@
                     </button>
                 </fieldset>
                 }
+
+                @if (!cfConfig.disabledFeatures.networkDisconnection)
+                {
                 <hr />
                 <div class="dialog-button-group">
                     <button class="secondary" type="button" (click)="handleNetworkDisconnectAllRequested()">
                         Disconnect All Network Interfaces
                     </button>
                 </div>
+                }
             </form>
         </article>
     </dialog>
@@ -378,11 +386,10 @@
                             [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'left'">Left</button>
                         <button (click)="handleChangeToolbarPosition('right')"
                             [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'right'">Right</button>
-                        <!-- see https://github.com/cmu-sei/console-forge/issues/12 -->
-                        <!-- <button (click)="handleChangeToolbarPosition('top')"
+                        <button (click)="handleChangeToolbarPosition('top')"
                             [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'top'">Top</button>
                         <button (click)="handleChangeToolbarPosition('bottom')"
-                            [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'bottom'">Bottom</button> -->
+                            [disabled]="consoleContext().userSettings.settings().toolbar.dockTo === 'bottom'">Bottom</button>
                     </div>
                 </div>
 

@@ -23,6 +23,7 @@ export abstract class ConsoleForgeConfig {
         clipboard?: boolean;
         consoleScreenRecord?: boolean;
         manualConsoleReconnect?: boolean;
+        networkDisconnection?: boolean;
     };
     abstract logThreshold: LogLevel;
     abstract showBrowserNotificationsOnConsoleEvents: boolean;
@@ -45,6 +46,7 @@ export const defaultCfConfig: ConsoleForgeConfig = {
         clipboard: false,
         consoleScreenRecord: false,
         manualConsoleReconnect: false,
+        networkDisconnection: false,
     },
     logThreshold: LogLevel.WARNING,
     showBrowserNotificationsOnConsoleEvents: true,
