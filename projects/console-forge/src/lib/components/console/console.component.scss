@@ -110,8 +110,7 @@ cf-console-status {
 .console-component.console-client-type-vnc {
   ::ng-deep {
     canvas {
-      height: 100% !important;
-      width: 100% !important;
+      // for if we ever need to style the canvas inject by noVNC
     }
   }
 }

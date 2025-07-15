@@ -55,11 +55,11 @@ export class VncConsoleClientService implements ConsoleClientService {
         return;
       }
 
-      this.updateFromUserSettings(settings);
+      this.updateFromUserSettings(this.noVncClient, settings);
     });
   }
 
-  public async connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
+  public connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
     if (this.noVncClient) {
       try {
         this.noVncClient.disconnect();
@@ -72,56 +72,72 @@ export class VncConsoleClientService implements ConsoleClientService {
       this.noVncClient = undefined;
     }
 
-    try {
-      this._connectionStatus.update(() => "connecting");
-      this.logger.log(LogLevel.DEBUG, "Connecting to", url, options);
+    return new Promise((resolve, reject) => {
+      // track whether we've resolved the promise yet - we need to reject it on the "disconnect" event if it isn't
+      let isResolved = false;
 
-      const noVncCredentials: NoVncOptions = {
-        credentials: {
-          password: options?.credentials?.accessTicket || options?.credentials?.password || "",
-          // explicitly not supporting these for now
-          username: "",
-          target: ""
-        },
-      };
+      try {
+        this._connectionStatus.update(() => "connecting");
+        this.logger.log(LogLevel.DEBUG, "Connecting to", url, options);
 
-      this.logger.log(LogLevel.DEBUG, "Connecting...", noVncCredentials);
-      let client = new NoVncClient(options.hostElement, url, noVncCredentials);
-
-      this.logger.log(LogLevel.DEBUG, "Client instantiated. Configuring...");
-      client = this.doPreConnectionConfig(client);
-      this.logger.log(LogLevel.DEBUG, "Pre-connection config done.");
-
-      client.addEventListener("connect", () => {
-        this._connectionStatus.update(() => "connected");
-        this.logger.log(LogLevel.DEBUG, "Connected. Performing post-connection configuration...");
-
-        // do other post-connection config
-        this.noVncClient = this.doPostConnectionConfig(client, options);
-        this.logger.log(LogLevel.DEBUG, "Post-connection config done. Resolving supported features...");
-
-        // the vnc client knows its capabilities post-connection
-        // so send this back along with the things we know we can't support
-        const supportedFeatures: ConsoleSupportedFeatures = {
-          clipboardAutomaticLocalCopy: true,
-          clipboardRemoteWrite: true,
-          onScreenKeyboard: false,
-          powerManagement: this.noVncClient.capabilities.power,
-          requireReconnectOnExitingFullscreen: true,
-          viewOnlyMode: true
+        const noVncCredentials: NoVncOptions = {
+          credentials: {
+            password: options?.credentials?.accessTicket || options?.credentials?.password || "",
+            // explicitly not supporting these for now
+            username: "",
+            target: ""
+          },
         };
 
-        this._supportedFeatures.update(() => supportedFeatures);
-        this.noVncClient = client;
+        this.logger.log(LogLevel.DEBUG, "Connecting...", noVncCredentials);
+        const client = new NoVncClient(options.hostElement, url, noVncCredentials);
 
-        this.logger.log(LogLevel.DEBUG, "Supported features resolved. Connection complete!");
-      });
-    }
-    catch (err) {
-      this._connectionStatus.update(() => "disconnected");
-      this.logger.log(LogLevel.ERROR, "Connection error", err);
-      throw err;
-    }
+        this.logger.log(LogLevel.DEBUG, "Client instantiated. Configuring...");
+        this.doPreConnectionConfig(client);
+        this.logger.log(LogLevel.DEBUG, "Pre-connection config done.");
+
+        client.addEventListener("disconnect", event => {
+          if (isResolved) {
+            return;
+          }
+          isResolved = true;
+          this.logger.log(LogLevel.ERROR, "Connection error", event);
+          reject(event);
+        });
+
+        client.addEventListener("connect", () => {
+          this._connectionStatus.update(() => "connected");
+          this.logger.log(LogLevel.DEBUG, "Connected. Performing post-connection configuration...");
+
+          // do other post-connection config
+          this.doPostConnectionConfig(client, options);
+          this.logger.log(LogLevel.DEBUG, "Post-connection config done. Resolving supported features...");
+
+          // the vnc client knows its capabilities post-connection
+          // so send this back along with the things we know we can't support
+          const supportedFeatures: ConsoleSupportedFeatures = {
+            clipboardAutomaticLocalCopy: true,
+            clipboardRemoteWrite: true,
+            onScreenKeyboard: false,
+            powerManagement: client.capabilities.power,
+            requireReconnectOnExitingFullscreen: true,
+            viewOnlyMode: true
+          };
+
+          this._supportedFeatures.update(() => supportedFeatures);
+          this.noVncClient = client;
+
+          this.logger.log(LogLevel.DEBUG, "Connection complete!", this.noVncClient);
+          isResolved = true;
+          resolve();
+        });
+      }
+      catch (err) {
+        this._connectionStatus.update(() => "disconnected");
+        this.logger.log(LogLevel.ERROR, "Connection error", err);
+        reject(err);
+      }
+    });
   }
 
   public async disconnect(): Promise<void> {
@@ -212,31 +228,7 @@ export class VncConsoleClientService implements ConsoleClientService {
     this.noVncClient.viewOnly = isViewOnly;
   }
 
-  public setAttemptRemoteSessionResize(attempt: boolean): Promise<void> {
-    if (!this.noVncClient) {
-      throw new Error("VNC client isn't connected, can't set properties.");
-    }
-
-    try {
-      this.logger.log(LogLevel.DEBUG, "Set remote session resize to", attempt);
-      this.noVncClient.resizeSession = attempt;
-      return Promise.resolve();
-    }
-    catch (err) {
-      return Promise.reject(err);
-    }
-  }
-
-  public async setScaleToCanvasHostSize(preserve: boolean): Promise<void> {
-    if (!this.noVncClient) {
-      throw new Error("VNC client isn't connected; can't set properties.");
-    }
-
-    this.logger.log(LogLevel.DEBUG, "Set preserve aspect ratio to", preserve);
-    this.noVncClient.scaleViewport = preserve;
-  }
-
-  private doPreConnectionConfig(client: NoVncClient): NoVncClient {
+  private doPreConnectionConfig(client: NoVncClient) {
     client.addEventListener("connect", () => {
       this._connectionStatus.update(() => "connected");
       this.logger.log(LogLevel.INFO, "Connected!");
@@ -262,22 +254,18 @@ export class VncConsoleClientService implements ConsoleClientService {
         this.clipboardService.copyText(ev.detail.text);
       }
     });
-
-    return client;
   }
 
-  private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions): NoVncClient {
+  private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions) {
     client.background = options.backgroundStyle || "";
-
-    // ensure we're matching current user settings
-    this.updateFromUserSettings(this.userSettings.settings());
 
     // try focus if requested
     if (options.autoFocusOnConnect) {
       client.focus();
     }
 
-    return client;
+    // set client settings from user's
+    this.updateFromUserSettings(client, this.userSettings.settings());
   }
 
   private handleDisconnect(isManualDisconnect: boolean) {
@@ -293,8 +281,17 @@ export class VncConsoleClientService implements ConsoleClientService {
     }
   }
 
-  private updateFromUserSettings(settings: ConsoleUserSettings) {
-    this.setAttemptRemoteSessionResize(settings.console.attemptRemoteSessionResize);
-    this.setScaleToCanvasHostSize(settings.console.scaleToCanvasHostSize);
+  private updateFromUserSettings(client: NoVncClient, settings: ConsoleUserSettings) {
+    if (!client) {
+      return;
+    }
+
+    try {
+      client.scaleViewport = settings.console.scaleToCanvasHostSize;
+      client.resizeSession = settings.console.attemptRemoteSessionResize;
+    }
+    catch (err) {
+      this.logger.log(LogLevel.WARNING, "Couldn't update VNC client settings from user settings.", err);
+    }
   }
 }

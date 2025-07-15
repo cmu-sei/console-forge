@@ -193,39 +193,9 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     return Promise.reject(`Power management request aren't supported for VMWare consoles. (rejected request: "${request}")`);
   }
 
-  public setAttemptRemoteSessionResize(attempt: boolean): Promise<void> {
-    if (!this.wmksClient) {
-      return Promise.reject("VMWare client isn't connected; can't set properties.");
-    }
-
-    try {
-      this.wmksClient!.setOption("changeResolution", attempt);
-      return Promise.resolve();
-    }
-    catch (err) {
-      return Promise.reject(err);
-    }
-  }
-
   public setIsViewOnly(isViewOnly: boolean): Promise<void> {
     this.logger.log(LogLevel.INFO, "A 'view-only' request was issued, but this isn't directly supported at the protocol level for VMWare. The ConsoleComponent will do its best to make the console canvas view-only. Request:", isViewOnly);
     return Promise.resolve();
-  }
-
-  public setScaleToCanvasHostSize(scaleToContainerSize: boolean): Promise<void> {
-    return new Promise((resolve, reject) => {
-      try {
-        if (!this.wmksClient) {
-          throw new Error("Couldn't resolve client; can't set option");
-        }
-
-        this.wmksClient.setOption("rescale", scaleToContainerSize);
-        resolve();
-      }
-      catch (err) {
-        reject(err);
-      }
-    });
   }
 
   public dispose(): Promise<void> {
@@ -266,6 +236,9 @@ export class VmWareConsoleClientService implements ConsoleClientService {
         }
       })
     }
+
+    // finally, update from user settings to ensure the behavior the user expects
+    this.updateFromUserSettings(this.userSettings.settings());
   }
 
   private doPostDisconnectionConfig() {
@@ -282,8 +255,8 @@ export class VmWareConsoleClientService implements ConsoleClientService {
       return;
     }
 
-    this.setAttemptRemoteSessionResize(settings.console.attemptRemoteSessionResize);
-    this.setScaleToCanvasHostSize(settings.console.scaleToCanvasHostSize);
+    this.wmksClient.setOption("changeResolution", settings.console.attemptRemoteSessionResize);
+    this.wmksClient.setOption("rescale", settings.console.scaleToCanvasHostSize);
     this.wmksClient.updateScreen();
   }
 }
