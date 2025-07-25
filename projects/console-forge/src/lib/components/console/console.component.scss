@@ -76,6 +76,10 @@ cf-console-status {
 
 /* WMKS is its own whole vibe */
 .console-component.console-client-type-vmware {
+  .console-host-container {
+    position: relative;
+  }
+
   &:not(:fullscreen) {
     // we have to take a hammer to the canvas when VMWare's "WMKS" gets involved, because it does crazy things.
     // we need these hacks when we're _not_ in full screen mode so that it doesn't break the layout, but when it's
@@ -85,7 +89,6 @@ cf-console-status {
         aspect-ratio: 16 / 9 !important;
         max-height: 100% !important;
         max-width: 100% !important;
-        position: unset !important;
       }
     }
   }
