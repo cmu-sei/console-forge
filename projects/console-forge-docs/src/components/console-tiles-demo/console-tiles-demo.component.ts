@@ -12,7 +12,7 @@ export class ConsoleTilesDemoComponent {
     autoFocusOnConnect: true,
     consoleClientType: "vnc",
     credentials: {
-      "password": "mypw"
+      password: "mypw"
     },
     url: "http://localhost:5950"
   };

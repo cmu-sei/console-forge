@@ -34,15 +34,18 @@ export class ConsoleTileComponent {
   protected consoleHostElementId = "console-host-tile-" + this.uuids.get();
 
   constructor() {
+    // auto-connect on config
     effect(() => {
       const config = this.config();
       const consoleHostElement = this.consoleHostElement();
-      this.logger.log(LogLevel.DEBUG, "Reconnecting console tile with config", config);
 
-      if (config && consoleHostElement && !this.consoleClient) {
-        this.connect(consoleHostElement!.nativeElement);
-        this.logger.log(LogLevel.DEBUG, "Reconnected console tile with config", config);
+      if (!config || !consoleHostElement) {
+        return;
       }
+
+      this.logger.log(LogLevel.DEBUG, "Reconnecting console tile with config", config);
+      this.connect(consoleHostElement!.nativeElement);
+      this.logger.log(LogLevel.DEBUG, "Reconnected console tile with config", config);
     });
   }
 

@@ -22,6 +22,7 @@ import { ConsoleForgeConfig } from '../../../config/console-forge-config';
 import { UserSettingsService } from '../../user-settings.service';
 import { ConsoleClientType } from '../../../models/console-client-type';
 import { ConsoleUserSettings } from '../../../models/console-user-settings';
+import { UuidService } from '../../uuid.service';
 
 @Injectable({ providedIn: 'root' })
 export class VmWareConsoleClientService implements ConsoleClientService {
@@ -30,6 +31,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   private readonly logger = inject(LoggerService);
   private readonly document = inject(DOCUMENT);
   private readonly userSettings = inject(UserSettingsService);
+  private readonly uuids = inject(UuidService);
   private readonly window = inject(WINDOW);
   private wmksClient?: WmksClient;
 
@@ -81,6 +83,11 @@ export class VmWareConsoleClientService implements ConsoleClientService {
       throw new Error("A host element is required to connect to a VMWare WMKS console.");
     }
 
+    if (!options.hostElement.id) {
+      this.logger.log(LogLevel.WARNING, "The host element is present but has no ID. VMWare's WMKS requires that it have one, so generating a dummy for now.");
+      options.hostElement.id = `cf-console-vmware-dummy-${this.uuids.get()}`;
+    }
+
     this.logger.log(LogLevel.DEBUG, "Connecting to WMKS...", options);
     return new Promise((resolve, reject) => {
       const wmksOptions: WmksClientCreateOptions = {
@@ -91,7 +98,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
         position: WmksPosition.CENTER
       };
 
-      this.logger.log(LogLevel.DEBUG, "Creating WMKS client...", wmksOptions);
+      this.logger.log(LogLevel.DEBUG, "Creating WMKS client...", options.hostElement.id, wmksOptions);
       this.wmksClient = createWmksClient(options.hostElement.id, wmksOptions)
         .register(WmksEvents.CONNECTION_STATE_CHANGE, (ev, data) => {
           this.logger.log(LogLevel.DEBUG, "WMKS state change", ev, data);
