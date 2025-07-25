@@ -18,16 +18,17 @@ import { LogLevel } from '../../models/log-level';
 })
 export class ConsoleTileComponent {
   public config = input<ConsoleComponentConfig>();
+  public clicked = output<ConsoleComponentConfig | undefined>();
   public reconnectRequest = output<ConsoleComponentConfig | undefined>();
 
   private readonly cfConfig = inject(ConsoleForgeConfig);
   private readonly consoleClientFactory = inject(ConsoleClientFactoryService);
-  private readonly consoleClientType = computed(() => this.config()?.consoleClientType || this.cfConfig.defaultConsoleClientType);
   private readonly consoleHostElement = viewChild<ElementRef<HTMLElement>>("consoleHost");
   private readonly logger = inject(LoggerService);
   private readonly uuids = inject(UuidService);
 
   protected consoleClient?: ConsoleClientService;
+  protected readonly consoleClientType = computed(() => this.config()?.consoleClientType || this.cfConfig.defaultConsoleClientType);
 
   // even though nothing here explicitly references this, every console host element needs an ID
   // because the vmware client relies on the ID, not the element reference, to create its canvas

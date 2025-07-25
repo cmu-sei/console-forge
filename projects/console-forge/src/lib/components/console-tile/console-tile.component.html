@@ -2,6 +2,9 @@
     <cf-console-status [status]="consoleClient?.connectionStatus()"
         (reconnectRequest)="reconnectRequest.emit(this.config())"></cf-console-status>
 
-    <div #consoleHost [id]="consoleHostElementId" class="console-host">
+    <div #consoleHost [id]="consoleHostElementId" class="console-host"
+        [class.clickable]="consoleClient?.connectionStatus() == 'connected'"
+        [class.console-client-type-vnc]="consoleClientType() == 'vnc'"
+        [class.console-client-type-vmware]="consoleClientType() == 'vmware'" (click)="clicked.emit(config())">
     </div>
 </div>

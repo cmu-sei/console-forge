@@ -92,10 +92,12 @@ cf-console-status {
   .console-host {
     display: flex;
     justify-content: center;
-    position: relative;
 
     // it seems incapable of making reasonable guesses about how to size itself unless we tell it, so:
     aspect-ratio: 16 / 9;
+
+    // vmware's canvas positions absolutely, so it needs a relative parent to contain it
+    position: relative;
 
     /* WMKS doesn't natively support a readonly mode, so when .view-only is live, we have to do a bunch of manual read-only hacking */
     &.view-only {

@@ -19,4 +19,13 @@
   aspect-ratio: 16 / 9;
   margin: 0 auto;
   overflow: hidden;
+
+  &.clickable {
+    cursor: pointer;
+  }
+
+  // vmware's canvas positions absolutely, so it needs a relative parent to contain it
+  &.console-client-type-vmware {
+    position: relative;
+  }
 }
