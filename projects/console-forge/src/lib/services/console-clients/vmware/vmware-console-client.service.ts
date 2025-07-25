@@ -14,7 +14,7 @@ import { ConsoleConnectionStatus } from '../../../models/console-connection-stat
 import { ConsolePowerRequest } from '../../../models/console-power-request';
 import { ConsoleSupportedFeatures } from '../../../models/console-supported-features';
 import { LogLevel } from '../../../models/log-level';
-import { createWmksClient, WmksClient } from "../../../shims/vmware-wmks.shim";
+import { createWmksClient, WmksClient, WmksClientCreateOptions } from "../../../shims/vmware-wmks.shim";
 import { WmksConnectionState, WmksEvents, WmksPosition } from '../../../shims/vmware-mks.models';
 import { WINDOW } from '../../../injection/window.injection-token';
 import { ClipboardService } from '../../clipboard/clipboard.service';
@@ -81,14 +81,18 @@ export class VmWareConsoleClientService implements ConsoleClientService {
       throw new Error("A host element is required to connect to a VMWare WMKS console.");
     }
 
+    this.logger.log(LogLevel.DEBUG, "Connecting to WMKS...", options);
     return new Promise((resolve, reject) => {
-      this.wmksClient = createWmksClient(options.hostElement.id, {
+      const wmksOptions: WmksClientCreateOptions = {
         changeResolution: true,
         rescale: false,
         useNativePixels: true,
         useVNCHandshake: false,
         position: WmksPosition.CENTER
-      })
+      };
+
+      this.logger.log(LogLevel.DEBUG, "Creating WMKS client...", wmksOptions);
+      this.wmksClient = createWmksClient(options.hostElement.id, wmksOptions)
         .register(WmksEvents.CONNECTION_STATE_CHANGE, (ev, data) => {
           this.logger.log(LogLevel.DEBUG, "WMKS state change", ev, data);
 
