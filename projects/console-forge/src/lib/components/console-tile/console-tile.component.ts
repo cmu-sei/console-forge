@@ -5,6 +5,8 @@ import { ConsoleClientService } from '../../services/console-clients/console-cli
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
 import { UuidService } from '../../services/uuid.service';
+import { LoggerService } from '../../services/logger.service';
+import { LogLevel } from '../../models/log-level';
 
 @Component({
   selector: 'cf-console-tile',
@@ -22,6 +24,7 @@ export class ConsoleTileComponent {
   private readonly consoleClientFactory = inject(ConsoleClientFactoryService);
   private readonly consoleClientType = computed(() => this.config()?.consoleClientType || this.cfConfig.defaultConsoleClientType);
   private readonly consoleHostElement = viewChild<ElementRef<HTMLElement>>("consoleHost");
+  private readonly logger = inject(LoggerService);
   private readonly uuids = inject(UuidService);
 
   protected consoleClient?: ConsoleClientService;
@@ -32,8 +35,13 @@ export class ConsoleTileComponent {
 
   constructor() {
     effect(() => {
-      if (this.config() && this.consoleHostElement() && !this.consoleClient) {
-        this.connect(this.consoleHostElement()!.nativeElement);
+      const config = this.config();
+      const consoleHostElement = this.consoleHostElement();
+      this.logger.log(LogLevel.DEBUG, "Reconnecting console tile with config", config);
+
+      if (config && consoleHostElement && !this.consoleClient) {
+        this.connect(consoleHostElement!.nativeElement);
+        this.logger.log(LogLevel.DEBUG, "Reconnected console tile with config", config);
       }
     });
   }

@@ -16,4 +16,8 @@ export class ConsoleTilesDemoComponent {
     },
     url: "http://localhost:5950"
   };
+
+  protected handleReconnectRequest(config?: ConsoleComponentConfig) {
+    console.log("This is probably happening because your x11VNC docker container isn't running. The console tile issues a reconnect request when you click on its 'disconnected' banner. Config:", config);
+  }
 }
