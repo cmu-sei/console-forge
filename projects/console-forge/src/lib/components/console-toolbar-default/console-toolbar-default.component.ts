@@ -84,7 +84,7 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
   }
 
   protected handleClipboardCopyLastText(text: string) {
-    this.clipboardService.copyText(text);
+    this.clipboardService.copyText(text, false);
   }
 
   protected handleNetworkChangeRequested(request: ConsoleNetworkConnectionRequest) {

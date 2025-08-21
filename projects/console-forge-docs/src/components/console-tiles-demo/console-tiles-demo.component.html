@@ -6,10 +6,16 @@
 </p>
 
 <div class="flex">
-    <cf-console-tile [config]="cfConfig" (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
-    <cf-console-tile [config]="cfConfig" (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
-    <cf-console-tile [config]="cfConfig" (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
-    <cf-console-tile [config]="cfConfig" (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
-    <cf-console-tile [config]="cfConfig" (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
-    <cf-console-tile [config]="cfConfig" (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
+    <cf-console-tile [config]="cfConfig" (clicked)="handleClick($event)"
+        (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
+    <cf-console-tile [config]="cfConfig" (clicked)="handleClick($event)"
+        (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
+    <cf-console-tile [config]="cfConfig" (clicked)="handleClick($event)"
+        (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
+    <cf-console-tile [config]="cfConfig" (clicked)="handleClick($event)"
+        (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
+    <cf-console-tile [config]="cfConfig" (clicked)="handleClick($event)"
+        (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
+    <cf-console-tile [config]="cfConfig" (clicked)="handleClick($event)"
+        (reconnectRequest)="handleReconnectRequest($event)"></cf-console-tile>
 </div>

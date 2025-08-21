@@ -195,6 +195,11 @@ export class ConsoleToolbarComponent {
 
     this.logger.log(LogLevel.DEBUG, "Recording stopped.");
     const recording = await this.activeConsoleRecording()!.recording.stop();
+
+    // try to cancel the timeout of the extant recording if it's there
+    if (this.activeConsoleRecording()?.timeoutRef) {
+      this.window.clearTimeout(this.activeConsoleRecording()!.timeoutRef);
+    }
     this.activeConsoleRecording.update(() => undefined);
 
     // if configured, automatically offer a download
@@ -202,6 +207,7 @@ export class ConsoleToolbarComponent {
       this.blobDownloader.download(recording, "your-console-recording.webm");
     }
 
+    // emit the recording
     this.canvasRecordingFinished.emit(recording);
     this.logger.log(LogLevel.DEBUG, "Recording emitted.");
     return recording;

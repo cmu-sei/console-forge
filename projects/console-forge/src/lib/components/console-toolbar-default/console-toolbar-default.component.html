@@ -123,9 +123,6 @@
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                 <g id="SVGRepo_iconCarrier">
-                    <title>record [#979]</title>
-                    <desc>Created with Sketch.</desc>
-                    <defs> </defs>
                     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                         <g id="Dribbble-Light-Preview" transform="translate(-100.000000, -3879.000000)" fill="#000000">
                             <g id="icons" transform="translate(56.000000, 160.000000)">
@@ -212,11 +209,11 @@
 
             @if (consoleContext().console.supportedFeatures().clipboardRemoteWrite) {
             <div class="dialog-section">
-                <h2>Send Text to Console Clipboard</h2>
+                <h2>Send Text to Remote Clipboard</h2>
                 <form (submit)="handleSendClipboardText($event, clipboardText.value)">
                     <fieldset role="group">
                         <input type="text" class="clipboard-text" aria-label="Clipboard text"
-                            placeholder="Enter text to send to the console's clipboard" #clipboardText autofocus>
+                            placeholder="Enter text to send to the remote clipboard" #clipboardText autofocus>
                         <button type="submit"
                             [disabled]="!clipboardText.value || !consoleContext().state.isConnected">Send</button>
                     </fieldset>
@@ -224,20 +221,27 @@
             </div>
             }
 
-            @if(!consoleContext().userSettings.settings().console.allowCopyToLocalClipboard ||
-            !consoleContext().console.supportedFeatures().clipboardAutomaticLocalCopy) {
             <div class="dialog-section">
-                <h2>Console Clipboard Content</h2>
+                <h2>Remote Clipboard Content</h2>
                 <form (submit)="handleClipboardCopyLastText(consoleLastClipboardText.value)">
                     <fieldset role="group">
-                        <input type="text" class="clipboard-text" aria-label="Clipboard text" disabled
+                        <input type="text" id="textFromConsoleClipboard" name="textFromConsoleClipboard"
+                            class="clipboard-text" aria-describedby="textFromConsoleClipboard-helper"
+                            aria-label="Clipboard text" disabled
                             [value]="consoleContext().clipboard.consoleClipboardText()"
-                            placeholder="The console's clipboard content will appear here" #consoleLastClipboardText>
+                            placeholder="Text on the remote will appear here" #consoleLastClipboardText>
                         <button type="submit" [disabled]="!consoleLastClipboardText.value">Copy</button>
                     </fieldset>
+                    @if(consoleContext().userSettings.settings().console.allowCopyToLocalClipboard &&
+                    consoleContext().console.supportedFeatures().clipboardAutomaticLocalCopy)
+                    {
+                    <small id="textFromConsoleClipboard-helper">
+                        Copied text on the remote machine will automatically copy to your local clipboard.
+                        Disable this in Settings.
+                    </small>
+                    }
                 </form>
             </div>
-            }
         </article>
     </dialog>
 
@@ -254,9 +258,9 @@
                 <h2>Send Keystrokes to Console</h2>
                 <form (submit)="handleSendKeyboardInput($event, keyboardInputText())">
                     <fieldset role="group">
-                        <input type="text" name="keyboardInputText" class="clipboard-text" aria-label="Clipboard text"
-                            placeholder="Enter text to send as keyboard input to the console" autofocus
-                            [(ngModel)]="keyboardInputText">
+                        <input type="text" id="keyboardInputText" name="keyboardInputText" class="keyboard-text"
+                            aria-label="Keyboard text" placeholder="Enter text to send as keyboard input to the console"
+                            autofocus [(ngModel)]="keyboardInputText">
                         <button type="submit"
                             [disabled]="!keyboardInputText() || !consoleContext().state.isConnected">Send</button>
                     </fieldset>
@@ -357,29 +361,31 @@
             </header>
 
             <div class="settings-form">
-                <h4>Behavior</h4>
-                <fieldset>
-                    <label>
-                        <input #inputAllowLocalClipboardWrite type="checkbox" name="allowLocalClipboardWrite"
-                            [checked]="consoleContext().userSettings.settings().console.allowCopyToLocalClipboard"
-                            (change)="handleSettingsAllowLocalClipboardWrite(inputAllowLocalClipboardWrite.checked)" />
-                        Allow the remote machine to copy text to my local clipboard
-                    </label>
-                    <label>
-                        <input #inputAttemptRemoteSessionResize type="checkbox" name="attemptRemoteSessionResize"
-                            [checked]="consoleContext().userSettings.settings().console.attemptRemoteSessionResize"
-                            (change)="handleSettingsAttemptRemoteSessionResize(inputAttemptRemoteSessionResize.checked)" />
-                        Attempt to resize the remote session to match local resolution
-                    </label>
-                    <label>
-                        <input #inputScaleToContainerSize type="checkbox" name="scaleToContainerSize"
-                            [checked]="consoleContext().userSettings.settings().console.scaleToCanvasHostSize"
-                            (change)="handleSettingsScaleToContainerHostSize(inputScaleToContainerSize.checked)" />
-                        Scale to maximum available size
-                    </label>
-                </fieldset>
+                <div class="settings-behavior dialog-section">
+                    <h4>Behavior</h4>
+                    <fieldset>
+                        <label>
+                            <input #inputAllowLocalClipboardWrite type="checkbox" name="allowLocalClipboardWrite"
+                                [checked]="consoleContext().userSettings.settings().console.allowCopyToLocalClipboard"
+                                (change)="handleSettingsAllowLocalClipboardWrite(inputAllowLocalClipboardWrite.checked)" />
+                            Allow the remote machine to copy text to my local clipboard
+                        </label>
+                        <label>
+                            <input #inputAttemptRemoteSessionResize type="checkbox" name="attemptRemoteSessionResize"
+                                [checked]="consoleContext().userSettings.settings().console.attemptRemoteSessionResize"
+                                (change)="handleSettingsAttemptRemoteSessionResize(inputAttemptRemoteSessionResize.checked)" />
+                            Attempt to resize the remote session to match local resolution
+                        </label>
+                        <label>
+                            <input #inputScaleToContainerSize type="checkbox" name="scaleToContainerSize"
+                                [checked]="consoleContext().userSettings.settings().console.scaleToCanvasHostSize"
+                                (change)="handleSettingsScaleToContainerHostSize(inputScaleToContainerSize.checked)" />
+                            Scale to maximum available size
+                        </label>
+                    </fieldset>
+                </div>
 
-                <div class="settings-toolbar-dock">
+                <div class="settings-toolbar-dock dialog-section">
                     <h4>Toolbar Position</h4>
                     <div role="group">
                         <button (click)="handleChangeToolbarPosition('left')"
@@ -393,7 +399,7 @@
                     </div>
                 </div>
 
-                <div class="settings-theme">
+                <div class="settings-theme dialog-section">
                     <h4>Theme</h4>
                     <div role="group">
                         <button (click)="handleToolbarThemeChange('light')"

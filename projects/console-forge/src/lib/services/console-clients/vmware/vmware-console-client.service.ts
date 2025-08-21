@@ -131,7 +131,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
 
           // if enabled in config and permitted by the user, copy text to local clipboard
           if (!this.cfConfig.disabledFeatures.clipboard && this.userSettings.settings().console.allowCopyToLocalClipboard) {
-            this.clipboardService.copyText(data);
+            this.clipboardService.copyText(data, true);
           }
         })
         .register(WmksEvents.ERROR, (ev, data) => {
@@ -205,7 +205,9 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   }
 
   public setIsViewOnly(isViewOnly: boolean): Promise<void> {
-    this.logger.log(LogLevel.INFO, "A 'view-only' request was issued, but this isn't directly supported at the protocol level for VMWare. The ConsoleComponent will do its best to make the console canvas view-only. Request:", isViewOnly);
+    if (isViewOnly) {
+      this.logger.log(LogLevel.INFO, "A 'view-only' request was issued, but this isn't directly supported at the protocol level for VMWare. The ConsoleComponent will do its best to make the console canvas view-only. Request:", isViewOnly);
+    }
     return Promise.resolve();
   }
 

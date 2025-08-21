@@ -19,11 +19,18 @@ export class ClipboardService {
   public localClipboardContentWritten = this._localClipboardContentWritten.asReadonly();
 
   public copyBlob(blob: Blob) {
-    return this.writeToClipboard(new ClipboardItem({ [blob.type]: blob }));
+    // We don't have any cases where we autocopy blobs for now, so we just pass false here
+    return this.writeToClipboard(new ClipboardItem({ [blob.type]: blob }), false);
   }
 
-  public copyText(text: string) {
-    return this.writeToClipboard(getClipboardItemFromText(text));
+  /**
+   * Copy text to the local user's clipboard.
+   * @param text Copy this text content to the local user's clipboard
+   * @param isAutoCopy Express whether this copy operation is something manually initiated by the user, or is an automatic copy triggered by, for example, a console client's clipboard events.
+   * @returns 
+   */
+  public copyText(text: string, isAutoCopy: boolean) {
+    return this.writeToClipboard(getClipboardItemFromText(text), isAutoCopy);
   }
 
   public async readText() {
@@ -43,13 +50,13 @@ export class ClipboardService {
     return this.document?.defaultView?.navigator?.clipboard;
   }
 
-  private writeToClipboard(item: ClipboardItem) {
+  private writeToClipboard(item: ClipboardItem, isAutoCopy: boolean) {
     const clipboard = this.getClipboard();
     if (!clipboard) {
       throw new Error("Can't access the clipboard to write content");
     }
 
-    if (!this.userSettings.settings().console.allowCopyToLocalClipboard) {
+    if (isAutoCopy && !this.userSettings.settings().console.allowCopyToLocalClipboard) {
       throw new Error("User has disabled ConsoleForge's access to their local clipboard.");
     }
 

@@ -73,8 +73,12 @@ dialog {
     font-weight: bold;
   }
 
+  small {
+    font-size: 0.8rem;
+  }
+
   .dialog-section:not(:last-of-type) {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
   }
 
   .dialog-button-group button {

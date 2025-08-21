@@ -251,7 +251,7 @@ export class VncConsoleClientService implements ConsoleClientService {
       }
 
       if (ev.detail.text) {
-        this.clipboardService.copyText(ev.detail.text);
+        this.clipboardService.copyText(ev.detail.text, true);
       }
     });
   }
