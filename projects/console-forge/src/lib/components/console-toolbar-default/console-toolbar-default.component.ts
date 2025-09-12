@@ -3,7 +3,7 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { AfterViewInit, Component, effect, ElementRef, inject, input, model, viewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, input, model, viewChild, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';

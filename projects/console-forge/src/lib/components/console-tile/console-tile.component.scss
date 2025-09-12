@@ -24,8 +24,14 @@
     cursor: pointer;
   }
 
-  // vmware's canvas positions absolutely, so it needs a relative parent to contain it
   &.console-client-type-vmware {
+    // vmware's canvas positions absolutely, so it needs a relative parent to contain it
     position: relative;
+  }
+
+  // this contains the user mouse. it's injected by VMWare and is outside the console host for some reason.
+  // since console tiles are read-only, we don't want to see them here.
+  .feedback-container {
+    display: none !important;
   }
 }

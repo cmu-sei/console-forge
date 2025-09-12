@@ -1,6 +1,7 @@
 import { Component, computed, effect, ElementRef, inject, input, output, viewChild } from '@angular/core';
 import { ConsoleStatusComponent } from '../console-status/console-status.component';
 import { ConsoleComponentConfig } from '../../models/console-component-config';
+import { ConsoleConnectionStatus } from '../../models/console-connection-status';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
@@ -19,6 +20,7 @@ import { LogLevel } from '../../models/log-level';
 export class ConsoleTileComponent {
   public config = input<ConsoleComponentConfig>();
   public clicked = output<ConsoleComponentConfig | undefined>();
+  public connectionStatus = output<ConsoleConnectionStatus>();
   public reconnectRequest = output<ConsoleComponentConfig | undefined>();
 
   private readonly cfConfig = inject(ConsoleForgeConfig);
@@ -48,6 +50,15 @@ export class ConsoleTileComponent {
       this.connect(consoleHostElement!.nativeElement);
       this.logger.log(LogLevel.DEBUG, "Reconnected console tile with config", config);
     });
+
+    // emit console connection status changes
+    effect(() => {
+      const status = this.consoleClient?.connectionStatus();
+
+      if (status) {
+        this.connectionStatus.emit(status);
+      }
+    })
   }
 
   private async connect(hostElement: HTMLElement) {

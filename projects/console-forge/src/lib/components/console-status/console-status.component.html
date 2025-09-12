@@ -7,7 +7,7 @@
     @if (status() === "connecting") {
     <progress></progress>
     }
-    @else if(!status() || status() == "disconnected") {
+    @else if(status() === "disconnected") {
     <div class="disconnected-banner" (click)="reconnectRequest.emit()">
         Console disconnected
     </div>
