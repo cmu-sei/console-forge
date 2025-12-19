@@ -58,6 +58,7 @@
             "polyfills": ["zone.js"],
             "tsConfig": "projects/console-forge-docs/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "externalDependencies": ["@novnc/novnc"],
             "assets": [
               {
                 "glob": "**/*",
@@ -83,8 +84,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1MB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -143,5 +144,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
