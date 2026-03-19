@@ -6,7 +6,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { LoggerService } from './logger.service';
-import { provideConsoleForge } from '@/config/provide-console-forge';
+import { provideConsoleForge } from '../config/provide-console-forge';
 
 describe('LoggerService', () => {
   let service: LoggerService;

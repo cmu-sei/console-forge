@@ -4,7 +4,8 @@
 //  ===END LICENSE===
 
 import { EnvironmentProviders, makeEnvironmentProviders } from "@angular/core";
-import { ConsoleForgeConfig, defaultCfConfig } from "./console-forge-config";
+import { ConsoleForgeConfig } from "./console-forge-config";
+import { defaultCfConfig } from "./default-console-forge-config";
 import { ClipboardService } from "../services/clipboard/clipboard.service";
 import { ConsoleClientFactoryService } from "../services/console-clients/console-client-factory.service";
 import { FullScreenService } from "../services/full-screen.service";

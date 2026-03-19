@@ -6,6 +6,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ConsoleToolbarComponent } from './console-toolbar.component';
+import { provideConsoleForge } from '../../config/provide-console-forge';
+import { CanvasService } from '../../services/canvas.service';
 
 describe('ConsoleToolbarComponent', () => {
   let component: ConsoleToolbarComponent;
@@ -13,13 +15,13 @@ describe('ConsoleToolbarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConsoleToolbarComponent]
+      imports: [ConsoleToolbarComponent],
+      providers: [provideConsoleForge(), CanvasService]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(ConsoleToolbarComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

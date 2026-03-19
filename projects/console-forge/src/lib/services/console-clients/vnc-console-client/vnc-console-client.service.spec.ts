@@ -6,7 +6,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { VncConsoleClientService } from './vnc-console-client.service';
-import { provideConsoleForge } from '@/config/provide-console-forge';
+import { provideConsoleForge } from '../../../config/provide-console-forge';
 
 describe('VncConsoleClientService', () => {
   let service: VncConsoleClientService;

@@ -6,12 +6,15 @@
 import { TestBed } from '@angular/core/testing';
 
 import { UserSettingsService } from './user-settings.service';
+import { provideConsoleForge } from '../config/provide-console-forge';
 
 describe('UserSettingsService', () => {
   let service: UserSettingsService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideConsoleForge()]
+    });
     service = TestBed.inject(UserSettingsService);
   });
 
