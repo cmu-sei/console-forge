@@ -9,8 +9,8 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@angular/common": "^19.2.0",
-    "@angular/core": "^19.2.0",
+    "@angular/common": "^21.2.5",
+    "@angular/core": "^21.2.5",
     "@novnc/novnc": "^1.4.0"
   },
   "dependencies": {
