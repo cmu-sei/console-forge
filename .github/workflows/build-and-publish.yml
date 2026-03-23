@@ -1,5 +1,7 @@
-name: On release CD to NPM
+name: Build & Publish
 on:
+  pull_request:
+    branches: [main]
   release:
     types: [published]
 jobs:
@@ -15,6 +17,7 @@ jobs:
 
       - name: Determine version from tag
         id: version
+        if: github.event_name == 'release'
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
@@ -36,7 +39,7 @@ jobs:
 
       - name: Update library version
         id: update_version
-        if: steps.version.outputs.tag != ''
+        if: github.event_name == 'release' && steps.version.outputs.tag != ''
         run: |
           echo "Updating version to: $VERSION"
           VERSION_FILES=(
@@ -100,6 +103,7 @@ jobs:
         run: npm run build
 
       - name: Publish to NPM
+        if: github.event_name == 'release'
         run: |
           cd dist/console-forge
           npm publish --provenance --access public
