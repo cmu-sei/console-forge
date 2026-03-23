@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ConsoleTileComponent } from './console-tile.component';
+import { provideConsoleForge } from '../../config/provide-console-forge';
 
 describe('ConsoleTileComponent', () => {
   let component: ConsoleTileComponent;
@@ -8,13 +9,13 @@ describe('ConsoleTileComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConsoleTileComponent]
+      imports: [ConsoleTileComponent],
+      providers: [provideConsoleForge()]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(ConsoleTileComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

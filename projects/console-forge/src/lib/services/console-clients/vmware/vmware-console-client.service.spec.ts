@@ -6,12 +6,15 @@
 import { TestBed } from '@angular/core/testing';
 
 import { VmWareConsoleClientService } from './vmware-console-client.service';
+import { provideConsoleForge } from '../../../config/provide-console-forge';
 
 describe('VmWareConsoleClientService', () => {
   let service: VmWareConsoleClientService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideConsoleForge()]
+    });
     service = TestBed.inject(VmWareConsoleClientService);
   });
 

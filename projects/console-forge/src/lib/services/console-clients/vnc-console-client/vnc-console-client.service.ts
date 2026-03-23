@@ -4,7 +4,7 @@
 //  ===END LICENSE===
 
 import { effect, inject, Injectable, signal } from '@angular/core';
-import NoVncClient, { NoVncOptions } from '@novnc/novnc/core/rfb';
+import NoVncClient, { NoVncOptions } from '@novnc/novnc/lib/rfb';
 import { ConsoleForgeConfig } from '../../../config/console-forge-config';
 import { ConsoleClientType } from '../../../models/console-client-type';
 import { ConsoleConnectionOptions } from '../../../models/console-connection-options';
@@ -96,7 +96,7 @@ export class VncConsoleClientService implements ConsoleClientService {
         this.doPreConnectionConfig(client);
         this.logger.log(LogLevel.DEBUG, "Pre-connection config done.");
 
-        client.addEventListener("disconnect", event => {
+        client.addEventListener("disconnect", (event: CustomEvent<{ clean: boolean }>) => {
           if (isResolved) {
             return;
           }
@@ -233,8 +233,8 @@ export class VncConsoleClientService implements ConsoleClientService {
       this._connectionStatus.update(() => "connected");
       this.logger.log(LogLevel.INFO, "Connected!");
     });
-    client.addEventListener("disconnect", ev => this.handleDisconnect(ev.detail.clean));
-    client.addEventListener("clipboard", ev => {
+    client.addEventListener("disconnect", (ev: CustomEvent<{ clean: boolean }>) => this.handleDisconnect(ev.detail.clean));
+    client.addEventListener("clipboard", (ev: CustomEvent<{ text: string }>) => {
       // emit the event
       this._consoleClipboardUpdated.update(() => ev.detail.text);
 

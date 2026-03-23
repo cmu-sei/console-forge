@@ -6,12 +6,15 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CanvasRecorderService } from './canvas-recorder.service';
+import { provideConsoleForge } from '../../config/provide-console-forge';
 
 describe('CanvasRecorderService', () => {
   let service: CanvasRecorderService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideConsoleForge()]
+    });
     service = TestBed.inject(CanvasRecorderService);
   });
 

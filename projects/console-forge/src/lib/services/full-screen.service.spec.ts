@@ -6,12 +6,15 @@
 import { TestBed } from '@angular/core/testing';
 
 import { FullScreenService } from './full-screen.service';
+import { provideConsoleForge } from '../config/provide-console-forge';
 
 describe('FullScreenService', () => {
   let service: FullScreenService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideConsoleForge()]
+    });
     service = TestBed.inject(FullScreenService);
   });
 

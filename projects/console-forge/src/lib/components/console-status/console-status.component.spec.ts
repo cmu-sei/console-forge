@@ -6,6 +6,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ConsoleStatusComponent } from './console-status.component';
+import { provideConsoleForge } from '../../config/provide-console-forge';
 
 describe('ConsoleStatusComponent', () => {
   let component: ConsoleStatusComponent;
@@ -13,7 +14,8 @@ describe('ConsoleStatusComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConsoleStatusComponent]
+      imports: [ConsoleStatusComponent],
+      providers: [provideConsoleForge()]
     })
     .compileComponents();
 

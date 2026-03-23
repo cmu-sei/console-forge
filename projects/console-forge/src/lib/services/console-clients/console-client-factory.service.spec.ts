@@ -6,12 +6,15 @@
 import { TestBed } from '@angular/core/testing';
 
 import { ConsoleClientFactoryService } from './console-client-factory.service';
+import { provideConsoleForge } from '../../config/provide-console-forge';
 
 describe('ConsoleClientFactoryService', () => {
   let service: ConsoleClientFactoryService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideConsoleForge()]
+    });
     service = TestBed.inject(ConsoleClientFactoryService);
   });
 

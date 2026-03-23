@@ -5,12 +5,15 @@
 
 import { TestBed } from '@angular/core/testing';
 import { ClipboardService } from './clipboard.service';
+import { provideConsoleForge } from '../../config/provide-console-forge';
 
 describe('ClipboardService', () => {
   let service: ClipboardService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideConsoleForge()]
+    });
     service = TestBed.inject(ClipboardService);
   });
 

@@ -10,7 +10,7 @@ import { ConsoleSupportedFeatures } from "./console-supported-features";
 import { ConsoleComponentNetworkConfig } from "./console-component-network-config";
 import { ConsoleNetworkConnectionRequest } from "./console-network-connection-request";
 import { ConsoleNetworkDisconnectionRequest } from "./console-network-disconnection-request";
-import { UserSettingsService } from "../services/user-settings.service";
+import type { UserSettingsService } from "../services/user-settings.service";
 
 export interface ConsoleToolbarContext {
     clipboard: {

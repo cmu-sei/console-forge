@@ -11,7 +11,9 @@ describe('CanvasService', () => {
   let service: CanvasService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [CanvasService]
+    });
     service = TestBed.inject(CanvasService);
   });
 
