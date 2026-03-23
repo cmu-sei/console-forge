@@ -7,11 +7,79 @@ jobs:
     name: Build & Publish
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Determine version from tag
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG=""
+          fi
+
+          if [[ -z "$TAG" ]]; then
+            echo "No tag found; skipping version handling."
+            echo "tag=" >> $GITHUB_OUTPUT
+            echo "version=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Update library version
+        id: update_version
+        if: steps.version.outputs.tag != ''
+        run: |
+          echo "Updating version to: $VERSION"
+          VERSION_FILES=(
+            "projects/console-forge/package.json"
+            "projects/console-forge/package-lock.json"
+          )
+
+          for f in "${VERSION_FILES[@]}"; do
+            if [[ ! -f "$f" ]]; then
+              echo "Version file not found: $f"
+              exit 1
+            fi
+
+            node -e "
+              const fs = require('fs');
+              const p = '$f';
+              const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
+              pkg.version = process.env.VERSION;
+              fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
+            "
+          done
+
+          if git diff --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No version file changes detected."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Version file changes detected:"
+            git diff
+          fi
+
+      - name: Commit version bump
+        if: steps.update_version.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add projects/console-forge/package.json projects/console-forge/package-lock.json
+          git commit -m "chore: set version to $VERSION"
+
+      - name: Push version bump commit to main branch
+        if: steps.update_version.outputs.has_changes == 'true'
+        run: |
+          git push origin HEAD:main
 
       - name: Set up node env
         uses: actions/setup-node@v4
@@ -31,7 +99,8 @@ jobs:
         # note this happens in the root, thus relies on the root `package.json`'s build script
         run: npm run build
 
-      - run: |
+      - name: Publish to NPM
+        run: |
           cd dist/console-forge
           npm publish --provenance --access public
         env:
