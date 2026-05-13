@@ -228,8 +228,7 @@
                         <textarea id="textFromConsoleClipboard" name="textFromConsoleClipboard" rows="4"
                             class="clipboard-text" aria-describedby="textFromConsoleClipboard-helper"
                             aria-label="Clipboard text" disabled
-                            [value]="consoleContext().clipboard.consoleClipboardText()"
-                            placeholder="Text on the remote will appear here" #consoleLastClipboardText></textarea>
+                            placeholder="Text on the remote will appear here" #consoleLastClipboardText>{{ consoleContext().clipboard.consoleClipboardText() }}</textarea>
                         <button type="submit" [disabled]="!consoleLastClipboardText.value">Copy</button>
                     </fieldset>
                     @if(consoleContext().userSettings.settings().console.allowCopyToLocalClipboard &&
