@@ -189,14 +189,9 @@ export class VmWareConsoleClientService implements ConsoleClientService {
       throw new Error("Can't resolve WMKS client; can't send clipboard text.");
     }
 
-    const lines = text.trim().split("\n");
-    if (lines.length === 1) {
-      this.wmksClient.sendInputString(lines[0])
-    } else {
-      for (const line of text.split("\n")) {
-        this.wmksClient.sendInputString(`${line}\n`);
+    for (const line of text.split('\n')) {
+        this.wmksClient.sendInputString(line + '\n');
         await new Promise(r => setTimeout(r, 40));
-      }
     }
   }
 
