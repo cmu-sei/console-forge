@@ -224,12 +224,12 @@
             <div class="dialog-section">
                 <h2>Remote Clipboard Content</h2>
                 <form (submit)="handleClipboardCopyLastText(consoleLastClipboardText.value)">
-                    <fieldset role="group">
-                        <input type="text" id="textFromConsoleClipboard" name="textFromConsoleClipboard"
+                    <fieldset>
+                        <textarea id="textFromConsoleClipboard" name="textFromConsoleClipboard" rows="4"
                             class="clipboard-text" aria-describedby="textFromConsoleClipboard-helper"
                             aria-label="Clipboard text" disabled
                             [value]="consoleContext().clipboard.consoleClipboardText()"
-                            placeholder="Text on the remote will appear here" #consoleLastClipboardText>
+                            placeholder="Text on the remote will appear here" #consoleLastClipboardText></textarea>
                         <button type="submit" [disabled]="!consoleLastClipboardText.value">Copy</button>
                     </fieldset>
                     @if(consoleContext().userSettings.settings().console.allowCopyToLocalClipboard &&
