@@ -3,7 +3,7 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-import { AfterViewInit, Component, ElementRef, inject, input, model, viewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, input, model, signal, viewChild, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConsoleToolbarContext } from '../../models/console-toolbar-context';
 import { ConsoleToolbarDefaultButtonComponent } from './console-toolbar-default-button/console-toolbar-default-button.component';
@@ -40,6 +40,8 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
   protected isSettingsDialogOpen = false;
 
   protected readonly keyboardInputText = model<string>("");
+  protected readonly didCopyRemoteClipboard = signal(false);
+  private copyConfirmTimer?: ReturnType<typeof setTimeout>;
   // protected readonly selected = model<string>();
 
   // services and viewkids
@@ -85,6 +87,11 @@ export class ConsoleToolbarDefaultComponent implements AfterViewInit, ConsoleToo
 
   protected handleClipboardCopyLastText(text: string) {
     this.clipboardService.copyText(text, false);
+    this.didCopyRemoteClipboard.set(true);
+    if (this.copyConfirmTimer) {
+      clearTimeout(this.copyConfirmTimer);
+    }
+    this.copyConfirmTimer = setTimeout(() => this.didCopyRemoteClipboard.set(false), 1500);
   }
 
   protected handleNetworkChangeRequested(request: ConsoleNetworkConnectionRequest) {
