@@ -227,7 +227,7 @@
                     <fieldset>
                         <textarea id="textFromConsoleClipboard" name="textFromConsoleClipboard" rows="4"
                             class="clipboard-text" aria-describedby="textFromConsoleClipboard-helper"
-                            aria-label="Clipboard text" disabled
+                            aria-label="Clipboard text" readonly
                             placeholder="Text on the remote will appear here" #consoleLastClipboardText>{{ consoleContext().clipboard.consoleClipboardText() }}</textarea>
                         <button type="submit" [disabled]="!consoleLastClipboardText.value">Copy</button>
                     </fieldset>
