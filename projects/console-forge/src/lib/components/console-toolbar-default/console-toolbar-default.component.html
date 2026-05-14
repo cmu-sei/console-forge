@@ -229,7 +229,13 @@
                             class="clipboard-text" aria-describedby="textFromConsoleClipboard-helper"
                             aria-label="Clipboard text" readonly
                             placeholder="Text on the remote will appear here" #consoleLastClipboardText>{{ consoleContext().clipboard.consoleClipboardText() }}</textarea>
-                        <button type="submit" [disabled]="!consoleLastClipboardText.value">Copy</button>
+                        <button type="submit" [disabled]="!consoleLastClipboardText.value">
+                            @if (didCopyRemoteClipboard()) {
+                                <span aria-hidden="true">&#10003;</span> Copied
+                            } @else {
+                                Copy
+                            }
+                        </button>
                     </fieldset>
                     @if(consoleContext().userSettings.settings().console.allowCopyToLocalClipboard &&
                     consoleContext().console.supportedFeatures().clipboardAutomaticLocalCopy)
