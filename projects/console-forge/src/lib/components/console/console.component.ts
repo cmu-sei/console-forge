@@ -9,7 +9,6 @@ import { ConsoleComponentConfig } from '../../models/console-component-config';
 import { ConsoleClientService } from '../../services/console-clients/console-client.service';
 import { ConsoleClientFactoryService } from '../../services/console-clients/console-client-factory.service';
 import { ConsoleForgeConfig } from '../../config/console-forge-config';
-import { getTextFromClipboardItem } from "../../services/clipboard/clipboard.helpers";
 import { UuidService } from '../../services/uuid.service';
 import { LoggerService } from '../../services/logger.service';
 import { FullScreenService } from '../../services/full-screen.service';
@@ -116,11 +115,6 @@ export class ConsoleComponent implements OnDestroy {
 
       if (clipboardItem) {
         this.localClipboardUpdated.emit(clipboardItem);
-        getTextFromClipboardItem(clipboardItem).then(value => {
-          if (value) {
-            this.browserNotifications.send({ title: "Copied to local clipboard", body: value });
-          }
-        })
       }
     });
 

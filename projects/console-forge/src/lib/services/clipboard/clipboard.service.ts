@@ -27,7 +27,7 @@ export class ClipboardService {
    * Copy text to the local user's clipboard.
    * @param text Copy this text content to the local user's clipboard
    * @param isAutoCopy Express whether this copy operation is something manually initiated by the user, or is an automatic copy triggered by, for example, a console client's clipboard events.
-   * @returns 
+   * @returns
    */
   public copyText(text: string, isAutoCopy: boolean) {
     return this.writeToClipboard(getClipboardItemFromText(text), isAutoCopy);
