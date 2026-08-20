@@ -18,6 +18,11 @@ import { LoggerService } from '../../../services/logger.service';
 import { UserSettingsService } from '../../user-settings.service';
 import { ConsoleUserSettings } from '../../../models/console-user-settings';
 
+// Workaround for noVNC's CommonJS/ESM interop bug: the constructor can arrive as `.default` of the
+// module object rather than the class itself. Revisit when noVNC 1.8.0 is released.
+const noVncModule = NoVncClient as unknown as typeof NoVncClient | { default: typeof NoVncClient };
+const NoVncClientCtor = typeof noVncModule === "function" ? noVncModule : noVncModule.default;
+
 @Injectable({ providedIn: 'root' })
 export class VncConsoleClientService implements ConsoleClientService {
   public readonly clientType: ConsoleClientType = "vnc";
@@ -90,7 +95,7 @@ export class VncConsoleClientService implements ConsoleClientService {
         };
 
         this.logger.log(LogLevel.DEBUG, "Connecting...", noVncCredentials);
-        const client = new NoVncClient(options.hostElement, url, noVncCredentials);
+        const client = new NoVncClientCtor(options.hostElement, url, noVncCredentials);
 
         this.logger.log(LogLevel.DEBUG, "Client instantiated. Configuring...");
         this.doPreConnectionConfig(client);
