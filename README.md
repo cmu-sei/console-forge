@@ -139,6 +139,10 @@ We don't currently support independent installation of specific hypervisor suppo
 
 ConsoleForge uses [noVNC](https://www.npmjs.com/package/@novnc/novnc) for VNC client support. See this fantastic package's [documentation](https://github.com/novnc/noVNC?tab=readme-ov-file#browser-requirements) for currently-supported browsers. (In general, recent versions of Chrome, Firefox, and Edge are supported. Safari is unsupported until such time as it becomes, more or less, a completely different browser.)
 
+**Use noVNC 1.4.x or 1.5.x.** ConsoleForge's peer range is `>=1.4.0 <1.6.0`, because noVNC 1.6.0 and 1.7.0 both use a top-level `await` that Angular's esbuild-based builder rejects — any Angular app depending on them fails to build. noVNC has since [removed that top-level await](https://github.com/novnc/noVNC/commit/7834e667335fe33cc8f95f5694764514437aa69f) for its v1.8.0 milestone, so we expect to widen the range once 1.8.0 is released.
+
+If you're on ConsoleForge 0.21.4 or earlier and consoles fail immediately with `TypeError: import_rfb.default is not a constructor`, upgrade — that's a module-interop bug fixed in 0.21.5.
+
 ## VMWare WMKS and jQuery dependencies
 
 If your use case for ConsoleForge doesn't require the ability to connect to VMWare-hosted consoles you can ignore everything about this section. Sweet!
