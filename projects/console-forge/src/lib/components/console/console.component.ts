@@ -26,6 +26,7 @@ import { CanvasService } from '../../services/canvas.service';
 import { ConsoleConnectionStatus } from '../../models/console-connection-status';
 import { ConsoleNetworkConnectionRequest } from '../../models/console-network-connection-request';
 import { ConsoleNetworkDisconnectionRequest } from '../../models/console-network-disconnection-request';
+import { ConsoleVmPowerState } from '../../models/console-vm-power-state';
 
 @Component({
   selector: 'cf-console',
@@ -49,6 +50,7 @@ export class ConsoleComponent implements OnDestroy {
   networkConfig = input<ConsoleComponentNetworkConfig>();
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
   toolbarDisabled = input<boolean>(false);
+  vmPowerState = input<ConsoleVmPowerState>("unknown");
 
   connectionStatusChanged = output<ConsoleConnectionStatus | undefined>();
   consoleClipboardUpdated = output<string>();
@@ -57,6 +59,7 @@ export class ConsoleComponent implements OnDestroy {
   localClipboardUpdated = output<ClipboardItem>();
   networkConnectionRequested = output<ConsoleNetworkConnectionRequest>();
   networkDisconnectRequested = output<ConsoleNetworkDisconnectionRequest | undefined>();
+  powerOnRequested = output<void>();
   powerRequestSent = output<ConsolePowerRequest>();
   reconnectRequest = output<ConsoleComponentConfig>();
   screenshotCopied = output<Blob>();

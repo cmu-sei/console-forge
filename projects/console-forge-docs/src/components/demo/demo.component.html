@@ -7,7 +7,8 @@
     (localClipboardUpdated)="handleLocalClipboardUpdated($event)" (ctrlAltDelSent)="handleCtrlAltDelSent()"
     (networkConnectionRequested)="handleNetworkConnectionRequest($event)"
     (networkDisconnectRequested)="handleNetworkDisconnectRequest($event)"
-    (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"></cf-console>
+    (screenshotCopied)="handleScreenshotCopied($event)" [isViewOnly]="isViewOnly()"
+    [vmPowerState]="vmPowerState()" (powerOnRequested)="handlePowerOnRequested()"></cf-console>
 }
 
 @if (isConnected()) {
@@ -27,6 +28,8 @@
 
     <div class="console-checkboxes flex gap-2">
         <mat-checkbox formControlName="autoFocusOnConnect">Autofocus On Connect</mat-checkbox>
+        <mat-checkbox [(ngModel)]="simulatePoweredOff" [ngModelOptions]="{ standalone: true }">Simulate VM Powered
+            Off</mat-checkbox>
     </div>
 
     <button mat-flat-button type="submit" [disabled]="!configForm.valid">Set Config</button>
