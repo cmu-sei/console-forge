@@ -16,3 +16,51 @@ progress {
   width: 100%;
   margin: 0 !important;
 }
+
+:host(.vm-power-off) {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+}
+
+.power-off-overlay {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+
+  progress {
+    width: 50%;
+  }
+}
+
+.power-on-button {
+  // pico is injected into this shadow root via adoptedStyleSheets and cfApplyToolbarTheme adds its
+  // own svg rules, so the button chrome and icon paint have to be overridden explicitly.
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  height: 20vmin;
+  max-height: 160px;
+  min-height: 64px;
+  opacity: 0.75;
+  padding: 0;
+  width: auto;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  svg {
+    height: 100%;
+    width: auto;
+
+    // not currentColor: the toolbar theme forces svg { color: var(--pico-color) } in this scope.
+    path {
+      fill: var(--pico-primary) !important;
+    }
+  }
+}

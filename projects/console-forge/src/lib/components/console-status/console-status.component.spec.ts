@@ -27,4 +27,37 @@ describe('ConsoleStatusComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('renders the power-on button instead of the disconnected banner when the machine is off', () => {
+    fixture.componentRef.setInput("status", "disconnected");
+    fixture.componentRef.setInput("vmPowerState", "off");
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector(".power-on-button")).toBeTruthy();
+    expect((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector(".disconnected-banner")).toBeNull();
+  });
+
+  it('emits a power on request and shows progress when the power-on button is clicked', () => {
+    let powerOnRequestCount = 0;
+    component.powerOnRequest.subscribe(() => powerOnRequestCount++);
+
+    fixture.componentRef.setInput("vmPowerState", "off");
+    fixture.detectChanges();
+
+    ((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector(".power-on-button") as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(powerOnRequestCount).toBe(1);
+    expect((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector("progress")).toBeTruthy();
+    expect((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector(".power-on-button")).toBeNull();
+  });
+
+  it('still renders the disconnected banner when the machine power state is unknown', () => {
+    fixture.componentRef.setInput("status", "disconnected");
+    fixture.componentRef.setInput("vmPowerState", "unknown");
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector(".disconnected-banner")).toBeTruthy();
+    expect((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector(".power-on-button")).toBeNull();
+  });
 });

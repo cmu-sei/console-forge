@@ -27,6 +27,7 @@ export * from "./lib/models/console-supported-features";
 export * from "./lib/models/console-toolbar-position";
 export * from "./lib/models/console-toolbar-component-base";
 export * from "./lib/models/console-toolbar-context";
+export * from "./lib/models/console-vm-power-state";
 export * from "./lib/models/log-level";
 
 // services
