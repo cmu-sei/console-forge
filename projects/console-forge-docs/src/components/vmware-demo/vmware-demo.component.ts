@@ -56,6 +56,9 @@ export class VmwareDemoComponent {
       url: this.configForm.value.url
     };
 
+    // The console component is created by the config conditional above.
+    // Yield once so Angular can render it before resolving the view child.
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
     await this.cfConsole()?.connect(this.cfConfig)!;
   }
 

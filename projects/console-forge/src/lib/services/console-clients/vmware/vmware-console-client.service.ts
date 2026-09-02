@@ -14,7 +14,7 @@ import { ConsoleConnectionStatus } from '../../../models/console-connection-stat
 import { ConsolePowerRequest } from '../../../models/console-power-request';
 import { ConsoleSupportedFeatures } from '../../../models/console-supported-features';
 import { LogLevel } from '../../../models/log-level';
-import { createWmksClient, WmksClient, WmksClientCreateOptions } from "../../../shims/vmware-wmks.shim";
+import { createWmksClient, patchWmksLockKeys, WmksClient, WmksClientCreateOptions } from "../../../shims/vmware-wmks.shim";
 import { WmksConnectionState, WmksEvents, WmksPosition } from '../../../shims/vmware-mks.models';
 import { WINDOW } from '../../../injection/window.injection-token';
 import { ClipboardService } from '../../clipboard/clipboard.service';
@@ -23,6 +23,7 @@ import { UserSettingsService } from '../../user-settings.service';
 import { ConsoleClientType } from '../../../models/console-client-type';
 import { ConsoleUserSettings } from '../../../models/console-user-settings';
 import { UuidService } from '../../uuid.service';
+import { WmksLoaderService } from "./wmks-loader.service";
 
 @Injectable({ providedIn: 'root' })
 export class VmWareConsoleClientService implements ConsoleClientService {
@@ -33,6 +34,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   private readonly userSettings = inject(UserSettingsService);
   private readonly uuids = inject(UuidService);
   private readonly window = inject(WINDOW);
+  private readonly wmksLoader = inject(WmksLoaderService);
   private wmksClient?: WmksClient;
 
   public readonly clientType: ConsoleClientType = "vmware";
@@ -78,7 +80,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     });
   }
 
-  public connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
+  public async connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
     if (!options.hostElement) {
       throw new Error("A host element is required to connect to a VMWare WMKS console.");
     }
@@ -89,6 +91,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     }
 
     this.logger.log(LogLevel.DEBUG, "Connecting to WMKS...", options);
+    await this.wmksLoader.ensureLoaded();
     return new Promise((resolve, reject) => {
       const wmksOptions: WmksClientCreateOptions = {
         changeResolution: true,
@@ -135,7 +138,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
           }
         })
         .register(WmksEvents.ERROR, (ev, data) => {
-          this.logger.log(LogLevel.ERROR, "Error from WMKS:", ev, data);
+          this.logger.log(LogLevel.ERROR, "Error from WMKS:", this.describeWmksError(ev), this.describeWmksError(data));
         })
         // as far as i can tell, this never happens
         .register(WmksEvents.HEARTBEAT, (ev, data) => this.logger.log(LogLevel.DEBUG, "WMKS heartbeat", ev, data))
@@ -250,8 +253,36 @@ export class VmWareConsoleClientService implements ConsoleClientService {
       })
     }
 
+    // SDK 2.2.0 never forwards Caps Lock / Num Lock / Scroll Lock keypresses to the guest, so patch that
+    // here. The keyboard manager doesn't exist until the client has connected, which is why this lives in
+    // post-connection config rather than next to createWmksClient.
+    if (this.wmksClient) {
+      const patched = patchWmksLockKeys(this.wmksClient);
+      this.logger.log(
+        patched ? LogLevel.DEBUG : LogLevel.WARNING,
+        patched
+          ? "Applied the WMKS lock-key workaround; Caps/Num/Scroll Lock will reach the guest."
+          : "Couldn't apply the WMKS lock-key workaround. On SDK 2.2.0 the guest won't see Caps/Num/Scroll Lock keypresses.");
+    }
+
     // finally, update from user settings to ensure the behavior the user expects
     this.updateFromUserSettings(this.userSettings.settings());
+  }
+
+  private describeWmksError(value: unknown): string {
+    if (value === null || value === undefined) {
+      return String(value);
+    }
+
+    if (typeof value !== "object") {
+      return String(value);
+    }
+
+    try {
+      return JSON.stringify(value, Object.getOwnPropertyNames(value));
+    } catch {
+      return String(value);
+    }
   }
 
   private doPostDisconnectionConfig() {

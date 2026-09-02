@@ -151,19 +151,29 @@ If it does, things are a little become slightly complex.
 
 ### Including the HTML Console SDK's assets
 
-To use ConsoleForge to connect to VMWare consoles, you'll need a copy of the [VMWare HTML Console SDK](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere-sdks-tools/8-0/html-console-sdk-programming-guide.html). For licensing reasons, we don't include this SDK with ConsoleForge. To include it in your Angular app's scripts, you'll need to update the `"styles"` and `"scripts"` sections of your `angular.json` file. Depending where you commit it to your project, it'll look something like this:
+ConsoleForge bundles version 2.2.0 of the VMware HTML Console SDK and loads it on demand the first time a VMware console connects. Nothing needs to be added to the `styles` or `scripts` sections of your Angular app's `angular.json`.
 
-```json
-//snip
-"styles": ["path/to/vmware-wmks/css/main-ui.css"],
-// snip
-"scripts": ["path/to/vmware-wmks/js/wmks.min.js"]
-// snip
+The only requirement is the assets glob described above, mapping `node_modules/@cmusei/console-forge/assets` to `assets/` in your app. This makes the bundled SDK available at the path ConsoleForge expects.
+
+The SDK version is selectable at runtime:
+
+```typescript
+provideConsoleForge({ wmks: { version: "2.2.0" } })
 ```
+
+This selects among the SDK versions bundled with ConsoleForge. Version 2.2.0 is currently the only bundled version and is the default. Additional tested versions will be added to the package and require no consumer change beyond this setting. If the configured version and the loaded SDK's own `WMKS.version` disagree, ConsoleForge logs a warning and proceeds.
+
+Apps that already list `wmks.min.js` in `angular.json` continue to work: ConsoleForge detects an existing `window.WMKS` and skips its own script injection.
 
 ### jQuery
 
-This SDK also has dependencies on jQuery and jQuery UI, which you'll also need to add to your Angular project. Depending on your use case, you can either do this through a CDN like [code.jquery.com](https://code.jquery.com/jquery-3.7.1.min.js) or via your favorite Node package manager. (Note that the HTML Console SDK's current documentation is not specific about which versions of jQuery/jQuery UI are required.) Assuming you're able to install and correctly configure the inclusion of these three dependencies, VMWare consoles in ConsoleForge should work as expected. Having trouble? [Drop as an issue and let us know.](https://github.com/cmu-sei/console-forge/issues)
+jQuery and jQuery UI are peer dependencies, so `npm install` surfaces them, but a peer dependency does not put jQuery on `window`. Your app must still list both in its own `angular.json` `scripts`, with jQuery first. ConsoleForge does not inject them.
+
+Supported versions are `jquery@>=3.7.0 <4.0.0` and `jquery-ui@>=1.14.0 <2.0.0`. `jquery@3.7.1` with `jquery-ui@1.14.x` is the combination verified against a live VMWare console. Point your `angular.json` `scripts` at `node_modules/jquery/dist/jquery.js` and `node_modules/jquery-ui/dist/jquery-ui.js`, jQuery first; equivalent CDN tags in `index.html` work too.
+
+**jQuery must stay below 4.0.** [jQuery 4.0.0](https://blog.jquery.com/2026/01/17/jquery-4-0-0/) removed `jQuery.now` and `jQuery.isFunction`, and the HTML Console SDK 2.2.0 calls them (7 and 2 times respectively), so it breaks on jQuery 4 unless you also load the [jQuery Migrate](https://github.com/jquery/jquery-migrate) plugin. The constraint comes from the SDK, not from ConsoleForge.
+
+If either dependency is missing when a VMWare console connects, ConsoleForge logs a warning naming which one, so the failure is diagnosable instead of surfacing as an error inside `wmks.min.js`.
 
 # Building ConsoleForge
 
