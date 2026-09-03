@@ -1,6 +1,6 @@
 {
   "name": "@cmusei/console-forge",
-  "version": "0.21.5",
+  "version": "0.22.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/cmu-sei/console-forge.git"
@@ -11,7 +11,9 @@
   "peerDependencies": {
     "@angular/common": ">=19.2.0",
     "@angular/core": ">=19.2.0",
-    "@novnc/novnc": ">=1.4.0 <1.6.0"
+    "@novnc/novnc": ">=1.4.0 <1.6.0",
+    "jquery": ">=3.7.0 <4.0.0",
+    "jquery-ui": ">=1.14.0 <2.0.0"
   },
   "dependencies": {
     "@picocss/pico": "^2.1.1",

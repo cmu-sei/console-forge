@@ -31,7 +31,7 @@ module.exports = function(config) {
       // '../wmks/vscancodeMap.js',
       // '../wmks/wmksWidget.js',
       // use sdk download file if in automation jenkins job
-      '../wmks.min.js',
+      '../../../projects/console-forge/src/assets/vmware-wmks/2.2.0/js/wmks.min.js',
       // test cases
       'spec/*.js'
     ],

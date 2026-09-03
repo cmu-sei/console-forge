@@ -30,4 +30,8 @@ export abstract class ConsoleForgeConfig {
         component: Type<ConsoleToolbarComponentBase>;
         disabled: boolean;
     }
+    abstract wmks: {
+        assetsPath: string;
+        version: string;
+    };
 }

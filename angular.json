@@ -72,11 +72,7 @@
             ],
             "styles": [
               "@angular/material/prebuilt-themes/azure-blue.css",
-              "projects/console-forge-docs/public/assets/wmks-2.2.0/css/main-ui.css",
               "projects/console-forge-docs/src/styles.scss"
-            ],
-            "scripts": [
-              "projects/console-forge-docs/public/assets/wmks-2.2.0/wmks.min.js"
             ]
           },
           "configurations": {

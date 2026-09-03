@@ -1,8 +1,8 @@
 <p>
     The <code>ConsoleTileComponent</code> (<code>cf-console-tile</code>) is a stripped down, simpler version of the
-    <code>ConsoleComponent</code>. It is always view-only, doesn't provide a toolbar, and doesn't raise events (like
-    clipboard or network change events). Great for showing a list or flex grid of consoles that you provide full access
-    to in another view in your app.
+    <code>ConsoleComponent</code>. It is always view-only, doesn't provide a toolbar, and raises no clipboard or
+    network change events, though it does emit <code>connectFailed</code> when a connection attempt fails. Great for
+    showing a list or flex grid of consoles that you provide full access to in another view in your app.
 </p>
 
 <div class="flex">

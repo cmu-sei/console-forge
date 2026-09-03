@@ -4,7 +4,7 @@
 //  ===END LICENSE===
 
 import { DOCUMENT } from '@angular/common';
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import { debounceTime, Subject } from 'rxjs';
 import { ConsoleClientService } from '../console-client.service';
@@ -14,7 +14,7 @@ import { ConsoleConnectionStatus } from '../../../models/console-connection-stat
 import { ConsolePowerRequest } from '../../../models/console-power-request';
 import { ConsoleSupportedFeatures } from '../../../models/console-supported-features';
 import { LogLevel } from '../../../models/log-level';
-import { createWmksClient, WmksClient, WmksClientCreateOptions } from "../../../shims/vmware-wmks.shim";
+import { createWmksClient, patchWmksLockKeys, WmksClient, WmksClientCreateOptions } from "../../../shims/vmware-wmks.shim";
 import { WmksConnectionState, WmksEvents, WmksPosition } from '../../../shims/vmware-mks.models';
 import { WINDOW } from '../../../injection/window.injection-token';
 import { ClipboardService } from '../../clipboard/clipboard.service';
@@ -23,6 +23,7 @@ import { UserSettingsService } from '../../user-settings.service';
 import { ConsoleClientType } from '../../../models/console-client-type';
 import { ConsoleUserSettings } from '../../../models/console-user-settings';
 import { UuidService } from '../../uuid.service';
+import { WmksLoaderService } from "./wmks-loader.service";
 
 @Injectable({ providedIn: 'root' })
 export class VmWareConsoleClientService implements ConsoleClientService {
@@ -33,7 +34,16 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   private readonly userSettings = inject(UserSettingsService);
   private readonly uuids = inject(UuidService);
   private readonly window = inject(WINDOW);
+  private readonly wmksLoader = inject(WmksLoaderService);
   private wmksClient?: WmksClient;
+  /** Identifies the current connect attempt, so an attempt suspended on the SDK load can tell it was superseded. */
+  private connectAttempt = 0;
+
+  /** The highest attempt number a caller has torn down via disconnect()/dispose(). */
+  private cancelledAttempt = 0;
+
+  /** Settles an in-flight connect promise when a teardown means no SDK event will ever arrive. */
+  private settlePendingConnect?: () => void;
 
   public readonly clientType: ConsoleClientType = "vmware";
   private readonly _connectionStatus = signal<ConsoleConnectionStatus>("disconnected")
@@ -78,7 +88,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     });
   }
 
-  public connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
+  public async connect(url: string, options: ConsoleConnectionOptions): Promise<void> {
     if (!options.hostElement) {
       throw new Error("A host element is required to connect to a VMWare WMKS console.");
     }
@@ -89,7 +99,34 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     }
 
     this.logger.log(LogLevel.DEBUG, "Connecting to WMKS...", options);
+    const attempt = ++this.connectAttempt;
+    this._connectionStatus.update(() => "connecting");
+
+    try {
+      await this.wmksLoader.ensureLoaded();
+    }
+    catch (err) {
+      // the SDK never loaded, so no client and no SDK event will ever move this off "connecting"
+      if (attempt === this.connectAttempt) {
+        this._connectionStatus.update(() => "disconnected");
+      }
+
+      throw err;
+    }
+
+    if (attempt <= this.cancelledAttempt) {
+      this.logger.log(LogLevel.DEBUG, "VMWare connection was torn down while the SDK loaded; not connecting.");
+      return;
+    }
+
+    if (attempt !== this.connectAttempt) {
+      this.logger.log(LogLevel.WARNING, "A newer VMWare connection attempt superseded this one while the SDK loaded; not connecting.");
+      return;
+    }
+
     return new Promise((resolve, reject) => {
+      this.settlePendingConnect = resolve;
+
       const wmksOptions: WmksClientCreateOptions = {
         changeResolution: true,
         rescale: false,
@@ -104,9 +141,20 @@ export class VmWareConsoleClientService implements ConsoleClientService {
           this.logger.log(LogLevel.DEBUG, "WMKS state change", ev, data);
 
           if (data.state === WmksConnectionState.DISCONNECTED) {
+            // a teardown the caller asked for already moved us to "disconnected", so only a disconnect that
+            // arrives while this attempt is still handshaking is a connection failure
+            const failedWhileConnecting = attempt === this.connectAttempt
+              && untracked(this._connectionStatus) === "connecting";
+
             this._connectionStatus.update(() => "disconnected");
             this.doPostDisconnectionConfig();
-            reject();
+            this.settlePendingConnect = undefined;
+
+            if (failedWhileConnecting) {
+              reject(new Error("The WMKS console disconnected before the connection completed."));
+            } else {
+              resolve();
+            }
           }
 
           if (data.state === WmksConnectionState.CONNECTED) {
@@ -120,6 +168,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
               viewOnlyMode: false
             }))
             this._connectionStatus.update(() => "connected");
+            this.settlePendingConnect = undefined;
             resolve();
           }
         })
@@ -135,7 +184,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
           }
         })
         .register(WmksEvents.ERROR, (ev, data) => {
-          this.logger.log(LogLevel.ERROR, "Error from WMKS:", ev, data);
+          this.logger.log(LogLevel.ERROR, "Error from WMKS:", this.describeWmksError(ev), this.describeWmksError(data));
         })
         // as far as i can tell, this never happens
         .register(WmksEvents.HEARTBEAT, (ev, data) => this.logger.log(LogLevel.DEBUG, "WMKS heartbeat", ev, data))
@@ -156,11 +205,18 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   }
 
   public disconnect(): Promise<void> {
+    this.cancelledAttempt = this.connectAttempt;
+    this._connectionStatus.update(() => "disconnected");
+
+    const settle = this.settlePendingConnect;
+    this.settlePendingConnect = undefined;
+
     if (this.wmksClient) {
       this.wmksClient.disconnect();
       this.wmksClient = undefined;
     }
 
+    settle?.();
     return Promise.resolve();
   }
 
@@ -212,11 +268,18 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   }
 
   public dispose(): Promise<void> {
+    this.cancelledAttempt = this.connectAttempt;
+    this._connectionStatus.update(() => "disconnected");
+
+    const settle = this.settlePendingConnect;
+    this.settlePendingConnect = undefined;
+
     if (this.wmksClient) {
       this.wmksClient.destroy();
       this.wmksClient = undefined;
     }
 
+    settle?.();
     return Promise.resolve();
   }
 
@@ -250,8 +313,42 @@ export class VmWareConsoleClientService implements ConsoleClientService {
       })
     }
 
+    // SDK 2.2.0 never forwards Caps Lock / Num Lock / Scroll Lock keypresses to the guest, so patch that
+    // here. The keyboard manager doesn't exist until the client has connected, which is why this lives in
+    // post-connection config rather than next to createWmksClient.
+    if (this.wmksClient) {
+      switch (patchWmksLockKeys(this.wmksClient)) {
+        case "applied":
+          this.logger.log(LogLevel.DEBUG, "Applied the WMKS lock-key workaround; Caps/Num/Scroll Lock will reach the guest.");
+          break;
+        case "not-needed":
+          this.logger.log(LogLevel.DEBUG, "This WMKS build doesn't need the lock-key workaround; skipping it.");
+          break;
+        case "failed":
+          this.logger.log(LogLevel.WARNING, "Couldn't apply the WMKS lock-key workaround. On SDK 2.2.0 the guest won't see Caps/Num/Scroll Lock keypresses.");
+          break;
+      }
+    }
+
     // finally, update from user settings to ensure the behavior the user expects
     this.updateFromUserSettings(this.userSettings.settings());
+  }
+
+  private describeWmksError(value: unknown): string {
+    if (value instanceof Error) {
+      return `${value.name}: ${value.message}`;
+    }
+
+    if (value === null || typeof value !== "object") {
+      return String(value);
+    }
+
+    try {
+      return JSON.stringify(value);
+    } catch {
+      // jQuery event payloads can be circular
+      return String(value);
+    }
   }
 
   private doPostDisconnectionConfig() {

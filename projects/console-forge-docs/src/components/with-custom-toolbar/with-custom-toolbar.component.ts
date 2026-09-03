@@ -33,11 +33,12 @@ export class WithCustomToolbarComponent {
   });
   protected customToolbar: Type<ConsoleToolbarComponentBase> = CustomConsoleToolbarComponent;
 
-  protected async handleConfigFormSubmit() {
+  protected handleConfigFormSubmit() {
     if (!this.configForm.value.url) {
       return;
     }
 
+    // setting the config is enough: the console component autoconnects when it receives one
     this.consoleConfig = {
       consoleClientType: "vnc",
       credentials: {
@@ -45,9 +46,6 @@ export class WithCustomToolbarComponent {
       },
       url: this.configForm.value.url
     };
-    if (this.cfConsole()) {
-      await this.cfConsole()?.connect(this.consoleConfig);
-    }
   }
 
   protected handleConsoleClipboardUpdated(text: string) {

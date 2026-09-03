@@ -50,6 +50,7 @@ export class ConsoleComponent implements OnDestroy {
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
   toolbarDisabled = input<boolean>(false);
 
+  connectFailed = output<Error>();
   connectionStatusChanged = output<ConsoleConnectionStatus | undefined>();
   consoleClipboardUpdated = output<string>();
   consoleRecorded = output<Blob>();
@@ -99,7 +100,7 @@ export class ConsoleComponent implements OnDestroy {
 
       if (autoConnect && currentConfig) {
         this.logger.log(LogLevel.DEBUG, "Autoconnecting...", currentConfig);
-        this.connect(currentConfig);
+        this.connect(currentConfig).catch(err => this.reportConnectFailure(err));
       }
     });
 
@@ -230,12 +231,26 @@ export class ConsoleComponent implements OnDestroy {
     const client = this.consoleClientFactory.get(clientType);
     this.consoleClient.update(() => client);
 
-    // connect
-    this.consoleClient()!.connect(config.url, {
-      autoFocusOnConnect: config.autoFocusOnConnect,
-      credentials: config.credentials,
-      hostElement: this.consoleHostElement().nativeElement,
-    });
+    // connect deliberately doesn't rethrow: a client failure is reported once, through an ERROR log plus
+    // connectFailed. The pre-flight throws above are different on purpose — they reject this promise so a
+    // manual `await connect(config)` sees a bad-argument error, and the autoConnect effect catches them and
+    // routes them through the same reporter.
+    try {
+      await client.connect(config.url, {
+        autoFocusOnConnect: config.autoFocusOnConnect,
+        credentials: config.credentials,
+        hostElement: this.consoleHostElement().nativeElement,
+      });
+    }
+    catch (err) {
+      this.reportConnectFailure(err);
+    }
+  }
+
+  private reportConnectFailure(error: unknown): void {
+    const err = error instanceof Error ? error : new Error(String(error));
+    this.logger.log(LogLevel.ERROR, "Console connection failed.", err);
+    this.connectFailed.emit(err);
   }
 
   public async disconnect() {

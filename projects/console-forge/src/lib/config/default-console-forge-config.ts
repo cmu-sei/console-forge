@@ -27,5 +27,9 @@ export const defaultCfConfig: ConsoleForgeConfig = {
     toolbar: {
         component: ConsoleToolbarDefaultComponent,
         disabled: false
+    },
+    wmks: {
+        assetsPath: "assets/vmware-wmks",
+        version: "2.2.0"
     }
 }

@@ -42,9 +42,10 @@ export class WithCustomEventHandlingComponent {
   protected isConnected = model(false);
   protected isViewOnly = model(false);
 
-  protected async configFormSubmit() {
+  protected configFormSubmit() {
     let url = this.configForm.value.url || "";
 
+    // setting the config is enough: the console component autoconnects when it receives one
     this.cfConfig = {
       autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
       consoleClientType: "vnc",
@@ -53,10 +54,6 @@ export class WithCustomEventHandlingComponent {
       },
       url: url
     };
-
-    if (this.cfConsole()) {
-      await this.cfConsole()!.connect(this.cfConfig);
-    }
   }
 
   protected handleConnectionStatusChanged(status?: ConsoleConnectionStatus) {

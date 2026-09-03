@@ -45,18 +45,21 @@ export class VmwareDemoComponent {
     this.showToast(`Sent to console clipboard: ${text}`, "Hype 🔥");
   }
 
-  protected async handleFormSubmit() {
+  protected handleFormSubmit() {
     if (!this.configForm.value.url) {
       return;
     }
 
+    // setting the config is enough: the console component autoconnects when it receives one
     this.cfConfig = {
       autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
       consoleClientType: "vmware",
       url: this.configForm.value.url
     };
+  }
 
-    await this.cfConsole()?.connect(this.cfConfig)!;
+  protected handleConnectFailed(error: Error) {
+    this.showToast(`Connection failed: ${error.message}`, "Rats");
   }
 
   protected async handleDisconnect() {
