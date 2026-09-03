@@ -45,21 +45,21 @@ export class VmwareDemoComponent {
     this.showToast(`Sent to console clipboard: ${text}`, "Hype 🔥");
   }
 
-  protected async handleFormSubmit() {
+  protected handleFormSubmit() {
     if (!this.configForm.value.url) {
       return;
     }
 
+    // setting the config is enough: the console component autoconnects when it receives one
     this.cfConfig = {
       autoFocusOnConnect: this.configForm.value.autoFocusOnConnect || false,
       consoleClientType: "vmware",
       url: this.configForm.value.url
     };
+  }
 
-    // The console component is created by the config conditional above.
-    // Yield once so Angular can render it before resolving the view child.
-    await new Promise<void>(resolve => setTimeout(resolve, 0));
-    await this.cfConsole()?.connect(this.cfConfig)!;
+  protected handleConnectFailed(error: Error) {
+    this.showToast(`Connection failed: ${error.message}`, "Rats");
   }
 
   protected async handleDisconnect() {

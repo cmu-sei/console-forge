@@ -109,7 +109,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
           if (data.state === WmksConnectionState.DISCONNECTED) {
             this._connectionStatus.update(() => "disconnected");
             this.doPostDisconnectionConfig();
-            reject();
+            reject(new Error("The WMKS console disconnected before the connection completed."));
           }
 
           if (data.state === WmksConnectionState.CONNECTED) {
@@ -257,12 +257,17 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     // here. The keyboard manager doesn't exist until the client has connected, which is why this lives in
     // post-connection config rather than next to createWmksClient.
     if (this.wmksClient) {
-      const patched = patchWmksLockKeys(this.wmksClient);
-      this.logger.log(
-        patched ? LogLevel.DEBUG : LogLevel.WARNING,
-        patched
-          ? "Applied the WMKS lock-key workaround; Caps/Num/Scroll Lock will reach the guest."
-          : "Couldn't apply the WMKS lock-key workaround. On SDK 2.2.0 the guest won't see Caps/Num/Scroll Lock keypresses.");
+      switch (patchWmksLockKeys(this.wmksClient)) {
+        case "applied":
+          this.logger.log(LogLevel.DEBUG, "Applied the WMKS lock-key workaround; Caps/Num/Scroll Lock will reach the guest.");
+          break;
+        case "not-needed":
+          this.logger.log(LogLevel.DEBUG, "This WMKS build doesn't need the lock-key workaround; skipping it.");
+          break;
+        case "failed":
+          this.logger.log(LogLevel.WARNING, "Couldn't apply the WMKS lock-key workaround. On SDK 2.2.0 the guest won't see Caps/Num/Scroll Lock keypresses.");
+          break;
+      }
     }
 
     // finally, update from user settings to ensure the behavior the user expects
@@ -270,17 +275,18 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   }
 
   private describeWmksError(value: unknown): string {
-    if (value === null || value === undefined) {
-      return String(value);
+    if (value instanceof Error) {
+      return `${value.name}: ${value.message}`;
     }
 
-    if (typeof value !== "object") {
+    if (value === null || typeof value !== "object") {
       return String(value);
     }
 
     try {
-      return JSON.stringify(value, Object.getOwnPropertyNames(value));
+      return JSON.stringify(value);
     } catch {
+      // jQuery event payloads can be circular
       return String(value);
     }
   }

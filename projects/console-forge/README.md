@@ -155,13 +155,17 @@ ConsoleForge bundles version 2.2.0 of the VMware HTML Console SDK and loads it o
 
 The only requirement is the assets glob described above, mapping `node_modules/@cmusei/console-forge/assets` to `assets/` in your app. This makes the bundled SDK available at the path ConsoleForge expects.
 
-The SDK version is selectable at runtime:
+The SDK version and the directory it's served from are both configurable:
 
 ```typescript
-provideConsoleForge({ wmks: { version: "2.2.0" } })
+provideConsoleForge({ wmks: { assetsPath: "assets/vmware-wmks", version: "2.2.0" } })
 ```
 
-This selects among the SDK versions bundled with ConsoleForge. Version 2.2.0 is currently the only bundled version and is the default. Additional tested versions will be added to the package and require no consumer change beyond this setting. If the configured version and the loaded SDK's own `WMKS.version` disagree, ConsoleForge logs a warning and proceeds.
+Those are the defaults, so most apps never set them.
+
+`version` selects among the SDK versions bundled with ConsoleForge. Version 2.2.0 is currently the only bundled version and is the default. Additional tested versions will be added to the package and require no consumer change beyond this setting. If the configured version and the loaded SDK's own `WMKS.version` disagree, ConsoleForge logs a warning and proceeds.
+
+`assetsPath` is the directory ConsoleForge's `assets/vmware-wmks` tree was copied to by your assets glob — change it only if your glob maps ConsoleForge's assets somewhere other than `assets/`. The browser resolves it against your app's `<base href>`, so **keep it relative**: a path beginning with a single `/` ignores `<base href>` and 404s in any deployment served under a path prefix (for example a container that rewrites `<base href="/">` to `<base href="/my-app/">` at start-up). ConsoleForge logs a warning if the configured path is absolute. Protocol-relative (`//cdn.example.com/wmks`) and fully-qualified (`https://cdn.example.com/wmks`) values are left alone, so a CDN-hosted copy of the assets works.
 
 Apps that already list `wmks.min.js` in `angular.json` continue to work: ConsoleForge detects an existing `window.WMKS` and skips its own script injection.
 

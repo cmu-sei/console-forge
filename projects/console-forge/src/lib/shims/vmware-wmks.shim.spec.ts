@@ -59,7 +59,7 @@ describe('patchWmksLockKeys', () => {
   });
 
   it('forwards lock keys to the guest, which SDK 2.2.0 does not', () => {
-    expect(patchWmksLockKeys(harness.client)).toBeTrue();
+    expect(patchWmksLockKeys(harness.client)).toBe("applied");
 
     harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
     harness.manager.sendVScanKey(VSCAN_CAPSLOCK, false);
@@ -97,10 +97,10 @@ describe('patchWmksLockKeys', () => {
   });
 
   it('is idempotent, so reconnecting cannot stack wrappers', () => {
-    expect(patchWmksLockKeys(harness.client)).toBeTrue();
+    expect(patchWmksLockKeys(harness.client)).toBe("applied");
     const afterFirst = harness.manager.sendVScanKey;
 
-    expect(patchWmksLockKeys(harness.client)).toBeTrue();
+    expect(patchWmksLockKeys(harness.client)).toBe("applied");
 
     expect(harness.manager.sendVScanKey).toBe(afterFirst);
 
@@ -123,10 +123,45 @@ describe('patchWmksLockKeys', () => {
 
   it('reports failure when the SDK internals are missing instead of throwing', () => {
     const bare = { wmksData: {} } as WmksClient;
-    expect(patchWmksLockKeys(bare)).toBeFalse();
+    expect(patchWmksLockKeys(bare)).toBe("failed");
 
     const noConsts = buildHarness();
     (window as unknown as { WMKS: unknown }).WMKS = { version: '2.2.0', createWMKS: () => noConsts.client };
-    expect(patchWmksLockKeys(noConsts.client)).toBeFalse();
+    expect(patchWmksLockKeys(noConsts.client)).toBe("failed");
+  });
+
+  it('skips the patch on an SDK version which does not need it', () => {
+    // same SDK surface as the beforeEach, but reporting a version which isn't in the defect list. CONST is
+    // present so a "not-needed" result can only come from the version gate, not from unresolvable internals.
+    (window as unknown as { WMKS: unknown }).WMKS = {
+      version: '99.0.0',
+      createWMKS: () => harness.client,
+      CONST: { KB2: { LedKeys: [VSCAN_CAPSLOCK, VSCAN_NUMLOCK, VSCAN_SCROLL], ModifierKeys: [VSCAN_LSHIFT] } }
+    };
+
+    expect(patchWmksLockKeys(harness.client)).toBe("not-needed");
+
+    // the original implementation is still in place, so the SDK's own lock-key handling stands
+    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
+    expect(harness.originalSendCalls).toEqual([VSCAN_CAPSLOCK]);
+    expect(harness.vScanCalls).toEqual([]);
+  });
+
+  it('ignores auto-repeat on a held lock key', () => {
+    patchWmksLockKeys(harness.client);
+
+    // OS auto-repeat while Caps Lock is held down, then a release and a fresh press
+    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
+    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
+    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
+    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, false);
+    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
+
+    expect(harness.vScanCalls).toEqual([
+      { vScanCode: VSCAN_CAPSLOCK, isDown: true },
+      { vScanCode: VSCAN_CAPSLOCK, isDown: false },
+      { vScanCode: VSCAN_CAPSLOCK, isDown: true }
+    ]);
+    expect(harness.ledKeyChangedCalls).toEqual([VSCAN_CAPSLOCK, VSCAN_CAPSLOCK]);
   });
 });

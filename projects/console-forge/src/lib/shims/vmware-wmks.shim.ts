@@ -31,6 +31,11 @@ export function createWmksClient(
   return result.createWMKS(hostElementId, options);
 }
 
+export type WmksLockKeyPatchResult = "applied" | "not-needed" | "failed";
+
+/** SDK versions whose `KeyboardManager2.sendVScanKey` swallows lock-key presses. */
+const wmksLockKeyDefectVersions = ["2.2.0"];
+
 /**
  * Works around a defect in VMWare HTML Console SDK 2.2.0 which prevents the guest OS from ever seeing
  * Caps Lock / Num Lock / Scroll Lock keypresses.
@@ -41,29 +46,38 @@ export function createWmksClient(
  * latched off while every other key works normally.
  *
  * @param client A connected client returned by {@link createWmksClient}.
- * @returns true if the patch was applied (or was already in place), false if the SDK internals it needs
- * couldn't be resolved — in which case lock keys simply keep the unpatched behavior.
+ * @returns "applied" if the patch is in place (whether this call installed it or a previous one did),
+ * "not-needed" on an SDK version which reports itself as free of the defect, and "failed" if the SDK
+ * internals the patch needs couldn't be resolved — in which case lock keys keep the unpatched behavior.
  */
-export function patchWmksLockKeys(client: WmksClient): boolean {
+export function patchWmksLockKeys(client: WmksClient): WmksLockKeyPatchResult {
   const lib = resolveWMKSLib();
+
+  // the patch replaces sendVScanKey outright, so never let it clobber a build which already behaves. A build
+  // reporting no version at all still gets patched: 2.2.0 does report one, so the unknown case is likelier
+  // to be a repackaged 2.2.0 than a fixed release.
+  if (lib.version && !wmksLockKeyDefectVersions.includes(lib.version)) {
+    return "not-needed";
+  }
+
   const ledKeys = lib.CONST?.KB2?.LedKeys;
   const modifierKeys = lib.CONST?.KB2?.ModifierKeys;
   const keyboardManager = client.wmksData?._keyboardManager;
 
   if (!keyboardManager || !ledKeys || !modifierKeys) {
-    return false;
+    return "failed";
   }
 
   if (keyboardManager.__cfLockKeyPatchApplied) {
-    return true;
+    return "applied";
   }
 
-  // nothing to do if we're on an SDK which already sends lock keys correctly
+  // the internals this patch rewrites aren't present on this build
   if (
     typeof keyboardManager.sendVScanKey !== 'function' ||
     typeof keyboardManager._onLedKeyChanged !== 'function'
   ) {
-    return false;
+    return "failed";
   }
 
   keyboardManager.sendVScanKey = function (
@@ -73,6 +87,17 @@ export function patchWmksLockKeys(client: WmksClient): boolean {
     // `this` matters here: the SDK's implementation is a closure over the manager instance, and callers
     // invoke it as a method, so preserve that rather than capturing `keyboardManager`.
     const manager = this as WmksKeyboardManager;
+
+    if (ledKeys.indexOf(vScanCode) !== -1) {
+      const lockKeyDown = manager.__cfLockKeyDown ??= {};
+
+      // OS auto-repeat: a held lock key must not toggle the guest once per repeat
+      if (isDown && lockKeyDown[vScanCode]) {
+        return;
+      }
+
+      lockKeyDown[vScanCode] = isDown;
+    }
 
     manager._vncDecoder.onKeyVScan(vScanCode, isDown);
 
@@ -86,7 +111,7 @@ export function patchWmksLockKeys(client: WmksClient): boolean {
   };
 
   keyboardManager.__cfLockKeyPatchApplied = true;
-  return true;
+  return "applied";
 }
 
 export interface WmksClient {
@@ -150,6 +175,8 @@ export interface WmksClient {
  * {@link patchWmksLockKeys}. Do not depend on these anywhere else.
  */
 export interface WmksKeyboardManager {
+  /** Down-state per lock-key vscan code, so the patch can drop OS auto-repeat. */
+  __cfLockKeyDown?: Record<number, boolean>;
   __cfLockKeyPatchApplied?: boolean;
   _onLedKeyChanged(vScanCode: number): void;
   _serverModifierStatus: Record<number, boolean>;

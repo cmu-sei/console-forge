@@ -31,6 +31,7 @@ export abstract class ConsoleForgeConfig {
         disabled: boolean;
     }
     abstract wmks: {
+        assetsPath: string;
         version: string;
     };
 }
