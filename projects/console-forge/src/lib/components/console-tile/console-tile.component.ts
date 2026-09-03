@@ -20,6 +20,7 @@ import { LogLevel } from '../../models/log-level';
 export class ConsoleTileComponent {
   public config = input<ConsoleComponentConfig>();
   public clicked = output<ConsoleComponentConfig | undefined>();
+  public connectFailed = output<Error>();
   public connectionStatus = output<ConsoleConnectionStatus>();
   public reconnectRequest = output<ConsoleComponentConfig | undefined>();
 
@@ -47,8 +48,7 @@ export class ConsoleTileComponent {
       }
 
       this.logger.log(LogLevel.DEBUG, "Reconnecting console tile with config", config);
-      this.connect(consoleHostElement!.nativeElement);
-      this.logger.log(LogLevel.DEBUG, "Reconnected console tile with config", config);
+      this.connect(consoleHostElement!.nativeElement).catch(err => this.reportConnectFailure(err));
     });
 
     // emit console connection status changes
@@ -79,6 +79,12 @@ export class ConsoleTileComponent {
       hostElement: hostElement
     });
 
-    this.consoleClient.setIsViewOnly(true);
+    await this.consoleClient.setIsViewOnly(true);
+  }
+
+  private reportConnectFailure(error: unknown): void {
+    const err = error instanceof Error ? error : new Error(String(error));
+    this.logger.log(LogLevel.ERROR, "Console tile connection failed.", err);
+    this.connectFailed.emit(err);
   }
 }

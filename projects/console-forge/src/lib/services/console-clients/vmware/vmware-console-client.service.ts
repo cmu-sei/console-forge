@@ -4,7 +4,7 @@
 //  ===END LICENSE===
 
 import { DOCUMENT } from '@angular/common';
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop"
 import { debounceTime, Subject } from 'rxjs';
 import { ConsoleClientService } from '../console-client.service';
@@ -36,6 +36,14 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   private readonly window = inject(WINDOW);
   private readonly wmksLoader = inject(WmksLoaderService);
   private wmksClient?: WmksClient;
+  /** Identifies the current connect attempt, so an attempt suspended on the SDK load can tell it was superseded. */
+  private connectAttempt = 0;
+
+  /** The highest attempt number a caller has torn down via disconnect()/dispose(). */
+  private cancelledAttempt = 0;
+
+  /** Settles an in-flight connect promise when a teardown means no SDK event will ever arrive. */
+  private settlePendingConnect?: () => void;
 
   public readonly clientType: ConsoleClientType = "vmware";
   private readonly _connectionStatus = signal<ConsoleConnectionStatus>("disconnected")
@@ -91,8 +99,34 @@ export class VmWareConsoleClientService implements ConsoleClientService {
     }
 
     this.logger.log(LogLevel.DEBUG, "Connecting to WMKS...", options);
-    await this.wmksLoader.ensureLoaded();
+    const attempt = ++this.connectAttempt;
+    this._connectionStatus.update(() => "connecting");
+
+    try {
+      await this.wmksLoader.ensureLoaded();
+    }
+    catch (err) {
+      // the SDK never loaded, so no client and no SDK event will ever move this off "connecting"
+      if (attempt === this.connectAttempt) {
+        this._connectionStatus.update(() => "disconnected");
+      }
+
+      throw err;
+    }
+
+    if (attempt <= this.cancelledAttempt) {
+      this.logger.log(LogLevel.DEBUG, "VMWare connection was torn down while the SDK loaded; not connecting.");
+      return;
+    }
+
+    if (attempt !== this.connectAttempt) {
+      this.logger.log(LogLevel.WARNING, "A newer VMWare connection attempt superseded this one while the SDK loaded; not connecting.");
+      return;
+    }
+
     return new Promise((resolve, reject) => {
+      this.settlePendingConnect = resolve;
+
       const wmksOptions: WmksClientCreateOptions = {
         changeResolution: true,
         rescale: false,
@@ -107,9 +141,20 @@ export class VmWareConsoleClientService implements ConsoleClientService {
           this.logger.log(LogLevel.DEBUG, "WMKS state change", ev, data);
 
           if (data.state === WmksConnectionState.DISCONNECTED) {
+            // a teardown the caller asked for already moved us to "disconnected", so only a disconnect that
+            // arrives while this attempt is still handshaking is a connection failure
+            const failedWhileConnecting = attempt === this.connectAttempt
+              && untracked(this._connectionStatus) === "connecting";
+
             this._connectionStatus.update(() => "disconnected");
             this.doPostDisconnectionConfig();
-            reject(new Error("The WMKS console disconnected before the connection completed."));
+            this.settlePendingConnect = undefined;
+
+            if (failedWhileConnecting) {
+              reject(new Error("The WMKS console disconnected before the connection completed."));
+            } else {
+              resolve();
+            }
           }
 
           if (data.state === WmksConnectionState.CONNECTED) {
@@ -123,6 +168,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
               viewOnlyMode: false
             }))
             this._connectionStatus.update(() => "connected");
+            this.settlePendingConnect = undefined;
             resolve();
           }
         })
@@ -159,11 +205,18 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   }
 
   public disconnect(): Promise<void> {
+    this.cancelledAttempt = this.connectAttempt;
+    this._connectionStatus.update(() => "disconnected");
+
+    const settle = this.settlePendingConnect;
+    this.settlePendingConnect = undefined;
+
     if (this.wmksClient) {
       this.wmksClient.disconnect();
       this.wmksClient = undefined;
     }
 
+    settle?.();
     return Promise.resolve();
   }
 
@@ -215,11 +268,18 @@ export class VmWareConsoleClientService implements ConsoleClientService {
   }
 
   public dispose(): Promise<void> {
+    this.cancelledAttempt = this.connectAttempt;
+    this._connectionStatus.update(() => "disconnected");
+
+    const settle = this.settlePendingConnect;
+    this.settlePendingConnect = undefined;
+
     if (this.wmksClient) {
       this.wmksClient.destroy();
       this.wmksClient = undefined;
     }
 
+    settle?.();
     return Promise.resolve();
   }
 

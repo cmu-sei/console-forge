@@ -52,11 +52,11 @@ export class WmksLoaderService {
   /** Returns an error describing why `wmks` isn't a usable SDK build, or undefined if it is. */
   private validateSdk(wmks: WMKS | undefined, source: string): Error | undefined {
     if (!wmks) {
-      return this.fail(`${source} didn't define a global WMKS object.`);
+      return new Error(`${source} didn't define a global WMKS object.`);
     }
 
     if (typeof wmks.createWMKS !== "function") {
-      return this.fail(`${source} doesn't expose WMKS.createWMKS. This isn't a usable VMWare HTML Console SDK build for ConsoleForge — some SDK builds ship only the jQuery widget ($.widget("wmks.wmks")) and omit the createWMKS factory. Use a build which provides createWMKS.`);
+      return new Error(`${source} doesn't expose WMKS.createWMKS. This isn't a usable VMWare HTML Console SDK build for ConsoleForge — some SDK builds ship only the jQuery widget ($.widget("wmks.wmks")) and omit the createWMKS factory. Use a build which provides createWMKS.`);
     }
 
     if (wmks.version && wmks.version !== this.cfConfig.wmks.version) {
@@ -66,22 +66,18 @@ export class WmksLoaderService {
     return undefined;
   }
 
-  private fail(message: string): Error {
-    this.logger.log(LogLevel.ERROR, message);
-    return new Error(message);
-  }
-
   private load(): Promise<void> {
     const assetsPath = this.cfConfig.wmks.assetsPath;
+
+    const basePath = `${assetsPath.replace(/\/+$/, "")}/${this.cfConfig.wmks.version}`;
 
     // the URLs below are relative, so the browser resolves them against the document's <base href>. That's what lets an
     // app deployed under a path prefix find its assets. A single leading slash defeats that; "//host/..." and
     // "https://host/..." are deliberate CDN choices, so leave those alone.
-    if (assetsPath.startsWith("/") && !assetsPath.startsWith("//")) {
-      this.logger.log(LogLevel.WARNING, `The configured WMKS assetsPath "${assetsPath}" is absolute, so it ignores your app's <base href>. Apps deployed under a sub-path should use a relative path like "assets/vmware-wmks".`);
+    if (basePath.startsWith("/") && !basePath.startsWith("//")) {
+      this.logger.log(LogLevel.WARNING, `The configured WMKS assetsPath "${assetsPath}" resolves to the absolute path "${basePath}", which ignores your app's <base href>. Apps deployed under a sub-path should use a relative path like "assets/vmware-wmks".`);
     }
 
-    const basePath = `${assetsPath.replace(/\/+$/, "")}/${this.cfConfig.wmks.version}`;
     this.logger.log(LogLevel.DEBUG, "Loading the VMWare HTML Console SDK...", basePath);
 
     const windowWithWmks = this.window as WmksWindow;
@@ -107,6 +103,9 @@ export class WmksLoaderService {
         const problem = this.validateSdk(windowWithWmks.WMKS, `The script loaded from "${script.src}"`);
 
         if (problem) {
+          // same cleanup as the onerror path, so a retry doesn't stack a second pair on the document
+          link.remove();
+          script.remove();
           reject(problem);
           return;
         }
@@ -119,10 +118,11 @@ export class WmksLoaderService {
         // drop both elements so a retry doesn't stack a second stylesheet/script pair on the document
         link.remove();
         script.remove();
-        reject(this.fail(`Couldn't load the VMWare HTML Console SDK from "${script.src}". Is ConsoleForge's "assets" directory copied into your app's assets? (See ConsoleForge's README.)`));
+        reject(new Error(`Couldn't load the VMWare HTML Console SDK from "${script.src}". Is ConsoleForge's "assets" directory copied into your app's assets? (See ConsoleForge's README.)`));
       };
 
       this.document.head.appendChild(script);
     });
   }
+
 }

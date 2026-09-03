@@ -147,21 +147,17 @@ describe('patchWmksLockKeys', () => {
     expect(harness.vScanCalls).toEqual([]);
   });
 
-  it('ignores auto-repeat on a held lock key', () => {
+  it('forwards repeated lock-key downs, which some platforms send without a matching up', () => {
     patchWmksLockKeys(harness.client);
 
-    // OS auto-repeat while Caps Lock is held down, then a release and a fresh press
-    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
-    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
-    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
-    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, false);
-    harness.manager.sendVScanKey(VSCAN_CAPSLOCK, true);
+    // SDK 2.2.0 sends NumLock down with no up on ChromeOS, so suppressing repeats would latch forever
+    harness.manager.sendVScanKey(VSCAN_NUMLOCK, true);
+    harness.manager.sendVScanKey(VSCAN_NUMLOCK, true);
 
     expect(harness.vScanCalls).toEqual([
-      { vScanCode: VSCAN_CAPSLOCK, isDown: true },
-      { vScanCode: VSCAN_CAPSLOCK, isDown: false },
-      { vScanCode: VSCAN_CAPSLOCK, isDown: true }
+      { vScanCode: VSCAN_NUMLOCK, isDown: true },
+      { vScanCode: VSCAN_NUMLOCK, isDown: true }
     ]);
-    expect(harness.ledKeyChangedCalls).toEqual([VSCAN_CAPSLOCK, VSCAN_CAPSLOCK]);
+    expect(harness.ledKeyChangedCalls).toEqual([VSCAN_NUMLOCK, VSCAN_NUMLOCK]);
   });
 });

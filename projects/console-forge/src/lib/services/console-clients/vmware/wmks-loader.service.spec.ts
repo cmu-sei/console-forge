@@ -154,6 +154,28 @@ describe('WmksLoaderService', () => {
     await expectAsync(loaded).toBeRejectedWithError(/global WMKS/);
   });
 
+  it('cleans up and does not stack elements when a loaded script is unusable', async () => {
+    const ctx = configure();
+    const failed = ctx.service.ensureLoaded();
+
+    // a build that loads fine but exposes no createWMKS factory
+    ctx.fakeWindow.WMKS = { version: "2.2.0" };
+    ctx.appended.find(e => e.tagName === "SCRIPT")!.onload!();
+
+    await expectAsync(failed).toBeRejectedWithError(/createWMKS/);
+    expect(ctx.appended.length).toBe(0);
+
+    ctx.fakeWindow.WMKS = undefined;
+    const retried = ctx.service.ensureLoaded();
+
+    expect(ctx.appended.filter(e => e.tagName === "SCRIPT").length).toBe(1);
+    expect(ctx.appended.filter(e => e.tagName === "LINK").length).toBe(1);
+
+    ctx.fakeWindow.WMKS = usableSdk;
+    ctx.appended.find(e => e.tagName === "SCRIPT")!.onload!();
+    await expectAsync(retried).toBeResolved();
+  });
+
   it('warns when the loaded SDK version disagrees with the configured one', async () => {
     const ctx = configure();
     const loaded = ctx.service.ensureLoaded();
@@ -217,5 +239,13 @@ describe('WmksLoaderService', () => {
 
     expect(warnings(ctx.logSpy).some(message => message.includes("<base href>"))).toBeTrue();
     expect(ctx.appended.find(e => e.tagName === "SCRIPT")?.src).toBe("/assets/vmware-wmks/2.2.0/js/wmks.min.js");
+  });
+
+  it('warns when an empty assetsPath resolves to a root-absolute path', () => {
+    const ctx = configure({ wmks: { assetsPath: "" } });
+    ctx.service.ensureLoaded();
+
+    expect(warnings(ctx.logSpy).some(message => message.includes("<base href>"))).toBeTrue();
+    expect(ctx.appended.find(e => e.tagName === "SCRIPT")?.src).toBe("/2.2.0/js/wmks.min.js");
   });
 });

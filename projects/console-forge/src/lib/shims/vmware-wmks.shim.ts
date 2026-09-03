@@ -88,17 +88,6 @@ export function patchWmksLockKeys(client: WmksClient): WmksLockKeyPatchResult {
     // invoke it as a method, so preserve that rather than capturing `keyboardManager`.
     const manager = this as WmksKeyboardManager;
 
-    if (ledKeys.indexOf(vScanCode) !== -1) {
-      const lockKeyDown = manager.__cfLockKeyDown ??= {};
-
-      // OS auto-repeat: a held lock key must not toggle the guest once per repeat
-      if (isDown && lockKeyDown[vScanCode]) {
-        return;
-      }
-
-      lockKeyDown[vScanCode] = isDown;
-    }
-
     manager._vncDecoder.onKeyVScan(vScanCode, isDown);
 
     if (modifierKeys.indexOf(vScanCode) !== -1) {
@@ -175,8 +164,6 @@ export interface WmksClient {
  * {@link patchWmksLockKeys}. Do not depend on these anywhere else.
  */
 export interface WmksKeyboardManager {
-  /** Down-state per lock-key vscan code, so the patch can drop OS auto-repeat. */
-  __cfLockKeyDown?: Record<number, boolean>;
   __cfLockKeyPatchApplied?: boolean;
   _onLedKeyChanged(vScanCode: number): void;
   _serverModifierStatus: Record<number, boolean>;

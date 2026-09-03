@@ -231,8 +231,10 @@ export class ConsoleComponent implements OnDestroy {
     const client = this.consoleClientFactory.get(clientType);
     this.consoleClient.update(() => client);
 
-    // connect. Deliberately not rethrowing: the autoConnect effect above calls this fire-and-forget, so a single
-    // failure path (an ERROR log + connectFailed) is the only way a failure can reach a consumer either way.
+    // connect deliberately doesn't rethrow: a client failure is reported once, through an ERROR log plus
+    // connectFailed. The pre-flight throws above are different on purpose — they reject this promise so a
+    // manual `await connect(config)` sees a bad-argument error, and the autoConnect effect catches them and
+    // routes them through the same reporter.
     try {
       await client.connect(config.url, {
         autoFocusOnConnect: config.autoFocusOnConnect,
