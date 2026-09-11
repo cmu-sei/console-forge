@@ -126,17 +126,10 @@ export class VncConsoleClientService implements ConsoleClientService {
 
           // the vnc client knows its capabilities post-connection
           // so send this back along with the things we know we can't support
-          const supportedFeatures: ConsoleSupportedFeatures = {
-            clipboardAutomaticLocalCopy: true,
-            clipboardRemoteWrite: true,
-            onScreenKeyboard: false,
-            powerManagement: client.capabilities.power,
-            requireReconnectOnExitingFullscreen: true,
-            viewOnlyMode: true
-          };
-
-          this._supportedFeatures.update(() => supportedFeatures);
-          this.noVncClient = client;
+          this._supportedFeatures.update(features => ({
+            ...features,
+            powerManagement: client.capabilities.power
+          }));
 
           this.logger.log(LogLevel.DEBUG, "Connection complete!", this.noVncClient);
           isResolved = true;
@@ -243,11 +236,6 @@ export class VncConsoleClientService implements ConsoleClientService {
   }
 
   private doPreConnectionConfig(client: NoVncClient) {
-    client.addEventListener("connect", () => {
-      if (this.noVncClient !== client) return;
-      this._connectionStatus.update(() => "connected");
-      this.logger.log(LogLevel.INFO, "Connected!");
-    });
     client.addEventListener("disconnect", (ev: CustomEvent<{ clean: boolean }>) => {
       if (this.noVncClient === client) this.handleDisconnect(ev.detail.clean);
     });

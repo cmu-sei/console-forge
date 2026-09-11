@@ -7,26 +7,27 @@ import { TestBed } from '@angular/core/testing';
 
 import { VncConsoleClientService } from './vnc-console-client.service';
 import { provideConsoleForge } from '../../../config/provide-console-forge';
+import type NoVncClient from '@novnc/novnc/lib/rfb';
 
 describe('VncConsoleClientService', () => {
   let service: VncConsoleClientService;
+  let host: HTMLElement;
+  let connections: Promise<void>[];
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [provideConsoleForge()]
     });
     service = TestBed.inject(VncConsoleClientService);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-
-  for (const background of [undefined, 'rgb(24, 48, 72)']) {
-    it(`sets the noVNC background before the handshake (${background ?? 'transparent'})`, async () => {
-      // Hold a real noVNC client in its initial handshake without opening a network connection.
+    host = document.createElement('div');
+    document.body.append(host);
+    connections = [];
+    const connecting = WebSocket.CONNECTING;
+    const closed = WebSocket.CLOSED;
+    // Real noVNC clients, but sockets remain in their handshake without network traffic.
+    spyOn(window, 'WebSocket').and.callFake(function () {
       const socket = {
-        readyState: WebSocket.CONNECTING as number,
+        readyState: connecting as number,
         binaryType: 'arraybuffer',
         protocol: '',
         onopen: null,
@@ -35,26 +36,66 @@ describe('VncConsoleClientService', () => {
         onclose: null as ((event: CloseEvent) => void) | null,
         send: () => {},
         close: () => {
-          socket.readyState = WebSocket.CLOSED;
+          socket.readyState = closed;
           socket.onclose?.(new CloseEvent('close', { wasClean: true }));
         }
       };
-      spyOn(window, 'WebSocket').and.returnValue(socket as unknown as WebSocket);
-      const host = document.createElement('div');
-      document.body.append(host);
-      const connection = service.connect('wss://example.test/console', {
-        hostElement: host, backgroundStyle: background
-      }).catch(() => {});
-      try {
-        expect(service.connectionStatus()).toBe('connecting');
-        const screen = host.querySelector('div')!;
-        expect(screen).toBeTruthy();
-        expect(screen.style.background).toBe(background ?? 'transparent');
-      } finally {
-        await service.disconnect();
-        await connection;
-        host.remove();
-      }
+      return socket as unknown as WebSocket;
+    });
+  });
+
+  afterEach(async () => {
+    await service.disconnect();
+    await Promise.all(connections);
+    host.remove();
+  });
+
+  function beginConnection(backgroundStyle?: string) {
+    const settled = service.connect('wss://example.test/console', { hostElement: host, backgroundStyle }).catch(() => {});
+    connections.push(settled);
+    const client = (service as unknown as { noVncClient: NoVncClient }).noVncClient;
+    return { client, settled };
+  }
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  for (const background of [undefined, 'rgb(24, 48, 72)']) {
+    it(`sets the noVNC background before the handshake (${background ?? 'transparent'})`, () => {
+      beginConnection(background);
+      expect(service.connectionStatus()).toBe('connecting');
+      const screen = host.querySelector('div')!;
+      expect(screen).toBeTruthy();
+      expect(screen.style.background).toBe(background ?? 'transparent');
     });
   }
+
+  it('connects and updates only the negotiated power capability', async () => {
+    const initial = service.supportedFeatures();
+    const { client, settled } = beginConnection();
+    client.capabilities.power = true;
+    client.dispatchEvent(new CustomEvent('connect'));
+    await settled;
+    expect(service.connectionStatus()).toBe('connected');
+    expect(service.supportedFeatures()).toEqual({ ...initial, powerManagement: true });
+
+    const next = beginConnection();
+    next.client.capabilities.power = false;
+    next.client.dispatchEvent(new CustomEvent('connect'));
+    await next.settled;
+    expect(service.supportedFeatures()).toEqual({ ...initial, powerManagement: false });
+  });
+
+  it('ignores a connect event from a replaced client', async () => {
+    const old = beginConnection();
+    const current = beginConnection();
+    old.client.capabilities.power = true;
+    old.client.dispatchEvent(new CustomEvent('connect'));
+    expect(service.connectionStatus()).toBe('connecting');
+    expect(service.supportedFeatures().powerManagement).toBeFalse();
+    current.client.dispatchEvent(new CustomEvent('connect'));
+    await current.settled;
+    expect(service.connectionStatus()).toBe('connected');
+  });
 });
