@@ -8,4 +8,4 @@
  * ConsoleForge can't discover this itself: VNC/noVNC and VMWare WMKS both expose console
  * connection state and (optionally) power *commands*, but never the machine's current power state.
  */
-export type ConsoleVmPowerState = "off" | "on" | "unknown";
+export type ConsoleVmPowerState = "off" | "on" | "unknown" | "suspended";

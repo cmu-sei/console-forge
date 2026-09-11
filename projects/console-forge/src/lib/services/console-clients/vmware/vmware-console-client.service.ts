@@ -138,6 +138,7 @@ export class VmWareConsoleClientService implements ConsoleClientService {
       this.logger.log(LogLevel.DEBUG, "Creating WMKS client...", options.hostElement.id, wmksOptions);
       this.wmksClient = createWmksClient(options.hostElement.id, wmksOptions)
         .register(WmksEvents.CONNECTION_STATE_CHANGE, (ev, data) => {
+          if (attempt !== this.connectAttempt || attempt <= this.cancelledAttempt) return;
           this.logger.log(LogLevel.DEBUG, "WMKS state change", ev, data);
 
           if (data.state === WmksConnectionState.DISCONNECTED) {

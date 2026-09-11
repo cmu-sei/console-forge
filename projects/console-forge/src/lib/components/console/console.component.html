@@ -21,9 +21,10 @@
         (toggleFullscreen)="handleFullscreen()"></cf-console-toolbar>
     }
 
-    <div class="console-host-container" [style.background]="consoleHostBackgroundStyle"
+    <div class="console-host-container" cfApplyToolbarTheme [style.--cf-console-background]="consoleHostBackgroundStyle"
         [class.flex-order-0]="userSettings().toolbar.dockTo === 'right' || userSettings().toolbar.dockTo === 'bottom'">
         <cf-console-status [status]="consoleClient()?.connectionStatus()" [vmPowerState]="vmPowerState()"
+            [vmActivity]="vmActivity()"
             (powerOnRequest)="powerOnRequested.emit()"
             (reconnectRequest)="reconnectRequest.emit(this.config())"></cf-console-status>
 

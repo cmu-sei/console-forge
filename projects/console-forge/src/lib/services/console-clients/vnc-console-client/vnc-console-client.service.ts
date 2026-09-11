@@ -96,6 +96,11 @@ export class VncConsoleClientService implements ConsoleClientService {
 
         this.logger.log(LogLevel.DEBUG, "Connecting...", noVncCredentials);
         const client = new NoVncClientCtor(options.hostElement, url, noVncCredentials);
+        // noVNC defaults to a dark screen. Reveal our themed surface before the handshake,
+        // not just after connecting, while preserving explicit per-connection overrides.
+        client.background = options.backgroundStyle || "transparent";
+        // Retain handshaking clients too, so route teardown and timeouts can close them.
+        this.noVncClient = client;
 
         this.logger.log(LogLevel.DEBUG, "Client instantiated. Configuring...");
         this.doPreConnectionConfig(client);
@@ -111,6 +116,7 @@ export class VncConsoleClientService implements ConsoleClientService {
         });
 
         client.addEventListener("connect", () => {
+          if (this.noVncClient !== client) return;
           this._connectionStatus.update(() => "connected");
           this.logger.log(LogLevel.DEBUG, "Connected. Performing post-connection configuration...");
 
@@ -152,7 +158,10 @@ export class VncConsoleClientService implements ConsoleClientService {
     }
 
     this.logger.log(LogLevel.DEBUG, "Manual disconnection requested");
-    this.noVncClient.disconnect();
+    const client = this.noVncClient;
+    this.noVncClient = undefined;
+    this._connectionStatus.set("disconnected");
+    client.disconnect();
   }
 
   public async dispose(): Promise<void> {
@@ -235,11 +244,15 @@ export class VncConsoleClientService implements ConsoleClientService {
 
   private doPreConnectionConfig(client: NoVncClient) {
     client.addEventListener("connect", () => {
+      if (this.noVncClient !== client) return;
       this._connectionStatus.update(() => "connected");
       this.logger.log(LogLevel.INFO, "Connected!");
     });
-    client.addEventListener("disconnect", (ev: CustomEvent<{ clean: boolean }>) => this.handleDisconnect(ev.detail.clean));
+    client.addEventListener("disconnect", (ev: CustomEvent<{ clean: boolean }>) => {
+      if (this.noVncClient === client) this.handleDisconnect(ev.detail.clean);
+    });
     client.addEventListener("clipboard", (ev: CustomEvent<{ text: string }>) => {
+      if (this.noVncClient !== client) return;
       // emit the event
       this._consoleClipboardUpdated.update(() => ev.detail.text);
 
@@ -262,8 +275,6 @@ export class VncConsoleClientService implements ConsoleClientService {
   }
 
   private doPostConnectionConfig(client: NoVncClient, options: ConsoleConnectionOptions) {
-    client.background = options.backgroundStyle || "";
-
     // try focus if requested
     if (options.autoFocusOnConnect) {
       client.focus();

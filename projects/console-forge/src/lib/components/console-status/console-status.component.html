@@ -3,16 +3,22 @@
 <!-- Released under an MIT (SEI)-style license. See the LICENSE.md file for license information. -->
 <!-- ===END LICENSE=== -->
 
-<div cfApplyToolbarTheme>
-    @if (vmPowerState() === "off") {
-    <div class="power-off-overlay">
-        @if (isPowerOnPending()) {
-        <progress></progress>
+<div class="status-content" cfApplyToolbarTheme>
+    @if (showOverlay()) {
+    <div class="power-off-overlay" [attr.aria-busy]="isBusy()">
+        @if (vmActivity()) {
+        <div role="status" aria-live="polite">{{ activityLabel() }}</div>
         }
-        @else {
+        @if (isBusy()) {
+        <progress [attr.aria-label]="activityLabel()"></progress>
+        }
+        @else if (vmPowerState() === "suspended") {
+        <div role="status">VM suspended</div>
+        }
+        @else if (vmPowerState() === "off") {
         <button class="power-on-button" type="button" title="Power on this machine"
             aria-label="Power on this machine" (click)="handlePowerOnClick()">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M13 3C13 2.44772 12.5523 2 12 2C11.4477 2 11 2.44772 11 3V13C11 13.5523 11.4477 14 12 14C12.5523 14 13 13.5523 13 13V3Z" />
                 <path

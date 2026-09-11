@@ -33,6 +33,20 @@ cf-console-status {
 }
 
 .console-host-container {
+  // Available immediately, independently of the toolbar's asynchronously loaded Pico styles.
+  --cf-console-surface-color: #eef0f3;
+  background: var(--cf-console-background);
+
+  &[data-theme="dark"] {
+    --cf-console-surface-color: #282828;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:not([data-theme="light"]) {
+      --cf-console-surface-color: #282828;
+    }
+  }
+
   align-items: center;
   display: flex;
   flex-direction: column;

@@ -8,7 +8,13 @@ export class ApplyToolbarThemeDirective {
 
   constructor() {
     effect(() => {
-      this.hostElement.nativeElement.setAttribute("data-theme", this.userSettings().toolbar.preferTheme);
+      const theme = this.userSettings().toolbar.preferTheme;
+      if (theme) {
+        this.hostElement.nativeElement.setAttribute("data-theme", theme);
+      } else {
+        // Pico's automatic scheme selector requires the attribute to be absent.
+        this.hostElement.nativeElement.removeAttribute("data-theme");
+      }
     });
   }
 }

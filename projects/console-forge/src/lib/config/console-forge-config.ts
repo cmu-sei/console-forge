@@ -16,6 +16,7 @@ export abstract class ConsoleForgeConfig {
         maxDuration?: number;
         mimeType?: string;
     };
+    /** Console surround and activity background. Defaults to contrasting Light/Dark/Auto grays. */
     abstract consoleBackgroundStyle?: string;
     abstract defaultConsoleClientType?: ConsoleClientType;
     abstract disabledFeatures: {
