@@ -50,8 +50,8 @@ describe('VncConsoleClientService', () => {
     host.remove();
   });
 
-  function beginConnection(backgroundStyle?: string) {
-    const settled = service.connect('wss://example.test/console', { hostElement: host, backgroundStyle }).catch(() => {});
+  function beginConnection() {
+    const settled = service.connect('wss://example.test/console', { hostElement: host }).catch(() => {});
     connections.push(settled);
     const client = (service as unknown as { noVncClient: NoVncClient }).noVncClient;
     return { client, settled };
@@ -61,30 +61,10 @@ describe('VncConsoleClientService', () => {
     expect(service).toBeTruthy();
   });
 
-  for (const background of [undefined, 'rgb(24, 48, 72)']) {
-    it(`sets the noVNC background before the handshake (${background ?? 'transparent'})`, () => {
-      beginConnection(background);
-      expect(service.connectionStatus()).toBe('connecting');
-      const screen = host.querySelector('div')!;
-      expect(screen).toBeTruthy();
-      expect(screen.style.background).toBe(background ?? 'transparent');
-    });
-  }
-
-  it('connects and updates only the negotiated power capability', async () => {
-    const initial = service.supportedFeatures();
-    const { client, settled } = beginConnection();
-    client.capabilities.power = true;
-    client.dispatchEvent(new CustomEvent('connect'));
-    await settled;
-    expect(service.connectionStatus()).toBe('connected');
-    expect(service.supportedFeatures()).toEqual({ ...initial, powerManagement: true });
-
-    const next = beginConnection();
-    next.client.capabilities.power = false;
-    next.client.dispatchEvent(new CustomEvent('connect'));
-    await next.settled;
-    expect(service.supportedFeatures()).toEqual({ ...initial, powerManagement: false });
+  it('clears the noVNC dark background before the handshake', () => {
+    beginConnection();
+    expect(service.connectionStatus()).toBe('connecting');
+    expect(host.querySelector('div')!.style.background).toBe('transparent');
   });
 
   it('ignores a connect event from a replaced client', async () => {

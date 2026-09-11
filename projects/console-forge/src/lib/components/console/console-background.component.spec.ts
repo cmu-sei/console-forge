@@ -27,7 +27,7 @@ describe('Console background', () => {
       )]
     });
     // The background must work even before the asynchronously fetched Pico stylesheet arrives.
-    spyOn(TestBed.inject(PicoCssService), 'loadStyleSheet').and.resolveTo(undefined);
+    spyOn(TestBed.inject(PicoCssService), 'loadStyleSheet').and.returnValue(new Promise<CSSStyleSheet>(() => {}));
     TestBed.inject(UserSettingsService).patch({ toolbar: { preferTheme: 'light' } });
     status.set('disconnected');
     const client = {

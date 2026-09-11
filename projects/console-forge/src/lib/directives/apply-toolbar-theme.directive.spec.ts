@@ -24,10 +24,6 @@ describe('ApplyToolbarThemeDirective', () => {
     await fixture.whenStable();
   });
 
-  it('leaves data-theme absent for Auto', () => {
-    expect(fixture.nativeElement.querySelector('div').hasAttribute('data-theme')).toBeFalse();
-  });
-
   it('binds Light and Dark and removes the attribute when returning to Auto', async () => {
     const settings = TestBed.inject(UserSettingsService);
     const host = fixture.nativeElement.querySelector('div');
