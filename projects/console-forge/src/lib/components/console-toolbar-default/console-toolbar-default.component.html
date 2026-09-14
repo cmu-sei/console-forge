@@ -307,11 +307,6 @@
                             [Disconnected]
                         </option>
                         }
-                        @else {
-                        <option disabled [selected]="!consoleContext().networks.config()?.currentConnections?.[nic]" value="">
-                            [Select a network]
-                        </option>
-                        }
 
                         @for(network of consoleContext().networks.config()?.networks; track network) {
                         <option [value]="network"
@@ -322,9 +317,8 @@
                     </select>
 
                     <button type="button"
-                        [disabled]="cfConfig.disabledFeatures.networkDisconnection && !availableNetworksSelect.value"
                         (click)="handleNetworkChangeRequested({ network: availableNetworksSelect.value, nic: nic })">
-                        {{ cfConfig.disabledFeatures.networkDisconnection || availableNetworksSelect.value ? "Connect" : "Disconnect" }}
+                        {{ availableNetworksSelect.value ? "Connect" : "Disconnect" }}
                     </button>
                 </fieldset>
                 }
