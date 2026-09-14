@@ -45,8 +45,12 @@ describe('ConsoleStatusComponent', () => {
     fixture.detectChanges();
 
     expect(powerOnRequestCount).toBe(1);
-    expect((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector("progress")).toBeTruthy();
-    expect((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector(".power-on-button")).toBeNull();
+    const shadow = fixture.nativeElement.shadowRoot as ShadowRoot;
+    const overlay = shadow.querySelector(".power-off-overlay") as HTMLElement;
+    expect(overlay.getAttribute("aria-busy")).toBeNull();
+    expect(overlay.querySelectorAll("progress").length).toBe(1);
+    expect(overlay.textContent).toContain("Starting VM");
+    expect(overlay.querySelector(".power-on-button")).toBeNull();
     fixture.componentRef.setInput("vmActivity", { kind: "starting", status: "failed", message: "Start failed" });
     fixture.detectChanges();
     expect((fixture.nativeElement.shadowRoot as ShadowRoot).querySelector("progress")).toBeNull();

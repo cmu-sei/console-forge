@@ -5,7 +5,7 @@
 
 <div class="status-content" cfApplyToolbarTheme>
     @if (showOverlay()) {
-    <div class="power-off-overlay" [attr.aria-busy]="isBusy()">
+    <div class="power-off-overlay">
         @if (vmActivity()) {
         <div role="status" aria-live="polite">{{ activityLabel() }}</div>
         }
