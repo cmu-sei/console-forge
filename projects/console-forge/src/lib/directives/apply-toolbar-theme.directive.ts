@@ -1,14 +1,11 @@
-import { Directive, effect, ElementRef, inject } from '@angular/core';
+import { Directive, inject } from '@angular/core';
 import { UserSettingsService } from '../services/user-settings.service';
 
-@Directive({ selector: '[cfApplyToolbarTheme]' })
+@Directive({
+  selector: '[cfApplyToolbarTheme]',
+  // Null removes the attribute so the automatic color-scheme selector can apply.
+  host: { '[attr.data-theme]': 'userSettings().toolbar.preferTheme ?? null' }
+})
 export class ApplyToolbarThemeDirective {
-  private readonly hostElement = inject(ElementRef<HTMLElement>);
-  private readonly userSettings = inject(UserSettingsService).settings;
-
-  constructor() {
-    effect(() => {
-      this.hostElement.nativeElement.setAttribute("data-theme", this.userSettings().toolbar.preferTheme);
-    });
-  }
+  protected readonly userSettings = inject(UserSettingsService).settings;
 }

@@ -33,6 +33,9 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "tsConfig": "projects/console-forge/tsconfig.spec.json",
+            "assets": [
+              { "glob": "pico.min.css", "input": "projects/console-forge/src/assets", "output": "assets/" }
+            ],
             "polyfills": ["zone.js", "zone.js/testing"],
             "karmaConfig": "projects/console-forge/karma.conf.js"
           }

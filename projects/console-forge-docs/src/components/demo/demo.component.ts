@@ -5,7 +5,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, ConsoleNetworkConnectionRequest, ConsoleNetworkDisconnectionRequest, getTextFromClipboardItem } from 'console-forge';
+import { ConsoleComponent, ConsoleComponentConfig, ConsoleComponentNetworkConfig, ConsoleConnectionStatus, ConsoleNetworkConnectionRequest, ConsoleNetworkDisconnectionRequest, ConsoleVmPowerState, getTextFromClipboardItem } from 'console-forge';
 
 @Component({
   selector: 'app-demo',
@@ -39,6 +39,8 @@ export class DemoComponent {
   });
   protected isConnected = model(false);
   protected isViewOnly = model(false);
+  protected simulatePoweredOff = model(false);
+  protected vmPowerState = computed<ConsoleVmPowerState>(() => this.simulatePoweredOff() ? "off" : "unknown");
 
   protected async configFormSubmit() {
     if (!this.configForm.value.url) {
@@ -99,6 +101,11 @@ export class DemoComponent {
     } else {
       this.showToast("This console wants to disconnect all NICS.", "Gosh, fine.");
     }
+  }
+
+  protected handlePowerOnRequested() {
+    this.simulatePoweredOff.set(false);
+    this.showToast("Power on requested!", "Nice");
   }
 
   protected handleScreenshotCopied(blob: Blob) {

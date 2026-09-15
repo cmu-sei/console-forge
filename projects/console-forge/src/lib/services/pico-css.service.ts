@@ -2,22 +2,22 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class PicoCssService {
-  private sheet?: CSSStyleSheet;
-  private loading?: Promise<void>;
+  private loading?: Promise<CSSStyleSheet>;
 
-  loadStyleSheet(): Promise<CSSStyleSheet | undefined> {
-    if (this.sheet) return Promise.resolve(this.sheet);
-
-    if (!this.loading) {
-      this.loading = fetch('assets/pico.min.css')
-        .then(r => r.text())
+  loadStyleSheet(): Promise<CSSStyleSheet> {
+    return this.loading ??= fetch('assets/pico.min.css')
+        .then(r => {
+          if (!r.ok) throw new Error(`Could not load Pico stylesheet (${r.status}).`);
+          return r.text();
+        })
         .then(css => {
           const sheet = new CSSStyleSheet();
           sheet.replaceSync(css);
-          this.sheet = sheet;
+          return sheet;
+        })
+        .catch(error => {
+          this.loading = undefined;
+          throw error;
         });
-    }
-
-    return this.loading.then(() => this.sheet);
   }
 }

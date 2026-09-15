@@ -15,7 +15,7 @@ export const defaultCfConfig: ConsoleForgeConfig = {
         maxDuration: 10000,
         mimeType: "video/webm"
     },
-    consoleBackgroundStyle: "rgb(40, 40, 40)",
+    consoleBackgroundStyle: "var(--cf-console-surface-color)",
     disabledFeatures: {
         clipboard: false,
         consoleScreenRecord: false,

@@ -148,4 +148,19 @@ describe('VmWareConsoleClientService teardown during connect', () => {
     expect(service.connectionStatus()).toBe("disconnected");
     expect(fake.created.length).toBe(0);
   });
+
+  it('ignores SDK events from an older connection after a new attempt begins', async () => {
+    const first = service.connect("wss://example.test/first", { hostElement });
+    releaseLoader();
+    for (let tick = 0; tick < 10 && fake.created.length === 0; tick++) await Promise.resolve();
+    await service.disconnect();
+    await first;
+    const second = service.connect("wss://example.test/second", { hostElement });
+    for (let tick = 0; tick < 10 && fake.created.length < 2; tick++) await Promise.resolve();
+    fake.created[0].handlers[WmksEvents.CONNECTION_STATE_CHANGE](
+      {}, { state: WmksConnectionState.DISCONNECTED });
+    expect(service.connectionStatus()).toBe("connecting");
+    await service.disconnect();
+    await second;
+  });
 });

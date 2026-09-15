@@ -26,12 +26,16 @@ import { CanvasService } from '../../services/canvas.service';
 import { ConsoleConnectionStatus } from '../../models/console-connection-status';
 import { ConsoleNetworkConnectionRequest } from '../../models/console-network-connection-request';
 import { ConsoleNetworkDisconnectionRequest } from '../../models/console-network-disconnection-request';
+import { ConsoleVmPowerState } from '../../models/console-vm-power-state';
+import { ConsoleVmActivity } from '../../models/console-vm-activity';
+import { ApplyToolbarThemeDirective } from '../../directives/apply-toolbar-theme.directive';
 
 @Component({
   selector: 'cf-console',
   standalone: true,
   imports: [
     ConsoleStatusComponent,
+    ApplyToolbarThemeDirective,
     ConsoleToolbarComponent
   ],
   providers: [
@@ -49,6 +53,8 @@ export class ConsoleComponent implements OnDestroy {
   networkConfig = input<ConsoleComponentNetworkConfig>();
   toolbarComponent = input<Type<ConsoleToolbarComponentBase>>();
   toolbarDisabled = input<boolean>(false);
+  vmPowerState = input<ConsoleVmPowerState>("unknown");
+  vmActivity = input<ConsoleVmActivity | undefined>();
 
   connectFailed = output<Error>();
   connectionStatusChanged = output<ConsoleConnectionStatus | undefined>();
@@ -58,6 +64,7 @@ export class ConsoleComponent implements OnDestroy {
   localClipboardUpdated = output<ClipboardItem>();
   networkConnectionRequested = output<ConsoleNetworkConnectionRequest>();
   networkDisconnectRequested = output<ConsoleNetworkDisconnectionRequest | undefined>();
+  powerOnRequested = output<void>();
   powerRequestSent = output<ConsolePowerRequest>();
   reconnectRequest = output<ConsoleComponentConfig>();
   screenshotCopied = output<Blob>();
@@ -80,8 +87,9 @@ export class ConsoleComponent implements OnDestroy {
 
   // other component state
   protected readonly consoleClient = signal<ConsoleClientService | undefined>(undefined);
+  private connectionAttempt = 0;
   protected readonly consoleClientConnectionStatus = computed(() => this.consoleClient()?.connectionStatus());
-  protected readonly consoleHostBackgroundStyle = this.consoleForgeConfig.consoleBackgroundStyle;
+  protected readonly consoleHostBackgroundStyle = this.consoleForgeConfig.consoleBackgroundStyle || 'var(--cf-console-surface-color)';
   protected readonly consoleHostElementId = `cf-console-${this.uuids.get()}`;
   protected readonly isRecording = inject(CanvasRecorderService).isRecording;
   protected readonly toolbarEnabled = computed(() => {
@@ -161,6 +169,7 @@ export class ConsoleComponent implements OnDestroy {
   }
 
   public async ngOnDestroy(): Promise<void> {
+    ++this.connectionAttempt;
     if (this.consoleClient()) {
       await this.consoleClient()!.dispose();
     }
@@ -203,6 +212,7 @@ export class ConsoleComponent implements OnDestroy {
   // NOTE: we should really clean up this function and ensure that all signals it needs are passed to it as parameters. it's a little opaque,
   // but invoking this inside an effect above will cause it to happen whenever _any_ of its read effects change, and it reads a lot of them.
   public async connect(config: ConsoleComponentConfig) {
+    const attempt = ++this.connectionAttempt;
     this.logger.log(LogLevel.DEBUG, "Connecting with config", config);
 
     const currentConnectionStatus = untracked(() => this.consoleClientConnectionStatus());
@@ -213,6 +223,7 @@ export class ConsoleComponent implements OnDestroy {
         await currentConsoleClient.disconnect();
       }
     }
+    if (attempt !== this.connectionAttempt) return;
 
     if (!config.url) {
       throw new Error("No url provided for console connection.");
@@ -243,7 +254,7 @@ export class ConsoleComponent implements OnDestroy {
       });
     }
     catch (err) {
-      this.reportConnectFailure(err);
+      if (attempt === this.connectionAttempt) this.reportConnectFailure(err);
     }
   }
 
@@ -254,9 +265,10 @@ export class ConsoleComponent implements OnDestroy {
   }
 
   public async disconnect() {
+    const attempt = ++this.connectionAttempt;
     this.logger.log(LogLevel.DEBUG, "Console component disconnect invoked.");
     await this.consoleClient()?.disconnect();
-    this.consoleClient.update(() => undefined);
+    if (attempt === this.connectionAttempt) this.consoleClient.update(() => undefined);
   }
 
   private resolveConsoleCanvas() {
