@@ -16,6 +16,8 @@ import { LoggerService } from '../../logger.service';
 
 interface FakeElement {
   tagName: string;
+  id?: string;
+  textContent?: string;
   href?: string;
   rel?: string;
   src?: string;
@@ -82,6 +84,11 @@ function configure(config?: DeepPartial<ConsoleForgeConfig>): LoaderTestContext 
 /** The shape the loader requires of a usable SDK build. */
 const usableSdk = { version: "2.2.0", createWMKS: () => ({}) };
 
+/** The SDK script and stylesheet; the style-fix <style> is counted separately. */
+function sdkElements(appended: FakeElement[]): FakeElement[] {
+  return appended.filter(e => e.tagName === "SCRIPT" || e.tagName === "LINK");
+}
+
 function warnings(logSpy: jasmine.Spy): string[] {
   return logSpy.calls.allArgs()
     .filter(args => args[0] === LogLevel.WARNING)
@@ -94,7 +101,7 @@ describe('WmksLoaderService', () => {
     ctx.fakeWindow.WMKS = usableSdk;
 
     await expectAsync(ctx.service.ensureLoaded()).toBeResolved();
-    expect(ctx.appended.length).toBe(0);
+    expect(sdkElements(ctx.appended).length).toBe(0);
   });
 
   it('rejects an SDK already on window which has no createWMKS', async () => {
@@ -103,7 +110,7 @@ describe('WmksLoaderService', () => {
     ctx.fakeWindow.WMKS = { version: "2.2.0" };
 
     await expectAsync(ctx.service.ensureLoaded()).toBeRejectedWithError(/createWMKS/);
-    expect(ctx.appended.length).toBe(0);
+    expect(sdkElements(ctx.appended).length).toBe(0);
   });
 
   it('injects the bundled SDK at the default path', async () => {
@@ -142,7 +149,7 @@ describe('WmksLoaderService', () => {
     ctx.appended.find(e => e.tagName === "SCRIPT")!.onerror!();
 
     await expectAsync(loaded).toBeRejectedWithError(/assets/);
-    expect(ctx.appended.length).toBe(0);
+    expect(sdkElements(ctx.appended).length).toBe(0);
   });
 
   it('rejects when the loaded script defines no global WMKS', async () => {
@@ -163,7 +170,7 @@ describe('WmksLoaderService', () => {
     ctx.appended.find(e => e.tagName === "SCRIPT")!.onload!();
 
     await expectAsync(failed).toBeRejectedWithError(/createWMKS/);
-    expect(ctx.appended.length).toBe(0);
+    expect(sdkElements(ctx.appended).length).toBe(0);
 
     ctx.fakeWindow.WMKS = undefined;
     const retried = ctx.service.ensureLoaded();
@@ -247,5 +254,46 @@ describe('WmksLoaderService', () => {
 
     expect(warnings(ctx.logSpy).some(message => message.includes("<base href>"))).toBeTrue();
     expect(ctx.appended.find(e => e.tagName === "SCRIPT")?.src).toBe("/2.2.0/js/wmks.min.js");
+  });
+
+  describe('function-key pad style fix', () => {
+    const styles = (appended: FakeElement[]) => appended.filter(e => e.tagName === "STYLE");
+
+    it('hides the F1-F12 keypad when the app loaded the SDK itself', async () => {
+      const ctx = configure();
+      ctx.fakeWindow.WMKS = usableSdk;
+
+      await expectAsync(ctx.service.ensureLoaded()).toBeResolved();
+
+      expect(styles(ctx.appended).length).toBe(1);
+      expect(styles(ctx.appended)[0].textContent).toContain(".fnKey-pane-wrapper.hide");
+      expect(styles(ctx.appended)[0].textContent).toContain("display: none");
+    });
+
+    it('hides the F1-F12 keypad when ConsoleForge injects the SDK', async () => {
+      const ctx = configure();
+      const loaded = ctx.service.ensureLoaded();
+
+      expect(styles(ctx.appended).length).toBe(1);
+
+      ctx.fakeWindow.WMKS = usableSdk;
+      ctx.appended.find(e => e.tagName === "SCRIPT")!.onload!();
+      await expectAsync(loaded).toBeResolved();
+    });
+
+    it('adds the rule once across repeated and failed loads', async () => {
+      const ctx = configure();
+      const failed = ctx.service.ensureLoaded();
+      ctx.appended.find(e => e.tagName === "SCRIPT")!.onerror!();
+      await expectAsync(failed).toBeRejected();
+
+      const retried = ctx.service.ensureLoaded();
+      ctx.fakeWindow.WMKS = usableSdk;
+      ctx.appended.find(e => e.tagName === "SCRIPT")!.onload!();
+      await expectAsync(retried).toBeResolved();
+      await expectAsync(ctx.service.ensureLoaded()).toBeResolved();
+
+      expect(styles(ctx.appended).length).toBe(1);
+    });
   });
 });
