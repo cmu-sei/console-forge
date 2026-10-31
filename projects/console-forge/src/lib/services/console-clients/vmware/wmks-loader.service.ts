@@ -30,8 +30,12 @@ export class WmksLoaderService {
   private readonly logger = inject(LoggerService);
   private readonly window = inject(WINDOW);
   private loading?: Promise<void>;
+  private styleFixesApplied = false;
 
   public ensureLoaded(): Promise<void> {
+    // apps that load the SDK themselves (angular.json "scripts") skip load(), so this has to run on both paths
+    this.ensureStyleFixes();
+
     const existing = (this.window as WmksWindow).WMKS;
 
     if (existing) {
@@ -47,6 +51,24 @@ export class WmksLoaderService {
     }
 
     return this.loading;
+  }
+
+  /**
+   * The SDK appends its F1-F12 touch keypad (#fnKeyPad) to the end of <body> on connect and hides it with a bare `hide`
+   * class, expecting the host page to define `.hide { display: none }`. Neither wmks-all.css nor ConsoleForge's styles
+   * do, and Bootstrap 4+ dropped the class, so the keypad renders below the console. The SDK opens it with jQuery's
+   * toggle(), which sets an inline display, so this rule only governs the initial hidden state.
+   */
+  private ensureStyleFixes(): void {
+    if (this.styleFixesApplied) {
+      return;
+    }
+
+    const style = this.document.createElement("style");
+    style.id = "cf-wmks-style-fixes";
+    style.textContent = ".fnKey-pane-wrapper.hide { display: none; }";
+    this.document.head.appendChild(style);
+    this.styleFixesApplied = true;
   }
 
   /** Returns an error describing why `wmks` isn't a usable SDK build, or undefined if it is. */
