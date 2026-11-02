@@ -1,2 +1,5 @@
 # Third-party VMware sample and test code: not ours to mark.
 tools/vmware-wmks-test-page/
+# Bundled third-party assets shipped in the package: the VMware HTML Console SDK and Pico CSS.
+projects/console-forge/src/assets/vmware-wmks/
+projects/console-forge/src/assets/pico.min.css
