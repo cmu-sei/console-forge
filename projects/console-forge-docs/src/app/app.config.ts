@@ -1,3 +1,6 @@
+// Copyright 2026 Carnegie Mellon University. All Rights Reserved.
+// Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
+
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, TitleStrategy } from '@angular/router';

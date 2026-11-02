@@ -1,3 +1,6 @@
+// Copyright 2026 Carnegie Mellon University. All Rights Reserved.
+// Released under a MIT (SEI)-style license. See LICENSE.md in the project root for license information.
+
 import { Component, inject, Type, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
