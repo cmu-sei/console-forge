@@ -43,6 +43,9 @@ updates:
       # ng-packagr majors follow Angular's; move it with the Angular major.
       - dependency-name: ng-packagr
         update-types: [version-update:semver-major]
+      # noVNC 1.6 stopped exporting lib/rfb, which the library imports; its peer range stops at < 1.6.0.
+      - dependency-name: "@novnc/novnc"
+        versions: [">= 1.6.0"]
       # @types/node follows the Node major CI builds on (node-version in build-and-test.yml); move it by hand with Node.
       - dependency-name: "@types/node"
         update-types: [version-update:semver-major]
