@@ -7,7 +7,8 @@
     "build": "ng build console-forge",
     "watch": "ng build console-forge --watch --configuration development",
     "test": "ng test",
-    "lint": "npx eslint --flag unstable_config_lookup_from_file ."
+    "lint": "npx eslint --flag unstable_config_lookup_from_file .",
+    "test:coverage": "ng test console-forge --watch=false --browsers=ChromeHeadless --code-coverage"
   },
   "engines": {
     "npm": ">=8.11.0"
@@ -21,7 +22,6 @@
     "@angular/forms": "^21.2.12",
     "@angular/material": "^21.2.10",
     "@angular/platform-browser": "^21.2.12",
-    "@angular/platform-browser-dynamic": "^21.2.12",
     "@angular/router": "^21.2.12",
     "@novnc/novnc": "~1.5.0",
     "rxjs": "~7.8.2",

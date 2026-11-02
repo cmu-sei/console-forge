@@ -1,0 +1,48 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # Wait before taking new releases: hijacked versions are usually caught and pulled within days.
+    cooldown:
+      default-days: 5
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore(deps)
+
+  - package-ecosystem: npm
+    directories: ["/", "/projects/console-forge"]
+    schedule:
+      interval: weekly
+    # Wait before taking new releases: hijacked versions are usually caught and pulled within days.
+    cooldown:
+      default-days: 5
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
+    groups:
+      # Angular packages move together. A dependency goes to the group whose
+      # pattern matches it most specifically, and a group with no patterns
+      # outranks every wildcard, so minor-and-patch needs its own "*" to let
+      # "@angular*" win.
+      angular:
+        patterns: ["@angular*", "zone.js"]
+        update-types: [minor, patch]
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      # Angular and TypeScript majors need `ng update` migrations; do them by hand.
+      - dependency-name: "@angular*"
+        update-types: [version-update:semver-major]
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      # ng-packagr majors follow Angular's; move it with the Angular major.
+      - dependency-name: ng-packagr
+        update-types: [version-update:semver-major]
+      # @types/node follows the Node major CI builds on (node-version in build-and-test.yml); move it by hand with Node.
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]

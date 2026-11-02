@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  publish:
+    uses: cmu-sei/Crucible-Github-Actions/.github/workflows/npm-release.yaml@npm-v1
+    permissions:
+      contents: read           # no version commit back to main: its ruleset requires a pull request
+      id-token: write          # npm trusted publishing and provenance
+    with:
+      version: ${{ github.event.release.tag_name }}
+      dist-tag: ${{ github.event.release.prerelease && 'next' || '' }}
+      version-dirs: projects/console-forge   # the library's package.json; the root one is a 0.0.0 shell
+      # The package ships the repo README. The library folder's install skips peers, as in build-and-test.yml.
+      build-command: cp README.md projects/console-forge/README.md && npm ci && (cd projects/console-forge && npm ci --omit=peer) && npm run build
+      publish-path: ./dist/console-forge
+      auth-mode: trusted
