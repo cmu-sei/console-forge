@@ -30,9 +30,8 @@ describe('keysymsForText', () => {
     expect(keysymsForText('é')).toEqual([0xe9]);
   });
 
-  it('maps characters beyond Latin-1 to their X11 keysyms', () => {
-    // XK_EuroSign, XK_Greek_alpha
-    expect(keysymsForText('€α')).toEqual([0x20ac, 0x7e1]);
+  it('maps characters beyond Latin-1 to Unicode keysyms', () => {
+    expect(keysymsForText('€α')).toEqual([0x0100_0000 | 0x20ac, 0x0100_0000 | 0x3b1]);
   });
 
   it('maps a character outside the BMP to a Unicode keysym rather than splitting its surrogates', () => {

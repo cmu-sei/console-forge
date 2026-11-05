@@ -3,25 +3,17 @@
 //  Released under an MIT (SEI)-style license. See the LICENSE.md file for license information.
 //  ===END LICENSE===
 
-// @ts-expect-error -- @types/novnc__novnc doesn't declare noVNC's Unicode-to-keysym table
-import keysymdef from '@novnc/novnc/lib/input/keysymdef';
-
-interface KeysymTable {
-  /** Returns the X11 keysym for a Unicode code point. */
-  lookup(codePoint: number): number;
-}
-
-// same CommonJS/ESM interop workaround as noVNC's RFB class in vnc-console-client.service.ts
-const keysymdefModule = keysymdef as KeysymTable | { default: KeysymTable };
-const keysyms = "lookup" in keysymdefModule ? keysymdefModule : keysymdefModule.default;
-
 export const XK_TAB = 0xff09;
 export const XK_RETURN = 0xff0d;
+
+/** X11's Unicode keysym range: keysym 0x01000000 + code point stands for that character. */
+const UNICODE_KEYSYM = 0x0100_0000;
 
 /**
  * Converts text into the X11 keysyms that type it. Line breaks (\n, \r\n or \r) become Return and tabs become Tab, so
  * pasted text keeps its blank lines, indentation and trailing newline. Other control characters have no key and are
- * dropped. Keysyms aren't Unicode code points outside Latin-1, so everything else goes through noVNC's keysym table.
+ * dropped. Latin-1 keysyms are the code points themselves; anything beyond Latin-1 uses X11's Unicode keysym range
+ * (0x01000000 | code point), which servers accept for any character, so no lookup table is needed.
  */
 export function keysymsForText(text: string): number[] {
   const result: number[] = [];
@@ -43,7 +35,7 @@ export function keysymsForText(text: string): number[] {
       continue;
     }
 
-    result.push(keysyms.lookup(codePoint));
+    result.push(codePoint <= 0xff ? codePoint : UNICODE_KEYSYM | codePoint);
   }
 
   return result;
