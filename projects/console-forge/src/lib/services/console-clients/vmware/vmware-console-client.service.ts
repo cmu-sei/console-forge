@@ -132,7 +132,11 @@ export class VmWareConsoleClientService implements ConsoleClientService {
         rescale: false,
         useNativePixels: true,
         useVNCHandshake: false,
-        position: WmksPosition.CENTER
+        position: WmksPosition.CENTER,
+        // on touch devices the SDK builds an extended keypad (with F1-F12 keys) that only toggleExtendedKeypad()
+        // opens. ConsoleForge never calls it, and the SDK hides the keypad with a .hide class the host page may not
+        // define, so the keypad would render below the console with no way to dismiss it.
+        allowMobileExtendedKeypad: false
       };
 
       this.logger.log(LogLevel.DEBUG, "Creating WMKS client...", options.hostElement.id, wmksOptions);
