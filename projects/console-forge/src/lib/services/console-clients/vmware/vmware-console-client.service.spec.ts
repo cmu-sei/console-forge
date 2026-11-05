@@ -26,6 +26,7 @@ describe('VmWareConsoleClientService', () => {
 });
 
 interface FakeWmksClient {
+  options: unknown;
   connectCalls: string[];
   handlers: Record<string, (ev: unknown, data: unknown) => void>;
   disconnectCalled: boolean;
@@ -47,8 +48,8 @@ function installFakeWmks(): { created: FakeWmksClient[] } {
   const sdkHost = window as unknown as { WMKS?: unknown };
   sdkHost.WMKS = {
     version: "2.2.0",
-    createWMKS: () => {
-      const client: FakeWmksClient = { connectCalls: [], handlers: {}, disconnectCalled: false };
+    createWMKS: (_hostElementId: string, options: unknown) => {
+      const client: FakeWmksClient = { options, connectCalls: [], handlers: {}, disconnectCalled: false };
       created.push(client);
 
       const api: FakeWmksApi = {
@@ -162,5 +163,17 @@ describe('VmWareConsoleClientService teardown during connect', () => {
     expect(service.connectionStatus()).toBe("connecting");
     await service.disconnect();
     await second;
+  });
+
+  it("tells the SDK not to build its touch keypad, which ConsoleForge has no way to open", async () => {
+    const connecting = service.connect("wss://example.test/ticket/x", { hostElement });
+    releaseLoader();
+    for (let tick = 0; tick < 10 && fake.created.length === 0; tick++) await Promise.resolve();
+
+    expect(fake.created.length).toBe(1);
+    expect(fake.created[0].options).toEqual(jasmine.objectContaining({ allowMobileExtendedKeypad: false }));
+
+    await service.disconnect();
+    await connecting;
   });
 });

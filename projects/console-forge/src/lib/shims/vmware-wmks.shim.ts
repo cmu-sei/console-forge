@@ -172,6 +172,10 @@ export interface WmksKeyboardManager {
 }
 
 export interface WmksClientCreateOptions {
+  /**
+   * Whether the SDK builds its extended keypad (Ctrl/Alt pane and F1-F12 keys) on touch devices. (Defaults to true)
+   */
+  allowMobileExtendedKeypad?: boolean;
   changeResolution?: boolean;
   position?: WmksPosition;
 
