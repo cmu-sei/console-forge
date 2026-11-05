@@ -16,7 +16,7 @@ import { ClipboardService } from '../../clipboard/clipboard.service';
 import { ConsoleClientService } from '../../../services/console-clients/console-client.service';
 import { LoggerService } from '../../../services/logger.service';
 import { UserSettingsService } from '../../user-settings.service';
-import { keysymsForText } from './vnc-keysyms';
+import { keyEventsForText, XK_SHIFT_L } from './vnc-keysyms';
 import { ConsoleUserSettings } from '../../../models/console-user-settings';
 
 // Workaround for noVNC's CommonJS/ESM interop bug: the constructor can arrive as `.default` of the
@@ -184,11 +184,12 @@ export class VncConsoleClientService implements ConsoleClientService {
       throw new Error("VNC client isn't connected; can't send keyboard input.");
     }
 
-    const keysyms = keysymsForText(text);
-    this.logger.log(LogLevel.INFO, `Sending ${keysyms.length} keystrokes`);
+    const events = keyEventsForText(text);
+    const keystrokes = events.filter(event => event.down && event.keysym !== XK_SHIFT_L).length;
+    this.logger.log(LogLevel.INFO, `Sending ${keystrokes} keystrokes`);
 
-    for (const keysym of keysyms) {
-      this.noVncClient.sendKey(keysym, null);
+    for (const event of events) {
+      this.noVncClient.sendKey(event.keysym, null, event.down);
     }
   }
 

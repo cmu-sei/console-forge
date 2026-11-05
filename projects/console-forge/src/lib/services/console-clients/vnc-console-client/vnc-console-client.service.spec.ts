@@ -84,8 +84,21 @@ describe('VncConsoleClientService', () => {
     const { client } = beginConnection();
     const sendKey = spyOn(client, 'sendKey');
     await service.sendKeyboardInput('\tif x:\r\n\n  y\n');
-    expect(sendKey.calls.allArgs().map(args => args[0])).toEqual([
+    const pressed = sendKey.calls.allArgs().filter(([keysym, , down]) => down && keysym !== 0xffe1);
+    expect(pressed.map(args => args[0])).toEqual([
       0xff09, 0x69, 0x66, 0x20, 0x78, 0x3a, 0xff0d, 0xff0d, 0x20, 0x20, 0x79, 0xff0d
+    ]);
+  });
+
+  it('holds Shift while it types a shifted character, so QEMU types "(" and not "9"', async () => {
+    const { client } = beginConnection();
+    const sendKey = spyOn(client, 'sendKey');
+    await service.sendKeyboardInput('(');
+    expect(sendKey.calls.allArgs()).toEqual([
+      [0xffe1, null, true],
+      [0x28, null, true],
+      [0x28, null, false],
+      [0xffe1, null, false],
     ]);
   });
 
