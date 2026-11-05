@@ -8,6 +8,7 @@ import { TestBed } from '@angular/core/testing';
 import { VncConsoleClientService } from './vnc-console-client.service';
 import { provideConsoleForge } from '../../../config/provide-console-forge';
 import type NoVncClient from '@novnc/novnc/lib/rfb';
+import { LoggerService } from '../../logger.service';
 
 describe('VncConsoleClientService', () => {
   let service: VncConsoleClientService;
@@ -77,5 +78,37 @@ describe('VncConsoleClientService', () => {
     current.client.dispatchEvent(new CustomEvent('connect'));
     await current.settled;
     expect(service.connectionStatus()).toBe('connected');
+  });
+
+  it('types pasted text exactly, keeping indentation, blank lines and the final Enter', async () => {
+    const { client } = beginConnection();
+    const sendKey = spyOn(client, 'sendKey');
+    await service.sendKeyboardInput('\tif x:\r\n\n  y\n');
+    const pressed = sendKey.calls.allArgs().filter(([keysym, , down]) => down && keysym !== 0xffe1);
+    expect(pressed.map(args => args[0])).toEqual([
+      0xff09, 0x69, 0x66, 0x20, 0x78, 0x3a, 0xff0d, 0xff0d, 0x20, 0x20, 0x79, 0xff0d
+    ]);
+  });
+
+  it('holds Shift while it types a shifted character, so QEMU types "(" and not "9"', async () => {
+    const { client } = beginConnection();
+    const sendKey = spyOn(client, 'sendKey');
+    await service.sendKeyboardInput('(');
+    expect(sendKey.calls.allArgs()).toEqual([
+      [0xffe1, null, true],
+      [0x28, null, true],
+      [0x28, null, false],
+      [0xffe1, null, false],
+    ]);
+  });
+
+  it("doesn't log the text it types", async () => {
+    const { client } = beginConnection();
+    spyOn(client, 'sendKey');
+    const log = spyOn(TestBed.inject(LoggerService), 'log');
+    await service.sendKeyboardInput('hunter2');
+    expect(log).toHaveBeenCalled();
+    const logged = JSON.stringify(log.calls.allArgs());
+    expect(logged).not.toContain('hunter2');
   });
 });

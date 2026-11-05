@@ -16,6 +16,7 @@ import { ClipboardService } from '../../clipboard/clipboard.service';
 import { ConsoleClientService } from '../../../services/console-clients/console-client.service';
 import { LoggerService } from '../../../services/logger.service';
 import { UserSettingsService } from '../../user-settings.service';
+import { keyEventsForText, XK_SHIFT_L } from './vnc-keysyms';
 import { ConsoleUserSettings } from '../../../models/console-user-settings';
 
 // Workaround for noVNC's CommonJS/ESM interop bug: the constructor can arrive as `.default` of the
@@ -183,25 +184,12 @@ export class VncConsoleClientService implements ConsoleClientService {
       throw new Error("VNC client isn't connected; can't send keyboard input.");
     }
 
-    // split by line and remove empties
-    const lines = text
-      .split(/\r?\n|\r|\n/g)
-      .map(line => line.trim())
-      .filter(line => !!line);
+    const events = keyEventsForText(text);
+    const keystrokes = events.filter(event => event.down && event.keysym !== XK_SHIFT_L).length;
+    this.logger.log(LogLevel.INFO, `Sending ${keystrokes} keystrokes`);
 
-    this.logger.log(LogLevel.INFO, "Sending lines", lines);
-
-    for (let i = 0; i < lines.length; i++) {
-      const lineCharacters = lines[i].split("");
-
-      for (const chr of lineCharacters) {
-        this.noVncClient.sendKey(chr.charCodeAt(0), null);
-      }
-
-      if ((i + 1) < lines.length) {
-        // send "return" between lines
-        this.noVncClient.sendKey(0xFF0D, null);
-      }
+    for (const event of events) {
+      this.noVncClient.sendKey(event.keysym, null, event.down);
     }
   }
 
