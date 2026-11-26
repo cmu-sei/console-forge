@@ -36,7 +36,7 @@
     "@angular/compiler-cli": "^21.2.26",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
-    "@types/jasmine": "~6.0.0",
+    "@types/jasmine": "~7.0.0",
     "@types/novnc__novnc": "^1.6.0",
     "@typescript-eslint/eslint-plugin": "^8.59.3",
     "eslint": "^10.3.0",
